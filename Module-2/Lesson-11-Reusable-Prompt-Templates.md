@@ -1,181 +1,394 @@
 # 🚩 Jai Bajrangbali!
 
-# Lesson 11 — Reusable Prompt Templates
+# Lesson 11 — Reusable & Versioned Prompt Templates
 
-> **Production prompt ko copy-paste paragraph ke bajay parameterized asset ki tarah treat karo.**
-
-## 🎯 Goal
-Reusable, versionable aur testable DevOps prompt templates banana.
+> **Production prompt ko copy-paste string nahi, versioned application asset samjho.**
 
 ---
 
-# 1. Template Mental Model
+# 🎯 Lesson Goal
+
+Aap samjhoge:
+
+- prompt template kya hai
+- placeholders ka role
+- stable policy vs runtime variables
+- prompt versioning
+- template validation
+- provider-independent templates
+- secrets/context injection concerns
+- testing and change management
+- when template abstraction becomes over-engineering
+
+---
+
+# 1. English Definition
+
+**A prompt template is a reusable, parameterized prompt definition whose stable instructions remain controlled while approved runtime values are inserted for each task.**
+
+Mental model:
 
 ```text
-Stable Instructions
+Versioned Template
       +
-Runtime Variables
+Validated Runtime Variables
       +
-Evidence Bundle
+Authorized Context
       =
-Final Prompt
-```
-
-Example variables:
-
-```text
-{environment}
-{service}
-{incident_time}
-{deployment_stage}
-{evidence}
+Rendered Prompt
 ```
 
 ---
 
-# 2. RCA Template
+# 2. Why Templates?
+
+Without templates:
+
+```python
+prompt = "Analyze prod..."
+```
+
+scattered across many scripts.
+
+Soon:
+
+- one script says abstain
+- another forgets it
+- one uses old output format
+- another leaks extra context
+
+Template centralizes behavior.
+
+---
+
+# 3. Simple Template
 
 ```text
 ROLE
-You are a Senior DevOps incident analyst.
+{role}
 
-CONTEXT
-Environment: {environment}
-Service: {service}
-Incident Time: {incident_time}
+INCIDENT
+{incident}
 
-EVIDENCE
+CURRENT EVIDENCE
 {evidence}
 
-TASK
-Identify the strongest evidence-supported root-cause hypothesis.
-
-CONSTRAINTS
-- Use only supplied evidence.
-- Separate facts from inference.
-- Do not invent customer impact.
-- If evidence is insufficient, say so.
+RULES
+{rules}
 
 OUTPUT
-1. Confirmed Evidence
-2. Likely Root Cause
-3. Confirmed Impact
-4. Missing Evidence
-5. Validation Steps
-6. Recommended Fix
-7. Confidence
+{output_contract}
 ```
+
+Runtime only fills approved fields.
 
 ---
 
-# 3. Terraform Review Template
+# 4. Stable vs Runtime Fields
+
+Stable/application-owned:
 
 ```text
-Environment: {environment}
-Change Ticket: {change_id}
-Plan:
-{terraform_plan}
-
-Identify:
-- destructive changes
-- replacements
-- networking/security changes
-- dependency risks
-
-Return:
-Resource | Planned Change | Risk | Evidence | Required Validation
+read-only policy
+evidence rules
+abstention behavior
+output sections
+forbidden assumptions
 ```
 
----
-
-# 4. AKS Troubleshooting Template
+Runtime/user/workflow-owned:
 
 ```text
-Cluster: {cluster}
-Environment: {environment}
-Symptom: {symptom}
-
-Evidence:
-{evidence}
-
-Analyze layers:
-Cluster → Nodes → Network → Workloads → Service/Ingress → Dependencies
-Mark any layer without evidence as Not Verified.
+incident ID
+environment
+question
+evidence records
 ```
+
+Do not let user supply the entire system template if application intends stable policy.
 
 ---
 
-# 5. Template Versioning
-
-Treat prompts like code:
-
-```text
-incident-rca-v1
-incident-rca-v2
-incident-rca-v3
-```
-
-Track:
-- what changed
-- why changed
-- evaluation score before/after
-- known limitations
-
----
-
-# 6. Keep Variables Explicit
+# 5. Template Injection Concern
 
 Bad:
 
 ```python
-prompt = f"Analyze {data} and tell me what happened"
+system_prompt = user_input
 ```
 
 Better:
 
 ```python
-prompt = template.format(
-    environment=environment,
-    service=service,
-    evidence=normalized_evidence,
+system_prompt = APPROVED_TEMPLATE
+user_task = validated_user_request
+```
+
+Even when variables are inserted, external content remains untrusted data.
+
+---
+
+# 6. Source-Labeled Evidence Placeholder
+
+Instead of:
+
+```text
+{all_text}
+```
+
+prefer a context builder that produces:
+
+```text
+[E1] ...
+[E2] ...
+
+REFERENCE
+[R1] ...
+```
+
+Template should not be responsible for discovering provenance after the fact.
+
+---
+
+# 7. Template Versioning
+
+Example:
+
+```text
+incident_rca_v1
+incident_rca_v2
+incident_rca_v3
+```
+
+Changes may include:
+
+```text
+new abstention rule
+new output field
+updated terminology
+security hardening
+```
+
+Store version with traces/eval results.
+
+---
+
+# 8. Model/Provider Independence
+
+Template should ideally describe task semantics, not vendor-specific quirks.
+
+Same rendered task can go to:
+
+```text
+Ollama
+OpenAI
+```
+
+Provider adapter handles API representation.
+
+If a provider requires special formatting, isolate that in provider integration rather than contaminating business prompt everywhere.
+
+---
+
+# 9. Example Python Renderer
+
+```python
+from string import Template
+
+PROMPT = Template("""
+INCIDENT:
+$incident
+
+EVIDENCE:
+$evidence
+
+TASK:
+Return confirmed facts and evidence gaps.
+""")
+
+rendered = PROMPT.substitute(
+    incident="Deployment failed",
+    evidence="[E1] Terraform Apply failed",
 )
 ```
 
+For larger applications, LangChain PromptTemplate or another typed/template layer can help, but basic concept is the same.
+
 ---
 
-# 7. Separate System Template and Task Template
+# 10. Validate Runtime Variables
+
+Before render:
 
 ```text
-system_prompt.txt
-incident_rca_prompt.txt
-terraform_review_prompt.txt
-aks_troubleshooting_prompt.txt
+environment must be allowed
+incident must not be empty
+evidence must come from approved collection path
+secrets must be redacted
+context length must be bounded
 ```
 
-Stable safety behavior system layer me; runtime task template task layer me.
+Template does not sanitize untrusted data automatically.
 
 ---
 
-# 8. Template Checklist
+# 11. Prompt Registry Mental Model
 
-Before production use verify:
-
-- role clear
-- evidence boundary clear
-- task specific
-- abstention supported
-- output fixed
-- unsafe instructions blocked by host
-- template tested on multiple fixtures
-- version tracked
-
----
-
-# 🔑 Summary
+Production may have:
 
 ```text
-Reusable Prompt = stable policy + parameters + evidence + output contract
+Prompt Registry
+├─ incident_rca:v3
+├─ terraform_review:v2
+└─ runbook_answer:v5
 ```
+
+Each record can track:
+
+```text
+owner
+version
+approved date
+eval dataset
+model compatibility
+release notes
+```
+
+This is governance, not just formatting.
+
+---
+
+# 12. Expected Output Contract
+
+Template can include fixed output contract:
+
+```text
+Confirmed Evidence
+Likely Root Cause
+Confirmed Impact
+Evidence Gaps
+Recommended Next Checks
+Confidence
+```
+
+Later parser/Pydantic validates shape.
+
+Again:
+
+```text
+Template + schema = consistency
+not factual proof
+```
+
+---
+
+# 13. Regression Workflow
+
+```text
+Edit template
+   ↓
+Run unit/render tests
+   ↓
+Run prompt eval dataset
+   ↓
+Compare old/new results
+   ↓
+Security/adversarial tests
+   ↓
+Approve version
+```
+
+Do not hot-edit production prompt without traceability.
+
+---
+
+# 14. Common Mistakes
+
+1. Prompts duplicated in many files.
+2. No version identifier.
+3. User controls stable safety rules.
+4. Raw secret-bearing context inserted blindly.
+5. Template change not regression-tested.
+6. Provider-specific hacks spread through business logic.
+7. Placeholders missing validation.
+8. Giant universal template for unrelated tasks.
+
+---
+
+# 15. When Not to Template Too Much
+
+For a tiny learning script:
+
+```python
+prompt = "Explain AKS in two lines"
+```
+
+is fine.
+
+Abstraction adds value when:
+
+```text
+prompt reused
+multiple environments
+multiple providers
+multiple versions
+production evals
+team ownership
+```
+
+Use simplest design that preserves maintainability.
+
+---
+
+# 16. Interview Q&A
+
+### Q1. Why version prompts?
+Because prompt changes can alter application behavior and need traceability/regression testing.
+
+### Q2. What belongs in a template?
+Stable task instructions, constraints and output contract, with validated placeholders for runtime values.
+
+### Q3. Should users control system prompt templates?
+Not when the application depends on those rules for stable behavior.
+
+### Q4. How do templates help provider portability?
+They keep business/task semantics separate from provider-specific API integration.
+
+### Q5. Do templates prevent prompt injection?
+No. They help structure instructions, but untrusted runtime content still requires isolation and deterministic security controls.
+
+---
+
+# 17. Quick Revision
+
+```text
+Template = stable contract
+Variables = validated runtime data
+Version = traceability
+Eval = confidence in behavior
+```
+
+---
+
+# 🧪 Homework
+
+Create two versioned templates:
+
+```text
+incident_rca_v1
+incident_rca_v2
+```
+
+In v2 add:
+
+```text
+customer impact must be UNKNOWN unless impact evidence exists
+```
+
+Run both against same dataset and record behavior difference.
+
+---
 
 # ➡️ Why Next?
-Ab saare building blocks ready hain. Final lesson me complete DevOps Incident Analysis Prompt System banayenge.
+
+Ab saare pieces ready hain. Lesson 12 me hum unko combine karke **complete DevOps Incident Analysis Prompt System** banayenge.
