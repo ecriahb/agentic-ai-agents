@@ -1,268 +1,417 @@
-# Lesson 08 — Reranking & Hybrid Search Concepts
+# 🚩 Jai Bajrangbali!
 
-> **First-stage retrieval candidate laata hai; reranking un candidates ko better relevance order me arrange karta hai.**
+# Lesson 08 — Reranking & Hybrid Search
 
----
-
-## 🎯 Lesson Goal
-
-Is lesson ke end tak aap samjhoge:
-
-- retrieval vs reranking
-- recall vs precision intuition
-- vector search strengths/limits
-- keyword search strengths/limits
-- hybrid retrieval
-- candidate generation → reranking architecture
-- DevOps exact error + semantic intent example
+> **Retriever candidates dhoondhta hai; reranker decide karta hai ki final context me sabse useful evidence kaunsa jaana chahiye.**
 
 ---
 
-## English Definition
+# 🎯 Lesson Goal
 
-**Reranking** re-scores an initial set of retrieved candidates using a stronger relevance method. **Hybrid search** combines multiple retrieval signals, commonly semantic vector relevance and lexical/keyword relevance.
+Is lesson me hum cover karenge:
 
----
-
-# PART 1 — Why One Search Signal Is Not Enough
-
-Vector search is strong when wording differs but meaning is similar.
-
-Keyword search is strong for exact literals:
-
-```text
-aks-subnet-allow
-AuthorizationFailed
-CrashLoopBackOff
-10.20.4.0/24
-```
-
-DevOps has both semantic questions and exact identifiers.
+- first-stage retrieval vs second-stage reranking
+- vector search ki limitations
+- keyword/BM25 style exact-match value
+- hybrid search mental model
+- reranker kya karta hai
+- candidate count vs final context count
+- DevOps exact identifiers ka importance
+- fusion strategies
+- latency/cost trade-offs
+- practical ranking pipeline
 
 ---
 
-# PART 2 — Example
+# PART 1 — Vector Search Kab Weak Ho Sakta Hai?
+
+Vector search semantic meaning ke liye strong hai.
 
 Query:
 
 ```text
-Terraform Apply failed with AuthorizationFailed on subnet join action
+pods cannot reach database after network change
 ```
 
-Vector search may find:
+Semantic search useful docs find kar sakta hai.
 
-- Terraform RBAC troubleshooting
-- AKS networking permissions
-
-Keyword search may strongly match:
+But DevOps me exact identifiers bhi bahut important hote hain:
 
 ```text
-AuthorizationFailed
-Microsoft.Network/virtualNetworks/subnets/join/action
+aks-subnet-allow
+Error 403
+TF_LOCK_ID_29A
+CrashLoopBackOff
+10.20.4.0/24
 ```
 
-Hybrid approach can combine both signals.
+Semantic vector sometimes exact token importance ko dilute kar sakta hai.
 
 ---
 
-# PART 3 — Candidate Generation + Rerank
+# PART 2 — Keyword Search Strength
 
-```text
-User Query
-   ↓
-Fast Retrieval
-   ↓
-Top 20 candidates
-   ↓
-Reranker
-   ↓
-Top 5 high-quality chunks
-   ↓
-Context Builder
-   ↓
-LLM
-```
+Keyword/BM25-like retrieval exact terms ko strong weight de sakta hai.
 
-Why?
-
-First stage optimized for **recall**:
-
-```text
-Don't miss useful evidence.
-```
-
-Reranking optimized for **precision**:
-
-```text
-Put truly useful evidence at top.
-```
-
----
-
-# PART 4 — Simple Reranking Mental Model
-
-Initial vector scores:
-
-```text
-S1 0.82
-S2 0.81
-S3 0.79
-S4 0.77
-```
-
-A stronger relevance model reads query + full chunk together and may reorder:
-
-```text
-S3 → best
-S1 → second
-S4 → third
-S2 → fourth
-```
-
-The exact implementation can vary; concept is what matters here.
-
----
-
-# PART 5 — Hybrid Search Mental Model
-
-```text
-                  User Query
-                      ↓
-             ┌────────┴────────┐
-             ↓                 ↓
-       Vector Search      Keyword Search
-             ↓                 ↓
-      Semantic Hits        Exact Hits
-             └────────┬────────┘
-                      ↓
-                 Score Fusion
-                      ↓
-                  Reranking
-                      ↓
-                    Top-K
-```
-
----
-
-# PART 6 — Exact DevOps Identifiers
-
-Query includes:
+Query:
 
 ```text
 aks-subnet-allow
 ```
 
-Semantic system may understand networking meaning, but exact keyword signal can guarantee that docs containing this specific rule are not overlooked.
-
-Similarly:
+Exact-match search can immediately surface:
 
 ```text
-exit code 137
-OOMKilled
-HTTP 429
-TF401019
+Terraform change removed aks-subnet-allow.
 ```
 
-literal search matters.
-
----
-
-# PART 7 — When Hybrid Search Helps Most
-
-- error codes
-- resource names
-- Kubernetes object names
-- Azure action/resource-provider strings
-- IPs/CIDRs
-- ticket numbers
-- exact Terraform resource addresses
-- command output
-
----
-
-# PART 8 — Reranking Cost Tradeoff
-
-Reranking every document is expensive.
-
-Better:
+So:
 
 ```text
-Large Corpus
-   ↓
-Cheap/Fast First Retrieval
-   ↓
-Small Candidate Set
-   ↓
-Expensive/Strong Reranker
+Vector search → semantic similarity
+Keyword search → lexical/exact matching
+```
+
+Both have value.
+
+---
+
+# PART 3 — Hybrid Search
+
+**Hybrid search** combines semantic/vector retrieval with lexical/keyword retrieval.
+
+Mental model:
+
+```text
+User Query
+   ├── Vector Search
+   └── Keyword Search
+          ↓
+     Merge Results
+          ↓
+       Rerank
+          ↓
+     Final Evidence
 ```
 
 ---
 
-# PART 9 — DevOps Example
+# PART 4 — Why Hybrid Is Useful in DevOps
+
+Query:
+
+```text
+Deployment failed with aks-subnet-allow missing
+```
+
+Vector search finds:
+
+```text
+AKS subnet network security guidance
+```
+
+Keyword search finds:
+
+```text
+incident record containing exact aks-subnet-allow string
+```
+
+Together they can provide both:
+
+```text
+specific incident evidence + general technical context
+```
+
+---
+
+# PART 5 — What Is Reranking?
+
+First-stage retriever optimizes speed and recall.
+
+Example:
+
+```text
+Retrieve top 20 candidates quickly
+```
+
+Reranker evaluates candidates more deeply and reorders them:
+
+```text
+20 candidates
+   ↓
+Reranker
+   ↓
+Best 3-5 evidence chunks
+```
+
+English definition:
+
+**Reranking is a second-stage retrieval process that re-scores an initial candidate set using a more precise relevance model or scoring method.**
+
+---
+
+# PART 6 — Bi-Encoder vs Cross-Encoder Mental Model
+
+Embedding retrieval often behaves like:
+
+```text
+Query → vector
+Document → vector
+Compare vectors
+```
+
+Fast because document vectors can be precomputed.
+
+Cross-encoder-like reranker:
+
+```text
+(Query + Candidate Chunk) together
+      ↓
+Relevance Model
+      ↓
+Single relevance score
+```
+
+Usually more expensive but potentially more precise.
+
+---
+
+# PART 7 — Candidate Count vs Context Count
+
+Do not confuse:
+
+```text
+RETRIEVAL_K = 20
+CONTEXT_K = 4
+```
+
+Possible pipeline:
+
+```text
+retrieve 20 broad candidates
+→ dedupe/filter
+→ rerank 10
+→ use top 4 in prompt
+```
+
+This gives recall without flooding LLM context.
+
+---
+
+# PART 8 — Simple Hybrid Fusion
+
+Suppose vector rank:
+
+```text
+A rank 1
+B rank 2
+C rank 3
+```
+
+Keyword rank:
+
+```text
+C rank 1
+A rank 2
+D rank 3
+```
+
+One simple fusion idea is Reciprocal Rank Fusion (RRF):
+
+```text
+score(doc) += 1 / (k + rank)
+```
+
+You do not need deep math initially; concept is:
+
+```text
+documents appearing high in multiple rankings receive stronger combined priority
+```
+
+---
+
+# PART 9 — Simple Practical Pseudo-Code
+
+```python
+vector_results = vector_search(query, k=10)
+keyword_results = keyword_search(query, k=10)
+
+merged = fuse(vector_results, keyword_results)
+reranked = rerank(query, merged[:10])
+final_context = reranked[:4]
+```
+
+Each stage can be measured independently.
+
+---
+
+# PART 10 — Metadata + Hybrid Search
+
+Production pipeline may be:
+
+```text
+Authorization Filter
+      ↓
+Metadata Filter
+      ↓
+Vector + Keyword Retrieval
+      ↓
+Fusion
+      ↓
+Reranking
+      ↓
+Threshold
+      ↓
+Context
+```
+
+Important:
+
+> Security filtering must not be postponed until after LLM generation.
+
+---
+
+# PART 11 — DevOps Example
 
 Question:
 
 ```text
-Why does pod billing-api restart with OOMKilled?
+Why did pipeline run 8452 fail after aks-subnet-allow changed?
 ```
 
-Hybrid candidates:
-
-- pod memory troubleshooting runbook
-- historical `billing-api` incident
-- Kubernetes limits guide
-- exact OOMKilled RCA
-
-Reranker can push the environment/service-specific incident above generic docs.
-
----
-
-## Common Mistakes
-
-- vector retrieval treated as universally best
-- exact error identifiers ignored
-- reranker applied to entire corpus
-- candidate set too small before reranking
-- fusion logic not evaluated
-
----
-
-## Interview Corner
-
-**Q: What is the difference between retrieval and reranking?**
-
-Retrieval efficiently finds a candidate set; reranking applies a stronger relevance method to reorder that smaller set.
-
-**Q: Why is hybrid search useful in DevOps RAG?**
-
-Because DevOps questions often contain both semantic intent and exact technical identifiers.
-
----
-
-## Revision
+Keyword signals:
 
 ```text
-Vector Search = meaning
-Keyword Search = exact terms
-Hybrid = both
-Reranker = better final ordering
+8452
+aks-subnet-allow
+```
+
+Semantic signals:
+
+```text
+pipeline failure
+AKS subnet connectivity
+networking change
+```
+
+Hybrid retrieval can exploit both.
+
+---
+
+# PART 12 — Reranking Does Not Fix Missing Knowledge
+
+If correct document was never indexed:
+
+```text
+reranker cannot invent it
+```
+
+If first-stage retrieval never includes correct chunk:
+
+```text
+reranker cannot rank unseen candidate
+```
+
+So:
+
+```text
+Good Indexing
++ Good First-Stage Recall
++ Good Reranking
+```
+
+all matter.
+
+---
+
+# PART 13 — Latency & Cost Trade-Off
+
+Pipeline complexity increases:
+
+```text
+vector search
++ keyword search
++ reranker
++ LLM generation
+```
+
+Measure:
+
+```text
+retrieval latency
+fusion latency
+rerank latency
+LLM latency
+```
+
+Do not add reranker because it sounds advanced. Add it if evaluation shows benefit.
+
+---
+
+# PART 14 — Common Mistakes
+
+1. Vector search ko universally superior samajhna.
+2. Exact error codes/IDs ignore karna.
+3. Retrieve top 50 and all context me bhejna.
+4. Reranker ko security filter samajhna.
+5. Reranking without baseline evaluation.
+6. Correct source absent hone par reranker se miracle expect karna.
+7. Different scoring scales ko directly add kar dena without normalization/fusion strategy.
+
+---
+
+# PART 15 — Interview Corner
+
+### Q1. What is hybrid search?
+
+Combining semantic/vector retrieval with lexical/keyword retrieval to use both meaning and exact-term signals.
+
+### Q2. Why is hybrid search useful in DevOps?
+
+DevOps queries often contain exact identifiers such as error codes, resource names and rule names alongside semantic intent.
+
+### Q3. What is reranking?
+
+A second-stage process that more precisely re-scores an initial candidate set before final context selection.
+
+### Q4. Why retrieve more candidates than you send to the LLM?
+
+To improve recall first, then use filtering/reranking to keep only the strongest evidence within context budget.
+
+### Q5. Can reranking recover a document not retrieved initially?
+
+No. It can only reorder the candidate set it receives.
+
+---
+
+# PART 16 — Revision
+
+```text
+Vector → meaning
+Keyword → exact words/IDs
+Hybrid → combine both
+Rerank → improve final ordering
+
+Retrieve broad
+→ Filter
+→ Rerank
+→ Send narrow context
 ```
 
 ---
 
-## Homework
+# PART 17 — Homework
 
-For each query decide whether vector, keyword or hybrid is best:
-
-1. `CrashLoopBackOff after secret rotation`
-2. `aks-subnet-allow`
-3. `Why can pods not reach SQL?`
-4. `Microsoft.Network/virtualNetworks/subnets/join/action`
+1. List 10 DevOps terms where exact keyword matching matters.
+2. Create vector and keyword result lists and manually fuse them.
+3. Explain why `Error 403` may benefit from lexical search.
+4. Test retrieval_k=10 and context_k=3.
+5. Record whether reranking improves expected-source position.
 
 ---
 
-## Next Lesson Kyu?
+# 🔗 Why Lesson 9 Next?
 
-Retrieval better ho gaya, but model still retrieved evidence ke beyond bol sakta hai.
+Ab retrieval pipeline kaafi strong hai. But even strong retrieval ke baad generation layer unsafe ho sakti hai.
 
-Next: **RAG Hallucinations & Guardrails**.
+Next lesson me hum specifically **RAG hallucinations, prompt injection, unsupported claims aur guardrails** ko deep dive karenge.
