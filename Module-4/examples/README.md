@@ -2,6 +2,8 @@
 
 > **Goal:** embeddings aur vector search ko black box ki tarah use nahi karna. Har lab previous concept par build karega.
 
+Full practical sequence: [`../PRACTICAL-ROADMAP.md`](../PRACTICAL-ROADMAP.md)
+
 ---
 
 ## Setup
@@ -13,239 +15,98 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-First run par embedding model download ho sakta hai.
+First run par local embedding model download ho sakta hai.
 
 ---
 
-# Practical Progression
+# Zero-to-Hero Runnable Progression
 
 ```text
-V1  → Vector similarity intuition
-V2  → First semantic search
-V3  → Multiple DevOps documents ranking
-V4  → Chroma collection search
-V5  → FAISS vector index
-V6  → Real Markdown document loading
-V7  → Paragraph-aware chunking
-V8  → Source/chunk metadata mapping
-V9  → Query validation + Top-K retrieval
-V10 → End-to-end DevOps knowledge base
+V1  01_cosine_similarity.py
+    Vector similarity intuition
+      ↓
+V2  02_simple_semantic_search.py
+    First semantic search
+      ↓
+V3  03_chromadb_search.py
+    Vector store workflow
+      ↓
+V4  04_faiss_search.py
+    Explicit FAISS index/search
+      ↓
+V5  05_devops_knowledge_base.py
+    Real Markdown knowledge base
+      ↓
+V6  06_dual_provider_embeddings.py
+    Local vs OpenAI embeddings
+      ↓
+V7  07_chunking_experiment.py
+    Giant vs paragraph vs tiny chunks
+      ↓
+V8  08_metadata_filtering.py
+    Metadata/filtering boundary
+      ↓
+V9  09_retrieval_eval.py
+    Labelled Hit@K evaluation
+      ↓
+V10 10_search_only_assistant.py
+    Final search-only DevOps assistant
 ```
-
-The repository scripts combine some adjacent stages so you do not maintain ten artificial files just for tiny differences.
 
 ---
 
-## Lab 01 — Cosine Similarity
+# What Each Stage Must Teach
 
-File:
-
-```text
-01_cosine_similarity.py
-```
-
+## V1 — Cosine Similarity
 Learn:
-
 - vectors can be compared numerically
-- cosine similarity direction intuition
-- score is not probability
+- score is not probability/confidence
 
-Run:
+## V2 — Semantic Search
+Change query wording while preserving meaning and inspect ranking.
 
-```powershell
-python .\01_cosine_similarity.py
-```
+## V3 — ChromaDB
+Learn collection, IDs, documents, embeddings and vector queries.
 
-Homework:
+## V4 — FAISS
+Inspect dimensions, normalized `float32` vectors, `IndexFlatIP`, `index.add()` and `index.search()`.
 
-- add one unrelated vector/text example
-- predict which pair should be most similar before running
+## V5 — DevOps Knowledge Base
+Load real Markdown docs, chunk them, attach source/chunk IDs and query them.
 
----
+## V6 — Provider Embedding Comparison
+Compare SentenceTransformer/local embeddings and OpenAI hosted embeddings.
 
-## Lab 02 — Simple Semantic Search
-
-File:
-
+Important:
 ```text
-02_simple_semantic_search.py
+Different embedding model/dimension
+→ different vector space
+→ re-embed/re-index required
 ```
 
-Learn:
+## V7 — Chunking Experiment
+Compare giant, paragraph and tiny chunks. Decide which result gives enough context with least noise.
 
+## V8 — Metadata Filtering
+Filter by environment/team/source and remember:
 ```text
-Documents → Embeddings
-Query → Embedding
-Cosine comparison
-Rank results
+metadata filter != authorization
 ```
 
-Run:
+## V9 — Retrieval Evaluation
+Use a labelled test set and measure Hit@K instead of judging one impressive query.
 
-```powershell
-python .\02_simple_semantic_search.py
-```
+## V10 — Search-Only Assistant
+Final Module 4 system must:
+1. load docs
+2. chunk
+3. embed
+4. accept query
+5. rank results
+6. print source + chunk ID + score + text
+7. **not call an LLM yet**
 
-Try queries:
-
-```text
-Kubernetes networking problem
-Terraform state is locked
-Docker runner has no disk space
-```
-
-Do not focus only on exact score; inspect ranking quality.
-
----
-
-## Lab 03 — ChromaDB
-
-File:
-
-```text
-03_chromadb_search.py
-```
-
-Learn:
-
-- collection
-- IDs
-- documents
-- embeddings
-- vector query
-- higher-level vector store workflow
-
-Run:
-
-```powershell
-python .\03_chromadb_search.py
-```
-
-Exercise:
-
-- add metadata such as `service=aks`
-- experiment with supported metadata filtering
-
----
-
-## Lab 04 — FAISS
-
-File:
-
-```text
-04_faiss_search.py
-```
-
-Learn:
-
-- vector matrix
-- dimensions
-- `float32`
-- `IndexFlatIP`
-- normalized embeddings
-- `index.add()`
-- `index.search()`
-- mapping returned indices back to documents
-
-Run:
-
-```powershell
-python .\04_faiss_search.py
-```
-
-Debug checklist:
-
-```text
-vectors.shape
-vectors.dtype
-index.ntotal
-query_vector.shape
-k <= number of records
-```
-
----
-
-# Lab 05 — Complete DevOps Knowledge Base
-
-File:
-
-```text
-05_devops_knowledge_base.py
-```
-
-Source folder:
-
-```text
-sample_docs/
-├── aks-networking.md
-├── terraform-state.md
-├── pipeline-failure.md
-└── docker-build.md
-```
-
-Full flow:
-
-```text
-Markdown Files
-      ↓
-Load + Validate
-      ↓
-Paragraph-aware Chunking
-      ↓
-Stable Record Mapping
-      ↓
-Sentence Embeddings
-      ↓
-FAISS Index
-      ↓
-CLI Query
-      ↓
-Query Embedding
-      ↓
-Top-K Search
-      ↓
-Rank + Source + Chunk ID + Score + Text
-```
-
-Run:
-
-```powershell
-python .\05_devops_knowledge_base.py
-```
-
-Recommended test queries:
-
-```text
-AKS pods cannot connect after NSG rule change
-Terraform state is locked and apply cannot continue
-Pipeline deployment failed during Terraform Apply
-Docker build runner is out of disk space
-```
-
----
-
-# What You Must Observe
-
-For each query write down:
-
-```text
-Expected source
-Actual rank 1 source
-Was expected source in Top-3?
-Any irrelevant result?
-Why might retrieval be imperfect?
-```
-
-Example evaluation sheet:
-
-| Query | Expected | Top-1 | In Top-3? |
-|---|---|---|---|
-| NSG blocked pods | aks-networking.md | ... | ... |
-| state locked | terraform-state.md | ... | ... |
-| apply failed | pipeline-failure.md | ... | ... |
-| disk full build | docker-build.md | ... | ... |
-
-This is your first retrieval evaluation dataset.
+Module 4 intentionally stops at retrieval.
 
 ---
 
@@ -259,16 +120,21 @@ Do these intentionally:
 4. Add duplicate content and observe duplicate retrieval.
 5. Add an unrelated document and see whether ranking remains sensible.
 6. Change query wording while keeping meaning similar.
+7. Use a bad metadata filter and observe zero candidates.
+8. Try mixing embeddings from different models and explain why dimensions/vector spaces matter.
 
 ---
 
-# Key Principle
+# Key Principles
 
 ```text
-Retrieved document ≠ proven incident root cause
+Embedding != LLM
+Vector index != embedding model
+Retrieved document != proven incident root cause
+Similarity score != factual confidence
+Metadata filter != authorization
+Retrieval != generation
 ```
-
-Semantic search finds **relevant knowledge candidates**. Current incident truth still requires live evidence, tool output and validation.
 
 ---
 
@@ -286,17 +152,20 @@ Why use a vector index?
 What is chunking?
 Why attach metadata?
 What is indexing vs retrieval?
-How does the final DevOps knowledge-base script work?
+How do we evaluate retrieval?
+Why does Module 4 intentionally avoid LLM generation?
 ```
 
-Then Module 5 will add the missing generation step:
+Then Module 5 adds the missing generation step:
 
 ```text
 Question
    ↓
 Retrieve Knowledge
    ↓
-Put Retrieved Knowledge in LLM Context
+Build Grounded Context
    ↓
-Grounded Answer
+LLM
+   ↓
+Validate Answer + Sources
 ```
