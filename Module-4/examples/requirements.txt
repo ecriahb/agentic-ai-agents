@@ -2,5 +2,5 @@ numpy
 sentence-transformers
 chromadb
 faiss-cpu
-openai>=1.0.0
+openai>=2.38,<3
 python-dotenv>=1.0.0
