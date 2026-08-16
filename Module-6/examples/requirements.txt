@@ -1,0 +1,8 @@
+langchain-core
+langchain-community
+langchain-ollama
+langchain-huggingface
+langchain-text-splitters
+sentence-transformers
+faiss-cpu
+pydantic
