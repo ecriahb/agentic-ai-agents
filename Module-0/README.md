@@ -4,7 +4,11 @@
 
 **Golden line:** Using AI is a skill. Building AI is a career.
 
-Module 0 ka goal tools ya coding se start karna nahi tha. Pehle AI ko samajhna tha: model kya hai, LLM kaise text generate karta hai, context kyu important hai, hallucination kya hota hai, prompt kaise design hota hai, aur production AI system me safety kyu mandatory hai.
+Module 0 ka goal tools ya coding se start karna nahi hai. Pehle AI ko samajhna hai: model kya hai, LLM kaise text generate karta hai, context kyu important hai, hallucination kya hota hai, prompt kaise design hota hai, aur production AI system me safety kyu mandatory hai.
+
+## Who Should Start Here?
+
+Agar learner ko AI/LLM ke baare me almost kuch bhi nahi pata, **Module 0 se start karo**. Python, API key, LangChain, vector database ya cloud deployment ki requirement nahi hai.
 
 ## Final Target
 
@@ -44,9 +48,43 @@ Safe Action
 | 13 | [AI Limitations & Safety](Lesson-13-AI-Limitations-Safety.md) |
 | 14 | [Grand Revision + Mini Project](Lesson-14-Grand-Revision-Mini-Project.md) |
 
+## 🧪 Beginner Hands-On Experiments
+
+Module 0 ke practicals intentionally **no-code** hain, because yahan goal concepts ko observe karna hai before API/application coding.
+
+Open:
+
+### [Module 0 Hands-On Experiments](examples/README.md)
+
+Experiments include:
+
+```text
+Next-token prediction intuition
+Context comparison
+Hallucination test
+System vs user prompt
+Zero-shot vs few-shot
+Prompt injection intuition
+Fact vs inference
+First DevOps AI safety rules
+No-code mini project
+```
+
+Actual local/OpenAI API coding Module 1 se start hoti hai.
+
 ## Learning Style
 
 Har lesson me Hinglish explanation, English definition, office/DevOps example, visual flow, common mistakes, interview corner, golden rule, homework aur next-lesson connection diya gaya hai.
+
+Recommended loop:
+
+```text
+Read lesson
+→ do matching experiment
+→ explain concept in your own words
+→ answer homework/interview questions
+→ move next
+```
 
 ## Module 0 Outcome
 
@@ -64,6 +102,12 @@ AI → ML → Deep Learning → LLM
  Grounding + Verification
               ↓
  Safety + Human Approval
+```
+
+Before Module 1, learner should understand one key truth:
+
+```text
+A fluent LLM answer is not automatically a factual answer.
 ```
 
 🚩 **Jai Bajrangbali — Learn • Build • Automate • Impact**
