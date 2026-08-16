@@ -2,165 +2,402 @@
 
 # Lesson 08 — Prompt Chaining
 
-> **Complex incident ko ek giant prompt me solve karne ke bajay controlled stages me break karo.**
-
-## 🎯 Goal
-Prompt chaining ka use karke DevOps investigation ko deterministic stages me divide karna.
+> **Complex investigation ko one giant prompt me force karne ke bajay small, testable stages me split karo.**
 
 ---
 
-# 1. Prompt Chaining Kya Hai?
+# 🎯 Lesson Goal
+
+Aap samjhoge:
+
+- prompt chain kya hai
+- chain vs agent difference
+- stage-specific inputs/outputs
+- DevOps investigation decomposition
+- error propagation risk
+- deterministic gates between stages
+- when chaining helps and when it adds unnecessary complexity
+- provider-independent chain design
+
+---
+
+# 1. English Definition
+
+**Prompt chaining is a workflow pattern in which a complex task is broken into multiple model or application stages, where the validated output of one stage becomes input to the next.**
+
+Mental model:
 
 ```text
-Prompt 1 → Extract Evidence
-Prompt 2 → Build Timeline
-Prompt 3 → Generate Hypotheses
-Prompt 4 → Validate Against Evidence
-Prompt 5 → Produce Final RCA
+Input
+ ↓
+Stage 1
+ ↓ validate
+Stage 2
+ ↓ validate
+Stage 3
+ ↓
+Final Output
 ```
-
-Har stage ka output next stage ka input ban sakta hai.
 
 ---
 
-# 2. Why Not One Giant Prompt?
+# 2. Why Chain?
 
-One giant prompt me model simultaneously:
-- logs parse karta hai
-- relevant events choose karta hai
-- cause infer karta hai
-- impact likhta hai
-- fix recommend karta hai
+One huge prompt:
 
-Isse unsupported leaps ka risk increase hota hai.
+```text
+Read logs, identify timeline, find root cause, compare runbook, calculate impact,
+recommend fix, generate ticket, decide whether to execute remediation...
+```
 
-Chained flow:
+This mixes too many responsibilities.
+
+Better:
+
+```text
+Evidence extraction
+→ Timeline
+→ Hypothesis generation
+→ Evidence support check
+→ RCA report
+```
+
+Each stage is easier to inspect and test.
+
+---
+
+# 3. Chain vs One Prompt
+
+## One prompt
+
+Advantages:
+
+- simple
+- lower orchestration code
+- sometimes lower latency
+
+Risks:
+
+- harder to debug
+- hidden intermediate assumptions
+- output may skip steps
+
+## Chain
+
+Advantages:
+
+- explicit stages
+- per-stage validation
+- easy observability
+- different stages can be deterministic
+
+Costs:
+
+- more calls
+- more latency/cost
+- error propagation
+- state management
+
+Use complexity only when justified.
+
+---
+
+# 4. DevOps Incident Chain
 
 ```text
 Raw Logs
-  ↓
-Evidence Extraction
-  ↓
-Normalized Facts
-  ↓
-Reasoning
-  ↓
-Validation
-  ↓
-Final Report
+   ↓
+Stage 1 — Extract factual events
+   ↓
+[E1][E2][E3]
+   ↓
+Stage 2 — Build timeline
+   ↓
+Stage 3 — Generate hypotheses
+   ↓
+Stage 4 — Check hypothesis support
+   ↓
+Stage 5 — Generate final RCA
 ```
+
+Important:
+
+```text
+Stage 3 hypothesis is NOT evidence.
+```
+
+Keep trust classes separate.
 
 ---
 
-# 3. DevOps Chain Example
+# 5. Stage Contract Example
 
-## Stage 1 — Evidence Extractor
+## Stage 1
 
-```text
-Extract only factual events from these logs.
-Return timestamp, source and observation.
-Do not diagnose.
-```
-
-## Stage 2 — Timeline Builder
+Input:
 
 ```text
-Order E1-E10 chronologically.
-Mark the first failure and later downstream failures.
-Do not infer root cause.
+raw pipeline log
 ```
 
-## Stage 3 — Hypothesis Generator
-
-```text
-Using only the normalized timeline, generate up to 3 plausible root-cause hypotheses.
-For each hypothesis list supporting and contradicting evidence.
-```
-
-## Stage 4 — Validator
-
-```text
-Reject any hypothesis that lacks evidence.
-Return the strongest supported hypothesis and missing validation.
-```
-
-## Stage 5 — Reporter
-
-```text
-Generate Root Cause, Impact, Validation, Fix and Confidence using only validated evidence.
-```
-
----
-
-# 4. Chain Contracts
-
-Har stage ka fixed output helpful hai.
-
-Example:
+Output:
 
 ```json
 {
-  "evidence_id": "E1",
-  "timestamp": "10:04:37",
-  "source": "pipeline.log",
-  "observation": "NSG rule aks-subnet-allow was removed"
+  "events": [
+    {"id":"E1", "type":"terraform_change", "summary":"..."}
+  ]
 }
 ```
 
-Next stage free-form raw text ke badle normalized data consume karega.
+Host validates schema before Stage 2.
+
+## Stage 2
+
+Input:
+
+```text
+validated events
+```
+
+Output:
+
+```text
+ordered timeline
+```
+
+No need to send raw unrelated logs again.
 
 ---
 
-# 5. Failure Handling
+# 6. Deterministic Stages
 
-Agar Stage 1 evidence find nahi karta:
+Not every stage needs LLM.
 
-```text
-No evidence → stop chain → no RCA
-```
-
-Agar Stage 4 sab hypotheses reject karta:
+Example:
 
 ```text
-Insufficient evidence → request next evidence
+Timestamp sorting → Python
+Citation ID check → Python
+Allowed environment validation → Python
+Hypothesis prose → LLM
 ```
 
-Ye Module 1 ke no-evidence/no-RCA principle se directly connected hai.
+Best pattern:
+
+```text
+Use deterministic code where rules are deterministic.
+Use LLM where language/reasoning flexibility adds value.
+```
 
 ---
 
-# 6. Prompt Chain vs Agent Loop
+# 7. Error Propagation
+
+If Stage 1 invents:
 
 ```text
-Prompt Chain = predefined sequence
-Agent Loop   = model decides next action/tool dynamically
+E4: node NotReady
 ```
 
-Simple predictable workflow → chain useful.
-Dynamic investigation → agent loop useful.
-Hybrid architecture bhi possible hai.
+and Stage 2/3 trust it blindly, hallucination gets amplified.
+
+So between stages:
+
+```text
+model output
+→ validation
+→ accepted state
+```
+
+Never automatically promote free-form model output to trusted evidence.
 
 ---
 
-# 🧪 Exercise
-Build a chain for:
+# 8. Chain Stop Conditions
+
+Example:
 
 ```text
-GitHub Actions pipeline failed during AKS deployment.
+if no current evidence:
+    stop → INSUFFICIENT_EVIDENCE
+
+if required source failed:
+    stop/escalate → EVIDENCE_COLLECTION_FAILED
+
+if hypothesis unsupported:
+    request more evidence or final UNKNOWN
 ```
 
-Recommended stages:
-1. extract errors
-2. classify stage
-3. correlate recent change
-4. validate hypothesis
-5. final summary
+A chain needs explicit failure states, not only success path.
 
-# 🔑 Summary
+---
+
+# 9. Prompt Chain vs Agent
+
+Prompt chain:
 
 ```text
-Decompose → normalize → validate → report
+predetermined stages
+A → B → C
 ```
+
+Agent:
+
+```text
+runtime decides next step/tool based on state
+```
+
+Do not call every chain an agent.
+
+This distinction prepares you for Module 8.
+
+---
+
+# 10. Provider Independence
+
+A chain can call:
+
+```text
+Ollama at Stage 3
+or
+OpenAI at Stage 3
+```
+
+while stages 1/2/4 remain the same.
+
+Provider should be dependency of a node/stage, not owner of application workflow.
+
+This makes provider comparison and migration safer.
+
+---
+
+# 11. Mixed Provider Warning
+
+A production system could theoretically use different models per stage.
+
+But this adds:
+
+- behavior differences
+- privacy/egress complexity
+- cost tracking
+- more eval combinations
+
+Do not introduce multi-provider routing just because it is possible.
+
+---
+
+# 12. Practical Chain Exercise
+
+Create three Python functions:
+
+```python
+extract_events(log_text)
+build_timeline(events)
+build_rca(timeline, evidence)
+```
+
+At first, make `extract_events` deterministic using known log patterns.
+Use LLM only for RCA prose.
+
+Then test same final LLM stage with Ollama/OpenAI.
+
+Expected learning:
+
+```text
+workflow stays stable
+model output wording changes
+validation remains required
+```
+
+---
+
+# 13. Observability
+
+Log per stage:
+
+```text
+stage name
+input source IDs
+output status
+latency
+provider/model if LLM used
+validation result
+error category
+```
+
+Do not log secrets/full sensitive prompts blindly.
+
+---
+
+# 14. Common Mistakes
+
+1. Every stage uses LLM unnecessarily.
+2. Stage output trusted without validation.
+3. No stop/failure states.
+4. Full raw context repeated at every stage.
+5. Hypothesis becomes evidence in later stage.
+6. Too many stages increase latency without value.
+7. Provider/model changes not regression-tested.
+
+---
+
+# 15. Interview Q&A
+
+### Q1. What is prompt chaining?
+Breaking a complex task into sequential validated stages where one stage's output feeds the next.
+
+### Q2. Why use a chain instead of one prompt?
+Better decomposition, testability, observability and per-stage validation.
+
+### Q3. Biggest risk?
+Error/hallucination propagation if intermediate outputs are trusted blindly.
+
+### Q4. Chain vs agent?
+Chain follows predetermined flow; agent can dynamically choose next actions based on state.
+
+### Q5. Should every stage be LLM-based?
+No. Deterministic logic should remain deterministic where possible.
+
+---
+
+# 16. Quick Revision
+
+```text
+Complex Task
+→ Small Stage
+→ Validate
+→ Next Stage
+```
+
+Core rule:
+
+```text
+Intermediate model output != automatically trusted state
+```
+
+---
+
+# 🧪 Homework
+
+Design a chain for:
+
+```text
+Terraform plan → risk review → approval recommendation
+```
+
+Mark each stage as:
+
+```text
+DETERMINISTIC
+or
+LLM
+```
+
+Explain why.
+
+---
 
 # ➡️ Why Next?
-Prompt chaining predictable hai. But agent dynamically tool select kare to uske loop ko prompts + guardrails se control karna padega. Next: Agent Loop Prompts & Guardrails.
+
+Chains have predetermined flow. But agent loops can dynamically choose tools and repeat steps. Next lesson covers **Agent Loop Prompts & Guardrails**.
