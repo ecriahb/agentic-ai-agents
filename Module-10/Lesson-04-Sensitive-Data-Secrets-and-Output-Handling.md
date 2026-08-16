@@ -2,241 +2,405 @@
 
 # Lesson 04 — Sensitive Data, Secrets & Output Handling
 
-> **Agent security sirf input filtering nahi hai; model context, tool results, logs, traces and final outputs sab data-leak paths ho sakte hain.**
+> **The safest secret is the one that never enters the model context, trace, checkpoint or final response.**
 
 ---
 
 # 🎯 Lesson Goal
 
-Aap samjhoge:
-- sensitive-data exposure paths
-- secrets ko model context se door kyu rakhna hai
-- input/output/tool-result redaction
-- improper output handling
-- logs/traces/checkpoints me secret risk
-- downstream command/code execution risk
+You will understand:
+
+- sensitive-data flow through agents
+- secret minimization
+- Key Vault/identity mental model
+- prompt/log/checkpoint leakage
+- output handling risks
+- data classification and redaction
+- structured output validation
+- downstream command/SQL/HTML risks
+- retention and audit boundaries
+- DevOps practical examples
 
 ---
 
-# PART 1 — English Definitions
+# PART 1 — English Definition
 
-**Sensitive information disclosure** is unintended exposure of confidential information through model inputs, outputs, logs, tools, memory or connected systems.
-
-**Improper output handling** occurs when model-generated output is used by downstream components without sufficient validation or sanitization.
+**Sensitive information disclosure occurs when confidential data such as credentials, tokens, private source content or regulated information is exposed to unauthorized users, systems or model contexts.**
 
 ---
 
-# PART 2 — DevOps Sensitive Data
+# PART 2 — Where Secrets Can Leak
 
-Examples:
+Agent data path:
+
+```text
+Environment / Secret Store
+      ↓
+Tool
+      ↓
+Tool Output
+      ↓
+Prompt Context
+      ↓
+Model Output
+      ↓
+Trace / Log / Checkpoint
+      ↓
+User / Other Agent
+```
+
+Every stage needs minimization.
+
+---
+
+# PART 3 — Secret Inventory
+
+DevOps examples:
+
 ```text
 Azure client secrets
+tokens
 GitHub PATs
-SSH private keys
-Kubeconfig tokens
+Kubeconfigs
 connection strings
-Terraform state secrets
-customer IDs/log payloads
-internal hostnames
-incident attachments
-API credentials
+private keys
+Terraform credentials
+SAS tokens
+API keys
+internal endpoint credentials
 ```
+
+Do not index these in RAG.
 
 ---
 
-# PART 3 — Secret Flow Analysis
+# PART 4 — Secretless First
 
-Ask for every secret:
+Prefer:
+
 ```text
-Where is it created?
-Where is it stored?
-Which process reads it?
-Does it enter prompt/context?
-Can it appear in tool output?
-Can it appear in trace/log/checkpoint?
-Can model reproduce it?
+managed identity
+workload identity
+federated/OIDC credentials
+short-lived tokens
 ```
 
-Best answer for model context is usually: **secret value should not enter it at all**.
+over:
+
+```text
+long-lived secret in .env
+```
+
+Secret management is still needed for third-party/legacy systems, but model should not see raw secret when only backend connector needs it.
 
 ---
 
-# PART 4 — Secret Reference vs Secret Value
+# PART 5 — Principle of Data Minimization
 
-Bad:
-```text
-Prompt: use password SuperSecret123 to check SQL
-```
-
-Better:
-```text
-Tool receives secret internally from Key Vault/managed identity.
-Model sees only operation result.
-```
+If model needs:
 
 ```text
-LLM → check_database_health(database_id)
-Tool host → authenticate securely
-LLM ← status=healthy
+"API authentication failed"
 ```
 
----
+it does not need:
 
-# PART 5 — Redaction Pipeline
-
-```text
-Tool Result
- ↓
-Normalizer
- ↓
-Secret/PII detector
- ↓
-Redact/Mask
- ↓
-Evidence Store
- ↓
-LLM Context
-```
-
-Example:
 ```text
 Authorization: Bearer eyJ...
 ```
-becomes:
+
+Normalize tool results before context construction.
+
+---
+
+# PART 6 — Vulnerable Logging
+
+```python
+logger.info("Tool response: %s", raw_response)
+```
+
+Raw response may contain:
+
 ```text
-Authorization: [REDACTED_TOKEN]
+headers
+tokens
+connection strings
+user data
+```
+
+Safer:
+
+```text
+log status + source ID + redacted metadata
 ```
 
 ---
 
-# PART 6 — Output Handling Risk
+# PART 7 — Checkpoint Leakage
 
-Model returns:
+Stateful agents persist data.
+
+Danger:
+
 ```text
-kubectl delete namespace production
+workflow state contains raw token
+ ↓
+checkpoint database retains it
+ ↓
+backup retains it
+ ↓
+trace/debug output exposes it
 ```
 
-Unsafe:
+State schema should avoid secrets by design.
+
+---
+
+# PART 8 — Redaction
+
+Redaction examples:
+
 ```text
-LLM output → shell
+Bearer <REDACTED>
+password=<REDACTED>
+client_secret=<REDACTED>
+```
+
+Regex helps for known formats, but classification/minimization should happen earlier.
+
+Redaction is not perfect secret detection.
+
+---
+
+# PART 9 — Output Handling Risk
+
+LLM output is untrusted data.
+
+Do not directly use as:
+
+```text
+shell command
+SQL query
+HTML
+Terraform HCL apply input
+kubectl command
+file path
+HTTP URL
+```
+
+without domain-specific validation/escaping/allowlisting.
+
+---
+
+# PART 10 — Improper Output Handling Example
+
+Unsafe:
+
+```python
+command = llm.invoke(prompt)
+subprocess.run(command, shell=True)
 ```
 
 Safe:
+
 ```text
-LLM output → structured proposal
- ↓
-parser
- ↓
-policy
- ↓
+LLM → structured proposal
+Host → validate operation enum + args
+Executor → known API call
+```
+
+---
+
+# PART 11 — Structured Output Is Not Automatically Safe
+
+Model returns:
+
+```json
+{
+  "action": "get_logs",
+  "namespace": "../../secret"
+}
+```
+
+JSON shape can be valid while argument is unsafe.
+
+Validate:
+
+```text
+enum
+target inventory
+path/name pattern
 authorization
- ↓
-approval
- ↓
-controlled executor
-```
-
-Never execute free-form model text as shell/SQL/Terraform.
-
----
-
-# PART 7 — Traces and Checkpoints
-
-Observability can accidentally become a secret store.
-
-Redact before logging:
-```text
-prompts
-headers
-tool arguments
-tool outputs
-MCP resources
-checkpoint state
-agent messages
-```
-
-Store only what is required for audit/debugging.
-
----
-
-# PART 8 — Data Minimization
-
-Instead of full 20 MB log:
-```text
-retrieve relevant lines
-normalize
-redact
-label source
-send minimum evidence
-```
-
-Benefits:
-```text
-less leakage risk
-lower token cost
-less prompt injection surface
-better relevance
+risk policy
 ```
 
 ---
 
-# PART 9 — Practical Security Tests
+# PART 12 — Data Classification
+
+Example classes:
 
 ```text
-secret embedded in pipeline log
-secret in exception stack trace
-secret in Terraform output
-secret in retrieved document
-model asked “repeat hidden credentials”
-model output sent to shell
-HTML/Markdown output rendered unsafely
-trace exporter receives raw Authorization header
+PUBLIC
+INTERNAL
+CONFIDENTIAL
+RESTRICTED
+SECRET
 ```
 
----
-
-# PART 10 — Common Mistakes
-
-- `.env` content placed in prompt
-- debug logging full tool payload
-- model output passed directly to shell
-- redaction only on final answer
-- shared checkpoints containing credentials
-- screenshots/logs with access tokens indexed into RAG
-
----
-
-# PART 11 — Interview Q&A
-
-### Q1. Best way to protect a secret from an LLM?
-Do not place the secret value in the model context; let trusted tools use managed identity/secret stores internally.
-
-### Q2. Why validate model output?
-Because model output is untrusted data and can become dangerous when interpreted by shells, APIs, browsers or automation engines.
-
-### Q3. Where should redaction occur?
-As early as practical before data reaches prompts, logs, traces, checkpoints or persistent evidence stores.
-
----
-
-# PART 12 — Revision
+For each define:
 
 ```text
-Need-to-know data only
-Secret reference > secret value
-LLM output = untrusted
-Redact before persistence
-Structured executor > free-form shell
+Can model see it?
+Can it enter RAG?
+Can it be logged?
+Can it cross region/provider?
+Retention?
+Who can retrieve it?
 ```
 
 ---
 
-# PART 13 — Homework
+# PART 13 — RAG and Sensitive Data
 
-Design a redaction policy for pipeline logs containing tokens, emails, internal IPs and connection strings. Decide block vs mask vs hash per field.
+Before ingestion:
+
+```text
+source authorization
+secret scan
+classification
+ACL tagging
+retention policy
+```
+
+At query:
+
+```text
+identity → ACL filter → retrieval
+```
+
+Do not retrieve sensitive chunk and then ask model not to disclose it.
+
+---
+
+# PART 14 — Multi-Agent Leakage
+
+Private context for Terraform specialist may contain infrastructure details not needed by communication/reporting agent.
+
+Share:
+
+```text
+minimum structured finding
+source IDs
+```
+
+not full private prompt/context.
+
+---
+
+# PART 15 — Model Provider Boundary
+
+Before sending data to any model endpoint ask:
+
+```text
+Is provider approved?
+What data classification is allowed?
+What region/data handling applies?
+Is logging/training policy acceptable?
+```
+
+Architecture/governance owns this—not individual prompt code.
+
+---
+
+# PART 16 — Telemetry Strategy
+
+Safer trace record:
+
+```json
+{
+  "request_id": "req-123",
+  "tool": "get_aks_status",
+  "source_id": "E3",
+  "status": "SUCCESS",
+  "payload_logged": false,
+  "redaction_count": 0
+}
+```
+
+Full payload can be stored separately with tighter access if required.
+
+---
+
+# PART 17 — Security Test Cases
+
+```text
+SD-01 secret in user prompt
+SD-02 secret in tool output
+SD-03 token in RAG document
+SD-04 secret in agent private state
+SD-05 malicious model echoes hidden value
+SD-06 output contains shell metacharacters
+SD-07 sensitive trace exported
+```
+
+Expected outcome is policy/redaction/block, not just a model refusal.
+
+---
+
+# PART 18 — Common Mistakes
+
+- full environment dumped into prompt
+- raw HTTP headers logged
+- RAG indexes `.env`/tfstate
+- checkpoint persists credentials
+- model output executed directly
+- redaction applied only at UI
+- all agents share same private context
+- no data classification policy
+
+---
+
+# PART 19 — Interview Q&A
+
+### Q1. Best way to protect secrets from LLM leakage?
+Avoid putting secrets into model-visible context whenever possible; use workload identities and backend connectors.
+
+### Q2. Why is structured output still untrusted?
+Structure validates format, not authorization, semantic safety or target validity.
+
+### Q3. Why is tracing risky?
+Agent traces can contain prompts, source documents, tool arguments and outputs that include confidential data.
+
+### Q4. How should RAG protect sensitive documents?
+Enforce source governance and authorization before retrieval, with metadata/ACLs and secret scanning at ingestion.
+
+---
+
+# 🧠 Revision
+
+```text
+Sensitive Data Safety =
+Minimize → Classify → Authorize → Redact → Validate Output → Limit Retention
+```
+
+---
+
+# 📝 Homework
+
+Map each of these to allowed storage/model/log behavior:
+
+```text
+GitHub PAT
+AKS event
+Terraform plan
+customer incident text
+internal runbook
+private key
+```
 
 ---
 
 # 🔁 Next Lesson Kyu?
 
-Ab data leakage clear hai. Next dekhenge ki RAG/embedding pipeline khud malicious or poisoned knowledge ko agent context me kaise la sakti hai.
+Data leakage is controlled. Next we protect the knowledge layer itself against **RAG poisoning, stale content and vector/embedding weaknesses**.
