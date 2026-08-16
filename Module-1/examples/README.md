@@ -20,6 +20,8 @@ devops_agent_v2.py
 devops_agent_v3.py
         ↓
 devops_agent_v4.py
+        ↓
+lesson-05-real-tool-practical/
 ```
 
 ## Version Progression
@@ -30,6 +32,52 @@ devops_agent_v4.py
 | V2 | Better tool arguments + production evidence |
 | V3 | State / duplicate-call protection + grounded wording |
 | V4 | Investigation separated from structured RCA reporting |
+| Lesson-05 Real Tool Practical | Real `pipeline.log` → Qwen → evidence guardrails → trusted RCA |
+
+## Lesson 05 — Real Tool Practical
+
+The complete live practical is preserved here:
+
+[`lesson-05-real-tool-practical/README.md`](lesson-05-real-tool-practical/README.md)
+
+Exact progression:
+
+```text
+pipeline.log
+   ↓
+real tool
+   ↓
+Qwen tool call
+   ↓
+no-tool guardrail
+   ↓
+evidence_log
+   ↓
+V3 evidence-only reporting
+   ↓
+V4 Pydantic
+   ↓
+tool-argument hallucination
+   ↓
+allowlist + argument validation
+   ↓
+deterministic impact extraction
+   ↓
+confidence policy
+   ↓
+final trusted RCA
+```
+
+Runnable files:
+
+```text
+lesson-05-real-tool-practical/logs/pipeline.log
+lesson-05-real-tool-practical/real_tool_qwen_v1.py
+lesson-05-real-tool-practical/real_tool_qwen_v2_guardrail.py
+lesson-05-real-tool-practical/real_tool_qwen_v3.py
+lesson-05-real-tool-practical/real_tool_qwen_v4.py
+lesson-05-real-tool-practical/real_tool_qwen_v4_final.py
+```
 
 ## Setup
 
@@ -54,4 +102,4 @@ Some tool-calling labs use `qwen3:0.6b`; pull it if needed:
 ollama pull qwen3:0.6b
 ```
 
-> These tools return simulated DevOps evidence for learning. They do not connect to a real AKS cluster, Terraform backend, or CI/CD system.
+> Earlier DevOps-agent files use simulated evidence for learning. The Lesson-05 real-tool practical reads the actual local `pipeline.log` file at runtime, so the evidence is no longer hard-coded inside the tool function.
