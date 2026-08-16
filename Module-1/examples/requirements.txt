@@ -1,4 +1,4 @@
-openai
-python-dotenv
+openai>=2.38,<3
+python-dotenv>=1.0.0
 ollama
-pydantic
+pydantic>=2
