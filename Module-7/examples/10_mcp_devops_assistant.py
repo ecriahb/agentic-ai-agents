@@ -1,4 +1,5 @@
 import asyncio
+import os
 import re
 from importlib import util
 from pathlib import Path
@@ -167,13 +168,15 @@ Confidence
         ]
     )
 
-    model = ChatOllama(model="qwen2.5:3b", temperature=0)
+    model_name = os.getenv("OLLAMA_MODEL", "qwen3:4b")
+    model = ChatOllama(model=model_name, temperature=0)
     chain = prompt | model | StrOutputParser()
 
     answer = chain.invoke({"incident": incident, "context": context})
     citations_ok, unknown = validate_citations(answer, allowed_ids)
 
     print("=== MCP Evidence-Grounded RCA ===\n")
+    print("Local model:", model_name)
     print(answer)
 
     print("\n=== Validation ===")
