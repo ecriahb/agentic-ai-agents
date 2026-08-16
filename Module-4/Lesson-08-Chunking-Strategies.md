@@ -1,139 +1,381 @@
-# Lesson 08 — Chunking Strategies
+# 🚩 Lesson 08 — Chunking Strategies
 
-> **Retrieval quality ka ek major factor hai: document ko kis boundary par split kiya gaya.**
+> **Bad chunking retrieval ko damage karta hai, chahe embedding model kitna bhi achha ho.**
+
+---
 
 ## 🎯 Lesson Goal
 
-Chunking ka purpose, chunk size, overlap aur semantic boundaries ko DevOps documents ke context me samajhna.
+Is lesson ke end tak aap samjhoge:
 
-## English Definition
+- chunking kya hai aur kyu zaruri hai
+- fixed-size, overlap, paragraph/section and semantic chunking concepts
+- too-small vs too-large chunks
+- context boundary problem
+- DevOps runbook chunking
+- chunk IDs and source traceability
+- simple Python practical
+- chunk-size evaluation mindset
 
-**Chunking** is the process of splitting source content into smaller retrievable units before creating embeddings.
+---
 
-## Why Chunk?
+# PART 1 — Why Chunking Exists
 
-Suppose 40-page AKS runbook ko ek single embedding bana diya.
+Suppose ek runbook 20 pages ka hai.
 
-Problem:
+Agar poora document ek embedding bana diya:
 
 ```text
-One huge document
-→ multiple unrelated topics mixed
-→ one vector represents too much meaning
-→ exact useful section hard to retrieve
+20-page document
+      ↓
+1 vector
 ```
+
+Query sirf ek specific NSG troubleshooting step se related ho sakti hai. Whole document representation noisy ho sakta hai.
 
 Better:
 
 ```text
-Runbook
- ↓
-Networking section
-Authentication section
-Node troubleshooting section
-Ingress section
- ↓
-separate embeddings
+Large Document
+   ↓
+Useful Sections / Chunks
+   ↓
+One embedding per chunk
 ```
 
-## Common Strategies
+---
 
-### 1. Fixed-size chunking
+# PART 2 — English Definition
+
+> Chunking is the process of splitting larger source content into smaller retrieval units before embedding and indexing.
+
+Hinglish:
+
+**Document ko aise meaningful pieces me todna ki search sahi context retrieve kar sake.**
+
+---
+
+# PART 3 — Bad Chunking Example
+
+Original:
 
 ```text
-Every N characters/tokens
+Step 3: Validate AKS subnet NSG rules.
+The required outbound rule must allow traffic to the private endpoint.
+If the rule was removed, restore it and rerun connectivity validation.
 ```
 
-Simple but headings/paragraphs cut ho sakte hain.
-
-### 2. Paragraph-based
-
-Natural paragraph boundaries preserve karna.
-
-### 3. Heading / section-aware
-
-Markdown/runbook ke headings ke basis par split.
-
-DevOps docs ke liye often useful:
+Bad split:
 
 ```text
-## AKS Networking
-## DNS Troubleshooting
-## Terraform State
+Chunk 1: Step 3: Validate AKS subnet NSG
+Chunk 2: rules. The required outbound rule must
+Chunk 3: allow traffic to the private endpoint...
 ```
 
-### 4. Sliding overlap
+Meaning unnecessarily split ho gaya.
 
-Adjacent chunks me thoda shared context:
+---
+
+# PART 4 — Too Small vs Too Large
+
+## Too Small
 
 ```text
-Chunk 1: lines 1–20
-Chunk 2: lines 16–35
+"NSG rule"
 ```
 
-Overlap boundary information preserve kar sakta hai, but excessive overlap duplicate retrieval aur storage badhata hai.
+Problem:
+- context missing
+- ambiguity high
+- many near-duplicate chunks
 
-## Chunk Size Trade-off
-
-Too small:
-
-- context incomplete
-- commands aur explanation separate ho sakte hain
-- many fragments
-
-Too large:
-
-- unrelated topics mix
-- retrieval less precise
-- more context sent downstream
-
-## DevOps Example
-
-Bad chunk:
+## Too Large
 
 ```text
-Entire production operations handbook
+Entire 50-page operations manual
 ```
 
-Better chunks:
+Problem:
+- mixed topics
+- noisy embedding
+- expensive context later
+
+Desired:
 
 ```text
-AKS subnet connectivity validation
-AKS DNS troubleshooting
-Terraform state lock recovery
-GitHub Actions deployment rollback
+One chunk ≈ one useful coherent idea/procedure
 ```
 
-## Metadata with Chunks
+No universal perfect size exists.
 
-Every chunk ke saath source preserve karo:
+---
+
+# PART 5 — Fixed-Size Chunking
+
+Simple character-based example:
+
+```python
+def chunk_text(text, chunk_size=300):
+    return [
+        text[i:i + chunk_size]
+        for i in range(0, len(text), chunk_size)
+    ]
+```
+
+Pros:
+- simple
+- predictable
+
+Cons:
+- sentences/steps can split awkwardly
+
+Useful for learning, not automatically best production strategy.
+
+---
+
+# PART 6 — Overlap
+
+Overlap keeps some previous context in next chunk.
+
+Example:
+
+```text
+Chunk 1: words 1–200
+Chunk 2: words 151–350
+```
+
+50-word overlap.
+
+Why?
+
+Important statement boundary par split ho to next chunk me some shared context remain kare.
+
+Tradeoff:
+
+```text
+More overlap
+   ↓
+More context continuity
+BUT
+More duplicate storage + retrieval redundancy
+```
+
+---
+
+# PART 7 — Paragraph / Section-Aware Chunking
+
+Runbooks often naturally structured hote hain:
+
+```text
+# Symptoms
+# Checks
+# Root Cause
+# Resolution
+# Validation
+```
+
+Section-aware chunks can preserve semantic boundaries better than blind character splits.
+
+Example chunk metadata:
 
 ```json
 {
-  "source": "aks-runbook.md",
-  "section": "NSG troubleshooting",
-  "service": "aks"
+  "source": "aks-networking.md",
+  "section": "Resolution",
+  "chunk_id": "aks-networking-resolution-01"
 }
 ```
 
-## Evaluation Rule
+---
 
-Best chunk size universal number nahi hai. Apne documents + queries par retrieval evaluate karo.
+# PART 8 — Semantic Chunking Concept
 
-## Common Mistakes
+Semantic chunking attempts to split based on meaning/topic shifts instead of only fixed length.
 
-- random split without preserving headings
-- command ka half one chunk aur half next chunk me
-- source metadata lose karna
-- overlap ko excessively large rakhna
-- chunking change ke baad re-index na karna
+Mental model:
 
-## Interview Point
+```text
+Topic A text
+Topic A text
+----- semantic boundary -----
+Topic B text
+Topic B text
+```
 
-**Q: Why does chunking affect RAG quality?**
+It can improve coherence but adds complexity/cost and must be evaluated.
 
-Because retrieval happens at chunk level; chunks must be small enough to be precise but large enough to preserve the context needed to answer correctly.
+---
 
-## Next Lesson Kyu?
+# PART 9 — DevOps Runbook Example
 
-Semantic similarity useful hai, but enterprise query me environment/service restrictions bhi chahiye. Isliye next: **metadata and filtering**.
+Document:
+
+```text
+AKS Network Troubleshooting
+
+Symptoms:
+Pods cannot reach private SQL endpoint.
+
+Checks:
+1. Verify DNS resolution.
+2. Check NSG outbound rules.
+3. Check UDR and Azure Firewall routes.
+
+Resolution:
+Restore required rule, validate connectivity, redeploy.
+```
+
+Possible chunks:
+
+```text
+Chunk 1 → Symptoms
+Chunk 2 → DNS check
+Chunk 3 → NSG + route checks
+Chunk 4 → Resolution
+```
+
+Query:
+
+```text
+What should I check after NSG rule removal?
+```
+
+Chunk 3/4 should be strong candidates.
+
+---
+
+# PART 10 — Practical Chunker
+
+```python
+from pathlib import Path
+
+
+def chunk_by_paragraph(text, max_chars=500):
+    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+    chunks = []
+    current = ""
+
+    for paragraph in paragraphs:
+        candidate = f"{current}\n\n{paragraph}".strip()
+        if current and len(candidate) > max_chars:
+            chunks.append(current)
+            current = paragraph
+        else:
+            current = candidate
+
+    if current:
+        chunks.append(current)
+
+    return chunks
+
+text = Path("sample_docs/aks-networking.md").read_text(encoding="utf-8")
+chunks = chunk_by_paragraph(text)
+
+for i, chunk in enumerate(chunks):
+    print(f"\n--- chunk {i} ---\n{chunk}")
+```
+
+Observe boundaries manually.
+
+---
+
+# PART 11 — Chunk Metadata
+
+Every chunk should remain traceable.
+
+```json
+{
+  "source": "aks-networking.md",
+  "chunk_id": 3,
+  "service": "aks",
+  "environment": "prod",
+  "section": "network-checks"
+}
+```
+
+Without source metadata, retrieved text ka origin lose ho jayega.
+
+---
+
+# PART 12 — How to Choose Chunk Size
+
+No magic number.
+
+Evaluate using real questions:
+
+```text
+Question
+ ↓
+Expected relevant chunk
+ ↓
+Does Top-K retrieve it?
+```
+
+Try multiple strategies and compare retrieval quality.
+
+Factors:
+
+- document type
+- model input constraints
+- procedure length
+- desired answer granularity
+- overlap
+- retrieval top-k
+
+---
+
+# PART 13 — Common Mistakes
+
+1. Every document type par same chunking blindly use karna.
+2. Headings lose kar dena.
+3. Source metadata omit karna.
+4. Tiny chunks produce karna.
+5. Huge chunks se mixed topics retrieve karna.
+6. Overlap itna high rakhna ki duplicates flood ho jayein.
+
+---
+
+# PART 14 — Interview Corner
+
+**Q: Why is chunking important in RAG?**  
+Because retrieval operates on indexed units; coherent chunks improve the chance that the right evidence is retrieved without excessive irrelevant context.
+
+**Q: Why use overlap?**  
+To preserve context across boundaries, though too much overlap causes duplication.
+
+**Q: Is there a universal optimal chunk size?**  
+No. It should be evaluated against the document type, embedding model and real retrieval queries.
+
+---
+
+# PART 15 — Revision
+
+```text
+Large Document
+   ↓
+Chunk Strategy
+   ↓
+Coherent Retrieval Units
+   ↓
+Embeddings
+   ↓
+Better Search Candidates
+```
+
+---
+
+# PART 16 — Homework
+
+1. `aks-networking.md` ko 2 different chunk sizes se split karo.
+2. Compare number of chunks.
+3. Identify ek boundary jahan fixed split meaning tod raha hai.
+4. Paragraph-aware version try karo.
+
+---
+
+# Next Lesson Kyu?
+
+Chunks mil gaye, but search ko kaise pata chalega kaunsa chunk prod ka hai, source kya hai, version kya hai?
+
+# 👉 Lesson 09 — Metadata & Filtering
