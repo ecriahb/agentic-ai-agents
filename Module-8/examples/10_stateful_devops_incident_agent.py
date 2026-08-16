@@ -60,7 +60,7 @@ def validate_input(state: State) -> dict:
     return {"final_status": "RUNNING"}
 
 
-def route_after_validation(state: State) -> Literal["planner", "finish"]:
+def route_input_validation(state: State) -> Literal["planner", "finish"]:
     return "planner" if state["final_status"] == "RUNNING" else "finish"
 
 
@@ -179,7 +179,11 @@ def build_context(state: State) -> str:
 
 
 def analyze_rca(state: State) -> dict:
-    evidence_ids = {item["id"] for item in state["evidence"] if item["kind"] == "CURRENT_EVIDENCE"}
+    evidence_ids = {
+        item["id"]
+        for item in state["evidence"]
+        if item["kind"] == "CURRENT_EVIDENCE"
+    }
     if not {"E1", "E2", "E3"}.issubset(evidence_ids):
         return {
             "rca_status": "INSUFFICIENT_EVIDENCE",
@@ -241,7 +245,7 @@ def validate_rca(state: State) -> dict:
     return {"final_status": "RCA_VALIDATED"}
 
 
-def route_after_validation(state: State) -> Literal["propose_action", "finish"]:
+def route_rca_validation(state: State) -> Literal["propose_action", "finish"]:
     return "propose_action" if state["final_status"] == "RCA_VALIDATED" else "finish"
 
 
@@ -299,12 +303,12 @@ builder.add_node("rejected", rejected)
 builder.add_node("finish", finish)
 
 builder.add_edge(START, "validate_input")
-builder.add_conditional_edges("validate_input", route_after_validation)
+builder.add_conditional_edges("validate_input", route_input_validation)
 builder.add_conditional_edges("planner", route_plan)
 builder.add_conditional_edges("execute_tool", route_after_tool)
 builder.add_edge("retrieve_reference", "analyze_rca")
 builder.add_edge("analyze_rca", "validate_rca")
-builder.add_conditional_edges("validate_rca", route_after_validation)
+builder.add_conditional_edges("validate_rca", route_rca_validation)
 builder.add_edge("propose_action", "approval_gate")
 builder.add_conditional_edges("approval_gate", route_approval)
 builder.add_edge("simulate_approved", END)
