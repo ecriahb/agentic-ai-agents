@@ -1,6 +1,6 @@
-# 🚩 Agentic AI for Azure DevOps Engineers
+# 🚩 Agentic AI for DevOps Engineers
 
-> **From AI foundations → evidence-grounded agents → secure enterprise DevOps AI systems**
+> **From Zero to Production-Grade DevOps AI Agents**
 
 This repository is a hands-on, module-by-module course for learning how to design and build **Agentic AI systems for real DevOps use cases**.
 
