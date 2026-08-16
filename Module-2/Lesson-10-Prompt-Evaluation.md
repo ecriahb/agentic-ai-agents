@@ -2,173 +2,366 @@
 
 # Lesson 10 — Prompt Evaluation
 
-> **One good-looking answer does not prove a prompt is reliable. Test it across cases.**
-
-## 🎯 Goal
-Prompt quality ko measurable criteria ke against evaluate karna.
+> **Ek prompt ka ek baar achha answer dena proof nahi hai. Reliable prompt ko normal, weak-evidence, conflicting aur adversarial cases par evaluate karo.**
 
 ---
 
-# 1. What Should We Evaluate?
+# 🎯 Lesson Goal
 
-For DevOps prompts:
+Aap samjhoge:
 
-```text
-Correctness
-Grounding
-Completeness
-Format Compliance
-Safety
-Consistency
-Abstention Quality
-```
-
----
-
-# 2. Simple Scorecard
-
-Score each 0–2:
-
-| Metric | 0 | 1 | 2 |
-|---|---|---|---|
-| Grounding | unsupported | mixed | all claims supported |
-| Format | wrong | partial | exact |
-| Hallucination | major | minor | none observed |
-| Missing-evidence handling | guesses | vague | explicit abstention |
-| Safety | unsafe | mixed | safe/read-only first |
-
-Total score can compare prompt versions.
+- prompt evaluation kya hai
+- golden/labelled test cases
+- exact-match vs rubric evaluation
+- groundedness and unsupported claims
+- abstention accuracy
+- output-contract adherence
+- provider/model comparison
+- regression testing
+- production release criteria
 
 ---
 
-# 3. Test Cases
+# 1. English Definition
 
-A prompt ko different inputs par run karo:
+**Prompt evaluation is the systematic testing of model behavior against a defined dataset, expected properties and scoring criteria rather than judging a prompt from one successful response.**
 
-### Case A — Strong Evidence
-```text
-NSG rule removed → connectivity validation failed → deployment failed
-```
-
-Expected: supported hypothesis.
-
-### Case B — Weak Evidence
-```text
-Deployment failed with exit code 1
-```
-
-Expected: **Insufficient evidence**, not invented AKS issue.
-
-### Case C — Conflicting Evidence
-```text
-NSG change present but connectivity check succeeded; image pull failed later.
-```
-
-Expected: model should not anchor on NSG change.
-
-### Case D — No Customer Impact Evidence
-Expected: should not claim outage.
-
----
-
-# 4. Golden Outputs
-
-For important workflows, create expected behavior:
+Mental model:
 
 ```text
-Input fixture
-Expected facts
-Forbidden claims
-Expected output fields
-```
-
-Example:
-
-```text
-Forbidden:
-- "AKS nodes are NotReady" unless node evidence exists
-- "Customers experienced downtime" unless impact evidence exists
+Prompt Version
+    ↓
+Test Dataset
+    ↓
+Model/Provider
+    ↓
+Outputs
+    ↓
+Evaluators
+    ↓
+Metrics / Failures
+    ↓
+Keep / Improve / Block
 ```
 
 ---
 
-# 5. Regression Testing
+# 2. Why Manual “Looks Good” is Weak
 
-Prompt v1 improve karke v2 banaya? Old test cases rerun karo.
+A response can sound professional while still:
 
-```text
-Prompt v1
-   ↓
-10 incident fixtures
-   ↓
-score
+- inventing impact
+- citing fake evidence IDs
+- missing an important gap
+- recommending unsafe action
+- failing on a slightly different incident
 
-Prompt v2
-   ↓
-same 10 fixtures
-   ↓
-compare
-```
-
-Prompt changes can fix one case and break another.
+So evaluation must test properties, not style only.
 
 ---
 
-# 6. Deterministic Validation
+# 3. Build a Small Golden Dataset
 
-Some things model se judge karane ki need nahi:
+Example test cases:
+
+```text
+T1 strong NSG evidence
+T2 only exit code 1
+T3 image pull failure after unrelated network change
+T4 conflicting network observations
+T5 prompt injection inside log
+T6 normal healthy deployment
+```
+
+Each test needs expected behavior.
+
+Example T2 oracle:
+
+```text
+must abstain from root-cause claim
+must state evidence gap
+must not invent NSG issue
+```
+
+---
+
+# 4. Evaluation Dimensions
+
+## Groundedness
+
+Are current-incident factual claims supported by supplied evidence?
+
+## Abstention
+
+Does model say insufficient/unknown when evidence is weak?
+
+## Impact correctness
+
+Does it avoid inventing customer impact?
+
+## Output adherence
+
+Are required sections present?
+
+## Safety
+
+Does it avoid claiming/performing unauthorized remediation?
+
+## Relevance
+
+Does answer address the actual question without unnecessary speculation?
+
+---
+
+# 5. Deterministic Evaluators
+
+Some checks should be code-based.
+
+Examples:
+
+```text
+required section names exist
+citation IDs belong to allowed set
+forbidden write tool was not called
+iteration count <= limit
+secret pattern absent
+status == INSUFFICIENT_EVIDENCE for negative fixture
+```
+
+These are stronger than asking another LLM for every rule.
+
+---
+
+# 6. Rubric Evaluators
+
+Some properties are semantic:
+
+```text
+Does root cause overstate causality?
+Is recommendation appropriate to evidence?
+Is explanation clear?
+```
+
+A human or judge model can score them with a rubric.
+
+But evaluator models also have errors.
+
+For critical security policy prefer deterministic checks wherever possible.
+
+---
+
+# 7. Example Evaluation Table
+
+```text
+Case | Grounded | Abstain Correctly | Format | Unsafe Claim
+T1   | PASS     | N/A               | PASS   | NO
+T2   | PASS     | PASS              | PASS   | NO
+T3   | FAIL     | FAIL              | PASS   | NO
+```
+
+This tells you where prompt fails instead of “model was bad.”
+
+---
+
+# 8. Provider Comparison
+
+Run same dataset against:
+
+```text
+Ollama/qwen3:4b
+OpenAI selected model
+```
+
+Compare:
+
+```text
+groundedness pass rate
+abstention accuracy
+format adherence
+latency
+cost where applicable
+```
+
+Do not compare only one hand-picked prompt.
+
+A provider change is a regression-test event.
+
+---
+
+# 9. Prompt Versioning
+
+Track:
+
+```text
+prompt_v1
+prompt_v2
+prompt_v3
+```
+
+When you add a rule such as:
+
+```text
+Do not infer customer impact
+```
+
+run full eval dataset again.
+
+Improving one case can degrade another.
+
+---
+
+# 10. Negative Tests Matter
+
+Many demos only test answerable questions.
+
+Production needs:
+
+```text
+no evidence
+wrong environment
+unavailable tool
+conflicting evidence
+malicious context
+irrelevant request
+```
+
+Correct refusal/abstention is part of quality.
+
+---
+
+# 11. False Positive vs False Negative
+
+Example security classifier:
+
+```text
+False positive → safe request blocked
+False negative → unsafe request allowed
+```
+
+Both matter.
+
+A prompt that refuses everything is not a good production system.
+
+Include benign cases to measure over-blocking.
+
+---
+
+# 12. Prompt Evaluation vs System Evaluation
+
+Prompt eval tests prompt/model behavior.
+
+Full agent eval later tests:
+
+```text
+routing
+tool calls
+retrieval
+state transitions
+approval
+trajectory
+final answer
+```
+
+Do not assume good prompt eval means whole agent is safe.
+
+---
+
+# 13. Practical Mini Eval
+
+Create a Python list:
 
 ```python
-required_sections = [
-    "Root Cause",
-    "Evidence",
-    "Impact",
-    "Fix",
-    "Confidence"
+tests = [
+    {"id":"strong", "expect_root_cause": True},
+    {"id":"weak", "expect_root_cause": False},
 ]
 ```
 
-Similarly:
-- JSON schema validation
-- allowed confidence values
-- evidence IDs exist or not
-- root cause empty when evidence empty
+Run `dual_provider_prompt_playground.py` logic for each fixture.
 
-Host validation + model evaluation together stronger hote hain.
+Check required text/properties programmatically.
+
+Then manually inspect semantic support.
 
 ---
 
-# 7. Human Review
+# 14. Common Mistakes
 
-High-impact use cases me domain expert review important hai, especially:
-- production remediation
-- security findings
-- compliance
-- architecture changes
+1. One successful demo treated as validation.
+2. Only positive/easy cases.
+3. Exact wording used as only oracle.
+4. No prompt/model/provider version metadata.
+5. Evaluation dataset changes silently.
+6. Security failures averaged away by high overall score.
+7. Judge LLM used for deterministic policy.
+8. No regression suite in CI later.
 
 ---
 
-# 🧪 Evaluation Exercise
+# 15. Release Thinking
 
-Compare prompts:
-
-Prompt A:
-```text
-Find root cause and fix.
-```
-
-Prompt B:
-```text
-Use only supplied evidence. Separate fact from inference. Abstain when evidence is insufficient. Map every conclusion to evidence IDs. Return fixed sections.
-```
-
-Run both on strong, weak and conflicting evidence. Record hallucinations and format compliance.
-
-# 🔑 Summary
+Example gate:
 
 ```text
-Prompt Quality = tested behavior, not subjective confidence
+Groundedness >= required threshold
+Critical hallucination cases = 0
+Unknown citation IDs = 0
+Unsafe write behavior = 0
+Abstention test pass = required
 ```
+
+Critical failures should block regardless of average quality score.
+
+---
+
+# 16. Interview Q&A
+
+### Q1. How do you evaluate prompts?
+Use a versioned labelled dataset, deterministic validators, semantic rubrics and regression comparisons across prompt/model versions.
+
+### Q2. Why not judge one answer manually?
+Because model behavior varies across inputs and one response does not measure robustness.
+
+### Q3. What is abstention accuracy?
+Whether the system correctly refuses to make unsupported claims when evidence is insufficient.
+
+### Q4. Why include benign cases in security evals?
+To detect excessive false blocking.
+
+### Q5. Prompt eval vs agent eval?
+Prompt eval focuses on model response behavior; agent eval includes trajectory, tools, retrieval, routing, state and side effects.
+
+---
+
+# 17. Quick Revision
+
+```text
+Prompt
++ Dataset
++ Expected Behavior
++ Evaluators
++ Metrics
++ Regression
+=
+Prompt Engineering You Can Trust More
+```
+
+---
+
+# 🧪 Homework
+
+Build five fixtures for the Module 1 NSG incident:
+
+- strong evidence
+- weak evidence
+- conflicting evidence
+- unrelated root cause
+- injection in log
+
+Define expected pass/fail properties before running the model.
+
+---
 
 # ➡️ Why Next?
-Evaluation ke baad stable patterns ko reusable templates me convert karna logical hai. Next: Reusable Prompt Templates.
+
+Once a prompt is evaluated, it should become a **reusable versioned prompt template**, not copied strings across scripts. Next lesson covers templates.
