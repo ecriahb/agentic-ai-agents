@@ -6,32 +6,44 @@
 
 ---
 
-# 🎯 Learning Goal
+# 🎯 Lesson Goal
+
+Ab tak humne agent ko fake/hard-coded tools ke saath build kiya tha. Usse hume tool calling, agent loop, state aur grounding samajhne me help mili. Ab next logical step hai:
+
+```text
+Fake Tool
+   ↓
+Real Tool
+   ↓
+Real Evidence
+   ↓
+Grounded RCA
+```
 
 Is lesson ke end tak aap clearly samjhoge:
 
-- Fake tool kya hota hai
-- Real tool kya hota hai
-- Fake vs real response ka difference
-- Tool contract kya hota hai
-- Tool contract vs tool implementation
-- Fake tool ko real tool me convert karne ka step-by-step flow
-- AKS ke real tools `az`, `kubectl`, Azure SDK/API se kaise ban sakte hain
+- Fake Tool kya hota hai
+- Real Tool kya hota hai
+- Fake vs Real Tool response ka difference
+- Tool Contract kya hota hai
+- Tool Contract vs Tool Implementation
+- Fake Tool ko Real Tool me convert karne ka exact flow
+- Real AKS tool ke liye `az`, `kubectl`, Azure SDK/API ka role
 - Authentication, Authorization, RBAC aur Least Privilege
 - Read-Only First design
 - Human-in-the-Loop approval
-- Error handling, timeout, retry aur backoff
+- Error Handling, Timeout, Retry aur Backoff
 - Tool failure ko evidence ki tarah treat karna
-- Output normalization
+- Output Normalization kya hai
 - Structured Evidence vs Structured Output
 - Agent State + Grounding
 - Audit Logging + Traceability
-- Controlled remediation
+- Controlled Remediation
 - Final production-grade DevOps AI Agent architecture
 
 ---
 
-# 🧠 Lesson 5 Big Picture
+# 🧠 Big Picture
 
 ```text
 Fake Tool
@@ -80,9 +92,9 @@ Audit Logging
 **English Definition:**
 > A fake tool is a function that returns controlled or hard-coded data instead of calling a real external system.
 
-Simple Hinglish:
+### Hinglish Explanation
 
-Fake tool function bilkul real tool jaisa dikhta hai, lekin actual Azure, Kubernetes, Terraform, GitHub ya pipeline system ko query nahi karta.
+Fake tool dekhne me real Python function jaisa hi hota hai, but wo actual Azure, Kubernetes, Terraform, GitHub, Azure DevOps ya monitoring system ko query nahi karta.
 
 Example:
 
@@ -91,77 +103,128 @@ def get_terraform_changes(environment):
     return "NSG rule allowing AKS subnet traffic was removed"
 ```
 
-Ye fake hai because:
+Yahan `environment` input diya gaya hai, lekin function actual Terraform plan ya Git diff check nahi kar raha.
+
+So technically:
 
 ```text
 Input kuch bhi ho
       ↓
-Function actual Terraform/Git diff check nahi kar raha
+External system call nahi hota
       ↓
-Hard-coded response return ho raha hai
+Fixed response return hota hai
 ```
 
-### Fake Tool ka Important Characteristic
+### Fake Tool ka Mental Model
 
 ```text
-Fake Tool
-= Controlled Data
-= Predictable Behavior
-= Easy Testing
-= No Real External Dependency
+Agent
+  ↓
+Tool Call
+  ↓
+Python Function
+  ↓
+Hard-coded / Controlled Data
+  ↓
+Agent
 ```
+
+### Example 2
+
+```python
+def get_pipeline_status(environment):
+    if environment == "production":
+        return "Failed during Terraform Apply"
+
+    return "Succeeded"
+```
+
+Ye bhi fake tool hai because status actual pipeline system se nahi aa raha.
+
+### Fake Tool Characteristics
+
+```text
+Controlled Data
+Predictable Behavior
+No External Dependency
+No Authentication Required
+Easy Testing
+Low Risk
+```
+
+### Common Confusion
+
+Function me parameter hona tool ko real nahi banata.
+
+Ye:
+
+```python
+def get_aks_status(cluster_name):
+    return "Degraded"
+```
+
+still fake hai, even though `cluster_name` input hai.
+
+### Interview Point
+
+**Q. What is a fake or mocked tool in an AI agent?**
+
+> A fake tool mimics a real tool interface but returns controlled data instead of accessing the real external system. It is useful for learning, development, and testing agent behavior safely.
 
 ---
 
-## 2. Humne Fake Tools Se Start Kyun Kiya?
+## 2. Humne Fake Tool Se Start Kyun Kiya?
 
-Agent architecture pehle samajhna tha:
+Agar hum first day se real Azure tool banate, hume simultaneously ye sab handle karna padta:
+
+```text
+Azure Login
+Subscription
+Resource Group
+Managed Identity
+Service Principal
+RBAC
+AKS Credentials
+kubectl Context
+Azure SDK
+API Errors
+Timeouts
+Network Failures
+Permissions
+```
+
+Then core Agent concept hide ho jata.
+
+Hume pehle ye samajhna tha:
 
 ```text
 LLM
  ↓
-Chooses Tool
+Tool choose karta hai
  ↓
-Python Executes Function
+Python actual function execute karta hai
  ↓
-Tool Result
+Tool result model ko milta hai
  ↓
-LLM Reasons
+Model next decision leta hai
 ```
 
-Agar starting se hi ye sab add kar dete:
+Isliye learning progression intentionally tha:
 
 ```text
-Azure Login
-Managed Identity
-Service Principal
-RBAC
-Subscription
-Resource Group
-AKS Credentials
-kubectl
-Azure SDK
-Network Errors
-API Timeouts
-Permission Errors
-```
-
-then core concept hide ho jata.
-
-Isliye learning progression:
-
-```text
-Fake Data
+Fake Tool
    ↓
-Tool Calling Samjho
+Tool Calling
    ↓
-Agent Loop Samjho
+Multiple Tools
    ↓
-State Samjho
+Agent Loop
    ↓
-Grounding Samjho
+State
    ↓
-Then Real Integration
+Grounding
+   ↓
+Real Integration
 ```
 
 > **Fake tools waste nahi hain. Fake tools architecture ko safely learn aur test karne ka first stage hain.**
@@ -175,7 +238,9 @@ Then Real Integration
 **English Definition:**
 > A real tool is a function that connects to an actual external system and retrieves live or authoritative data, or performs an approved action.
 
-Simple Hinglish:
+### Hinglish Explanation
+
+Fake tool ke andar hard-coded data hota hai. Real tool actual system ko call karta hai.
 
 ```text
 Fake Tool
@@ -190,22 +255,43 @@ Example architecture:
 ```text
 Agent
   ↓
-get_terraform_changes("production")
+get_pipeline_status("production")
   ↓
-Python Function
+Python Tool
   ↓
-GitHub / Terraform / Pipeline API
+Azure DevOps / GitHub Actions API
   ↓
-Actual Changes
+Actual Pipeline Run
   ↓
-Tool Result
+Actual Status
   ↓
 Agent
 ```
 
-### Very Important Rule
+### Example
 
-> **LLM directly Azure/Terraform/Kubernetes ko operate nahi karta. LLM decides; application executes.**
+Fake:
+
+```python
+def get_pipeline_status(environment):
+    return "Failed"
+```
+
+Real conceptual version:
+
+```python
+def get_pipeline_status(environment):
+    result = call_azure_devops_api(environment)
+    return result
+```
+
+### Most Important Rule
+
+> **LLM decides. Application executes. External system provides evidence.**
+
+LLM khud Azure me login nahi karta. LLM khud `kubectl` magically execute nahi karta.
+
+Correct flow:
 
 ```text
 LLM
@@ -214,12 +300,18 @@ LLM
  ↓
 Python Application
  ↓
-Actual Azure / Kubernetes API
+Authenticated Azure/Kubernetes Call
  ↓
-Result
+Actual Result
  ↓
 LLM
 ```
+
+### Interview Point
+
+**Q. Does the LLM execute real DevOps commands directly?**
+
+> No. The model selects a tool and provides arguments. The application layer executes the real command or API call and returns the result to the model.
 
 ---
 
@@ -237,25 +329,53 @@ def get_aks_status(cluster_name: str) -> str:
     ...
 ```
 
-Contract:
+Iska contract:
 
 ```text
 Tool Name:
 get_aks_status
 
 Purpose:
-AKS cluster ka status lena
+AKS cluster ki health/status evidence lena
 
 Input:
 cluster_name
 
 Expected Output:
-Cluster health/status evidence
+Cluster health/status information
+```
+
+### Hinglish Explanation
+
+Agent ko tool ke andar implementation kaise likhi hai usse farq nahi padta. Agent ko bas ye pata hona chahiye:
+
+```text
+Tool ka naam kya hai?
+Tool karta kya hai?
+Input kya dena hai?
+Expected result kya milega?
+```
+
+### API Analogy
+
+Jaise client ke liye:
+
+```text
+GET /cluster/status
+```
+
+important hai. Backend database se data laaye, Kubernetes API se laaye, ya monitoring platform se laaye—client contract ke through interact karta hai.
+
+Same agent me:
+
+```text
+Tool Contract = Interface
+Tool Implementation = Andar ka actual logic
 ```
 
 ---
 
-## 5. Tool Contract vs Implementation
+## 5. Tool Contract vs Tool Implementation
 
 Fake implementation:
 
@@ -274,65 +394,80 @@ def get_pipeline_status(environment):
 Dono me:
 
 ```text
-Tool Name = same
-Input = same
-Purpose = same
+Tool Name = get_pipeline_status
+Input = environment
+Purpose = pipeline status lena
 ```
 
 So:
 
-> **Tool contract same hai; implementation change hui hai.**
+> **Tool contract same hai. Implementation change hui hai.**
 
-Easy formula:
+### Easy Formula
 
 ```text
-Outside Same
-Inside Changed
-= Implementation Change
+Outside same
+Inside changed
+= Implementation change
 ```
 
-Agar inputs change kar dein:
+### Contract Kab Change Hoga?
+
+Agar function change ho:
 
 ```python
 def get_pipeline_status(project_name, pipeline_id, environment):
     ...
 ```
 
-then contract bhi change ho gaya.
+Ab inputs bhi change ho gaye.
 
-### Interview Line
+So:
 
-> A stable tool contract allows an AI agent to use the same interface even when the underlying implementation evolves from mocked data to a real external system.
+```text
+Tool Name / Purpose / Arguments / Output expectation change
+= Tool Contract change
+```
+
+### Interview Point
+
+> A stable tool contract allows an AI agent to keep using the same interface even when the implementation evolves from mocked data to a live production integration.
 
 ---
 
 # PART 4 — Fake Tool → Real Tool Conversion
 
-## 6. Step-by-Step Conversion
+## 6. Exact Conversion Flow
+
+Fake tool ko production-ready real tool me convert karne ka mental model:
 
 ```text
-1. Fake function banao
+1. Fake Function
    ↓
-2. Tool contract stable karo
+2. Stable Tool Contract
    ↓
-3. Real data source choose karo
+3. Real Data Source Select
    ↓
-4. Authentication add karo
+4. Authentication
    ↓
-5. Actual API/CLI/SDK call karo
+5. Real API / SDK / CLI Call
    ↓
-6. Raw output parse karo
+6. Raw Response
    ↓
-7. Output normalize karo
+7. Parsing
    ↓
-8. Error handling add karo
+8. Normalization
    ↓
-9. Timeout / retry strategy add karo
+9. Error Handling
    ↓
-10. Agent ko clean evidence return karo
+10. Timeout / Retry
+   ↓
+11. Structured Evidence
+   ↓
+12. Agent
 ```
 
-Fake:
+### Fake Version
 
 ```python
 def get_aks_status(cluster_name: str):
@@ -341,35 +476,38 @@ def get_aks_status(cluster_name: str):
     return "Healthy"
 ```
 
-Real conceptual version:
+### Real Conceptual Version
 
 ```python
 def get_aks_status(cluster_name: str):
-    result = call_real_aks_system(cluster_name)
-    return normalize(result)
+    raw_result = call_real_aks_system(cluster_name)
+    clean_result = normalize_aks_result(raw_result)
+    return clean_result
 ```
 
-### Key Point
+### Key Learning
 
-> **Agent ke liye tool same reh sakta hai. Data source fake se real hota hai.**
+> Agent ko fake se real banane ke liye LLM ko change karna zaroori nahi hota. Mostly tool implementation aur production controls change hote hain.
 
 ---
 
 # PART 5 — Real AKS Tool
 
-## 7. AKS Ke Real Data Sources
+## 7. AKS Data Real Me Kahan Se Aayega?
 
-AKS ke status/health ke liye broadly 3 approaches:
+AKS ko investigate karne ke liye broadly 3 approaches:
 
 ```text
-1. az CLI
+1. Azure CLI (`az`)
 2. kubectl / Kubernetes API
 3. Azure SDK / REST API
 ```
 
+Ek hi tool sab problem solve nahi karega.
+
 ---
 
-## 8. `az CLI`
+## 8. `az CLI` — Azure Resource-Level View
 
 Example:
 
@@ -379,18 +517,31 @@ az aks show \
   --name prod-aks
 ```
 
-Useful for Azure resource-level information:
+Ye Azure resource level information de sakta hai:
 
 ```text
-Provisioning state
-Kubernetes version
-Node resource group
+Provisioning State
+Kubernetes Version
+Node Resource Group
 Identity
-Network profile
-Power state
+Network Profile
+Power State
+Resource Configuration
 ```
 
-Conceptual Python tool:
+### Mental Model
+
+```text
+Python Tool
+   ↓
+az aks show
+   ↓
+Azure Resource Manager
+   ↓
+AKS Resource Metadata
+```
+
+### Conceptual Tool
 
 ```python
 def get_aks_resource_status(cluster_name):
@@ -398,11 +549,23 @@ def get_aks_resource_status(cluster_name):
     return normalize(raw)
 ```
 
+### Limitation
+
+Suppose Azure resource says:
+
+```text
+AKS Resource = Running
+```
+
+But actual workloads inside cluster broken ho sakte hain.
+
+So `az aks show` alone full cluster health nahi batata.
+
 ---
 
-## 9. `kubectl`
+## 9. `kubectl` — Kubernetes Workload-Level View
 
-Actual Kubernetes workload health ke liye:
+Useful commands:
 
 ```bash
 kubectl get nodes
@@ -410,7 +573,27 @@ kubectl get pods -A
 kubectl get events -A
 ```
 
-Important difference:
+Ye actual Kubernetes control plane/workload state ki useful evidence de sakte hain.
+
+Example:
+
+```text
+Azure Resource:
+Running
+
+Kubernetes Nodes:
+2 NotReady
+
+Pods:
+8 Pending
+
+Events:
+NetworkPluginNotReady
+```
+
+Ab clear hai ki Azure resource "Running" hone ka matlab workload healthy nahi hota.
+
+### Important Difference
 
 ```text
 Azure Resource Health
@@ -422,26 +605,19 @@ Kubernetes Workload Health
 kubectl / Kubernetes API
 ```
 
-Example:
+### Interview Point
 
-```text
-Azure says:
-AKS resource = Running
+**Q. Why is `az aks show` not enough for full AKS troubleshooting?**
 
-But inside cluster:
-Node = NotReady
-Pods = CrashLoopBackOff
-```
-
-So sirf `az aks show` se full RCA nahi milega.
+> It mainly provides Azure resource-level information. Workload and node health require Kubernetes-level evidence through kubectl or the Kubernetes API.
 
 ---
 
 ## 10. Azure SDK / REST API
 
-Production application me SDK/API often cleaner integration deta hai.
+Production application me shell command parse karne ke bajay SDK/API often cleaner integration deta hai.
 
-Conceptual authentication example:
+Conceptual authentication:
 
 ```python
 from azure.identity import DefaultAzureCredential
@@ -449,13 +625,15 @@ from azure.identity import DefaultAzureCredential
 credential = DefaultAzureCredential()
 ```
 
-Benefits:
+### SDK ke Benefits
 
 ```text
-Structured objects
-Better exception handling
-No shell parsing
-Application-friendly integration
+Structured Objects
+Better Exception Handling
+No Shell Parsing
+Cleaner Python Integration
+Typed Responses
+Application-Friendly Error Handling
 ```
 
 ### Learning vs Production
@@ -468,21 +646,25 @@ Production Application
 → Azure SDK / Kubernetes API
 
 Existing Enterprise Platform
-→ Internal Platform API
+→ Internal API
 ```
+
+### Important Note
+
+"SDK always best" universal rule nahi hai. Enterprise me agar company ka internal platform API already secure abstraction provide karta hai, wo direct cloud API se better integration ho sakta hai.
 
 ---
 
 ## 11. One Big Tool vs Small Focused Tools
 
-Very coarse tool:
+Coarse tool:
 
 ```python
 def get_aks_status():
     return "Degraded"
 ```
 
-Better production tools:
+Production me better tool set:
 
 ```text
 get_aks_resource_status()
@@ -492,14 +674,27 @@ get_cluster_events()
 get_network_configuration()
 ```
 
-Why?
+### Why Smaller Tools?
 
 ```text
-Smaller focused tools
-→ Cleaner contracts
-→ Better evidence
-→ Easier testing
-→ Better reasoning
+Cleaner Contract
+More Precise Evidence
+Easier Testing
+Lower Ambiguity
+Better Agent Decisions
+```
+
+Example:
+
+```text
+Agent asks:
+"Are nodes healthy?"
+
+Better:
+get_node_status()
+
+Not:
+get_everything_about_aks()
 ```
 
 ---
@@ -511,7 +706,7 @@ Smaller focused tools
 **English Definition:**
 > Authentication verifies the identity of a user, application, or workload.
 
-Shortcut:
+Easy shortcut:
 
 ```text
 Authentication = WHO ARE YOU?
@@ -528,7 +723,7 @@ GitHub App / Token
 Azure DevOps Service Connection
 ```
 
-Correct architecture:
+### Correct Architecture
 
 ```text
 LLM
@@ -537,12 +732,12 @@ Requests Tool
  ↓
 Python Application
  ↓
-Secure Identity
+Managed Identity / Secure Credential
  ↓
 Azure API
 ```
 
-Wrong architecture:
+### Wrong Architecture
 
 ```text
 Prompt
@@ -552,7 +747,11 @@ Client Secret
 LLM
 ```
 
-> **Credentials LLM prompt/context me nahi dene. Credentials secure application/tool layer me manage karne hain.**
+> **Credentials LLM prompt/context me nahi dene. Credentials application/tool layer me securely manage karne hain.**
+
+### Why?
+
+Because prompts may be logged, inspected, stored, or exposed to model context. Secret management model layer ka kaam nahi hai.
 
 ---
 
@@ -572,11 +771,30 @@ RBAC = WHICH ROLE?
 Example:
 
 ```text
-Read AKS Status
+Read AKS status
 ✅ Allowed
 
-Delete AKS Cluster
+Delete AKS cluster
 ❌ Not Allowed
+```
+
+Authentication successful ho sakta hai but authorization fail ho sakta hai.
+
+Example:
+
+```text
+Login successful
+        ↓
+Request AKS delete
+        ↓
+403 Forbidden
+```
+
+That means:
+
+```text
+Identity valid
+Permission insufficient
 ```
 
 ---
@@ -584,27 +802,28 @@ Delete AKS Cluster
 ## 14. Least Privilege
 
 **English Definition:**
-> Least privilege means giving an identity only the minimum permissions required to perform its job.
+> Least privilege means giving an identity only the minimum permissions required to perform its task.
 
-RCA agent ideally needs:
+RCA agent ko ideally chahiye:
 
 ```text
 AKS read
 Pipeline logs read
-Terraform/Git changes read
+Terraform/Git change read
 Monitoring read
 ```
 
-It does NOT need by default:
+Default me nahi chahiye:
 
 ```text
 Delete Cluster
 Modify NSG
 Destroy Resources
 Restart Production Blindly
+Owner Role
 ```
 
-Mental model:
+### Mental Model
 
 ```text
 RCA Agent
@@ -626,6 +845,10 @@ Owner Role
 Anything Allowed
 ```
 
+### Why Important for AI?
+
+Because LLM reasoning probabilistic hai. Agar tool interface me accidental or overly broad write access de diya, blast radius high ho sakta hai.
+
 ---
 
 # PART 7 — Read-Only First + Human-in-the-Loop
@@ -635,7 +858,7 @@ Anything Allowed
 **English Definition:**
 > A read-only agent can inspect systems and collect evidence but cannot directly modify production resources.
 
-Safe progression:
+### Safe Progression
 
 ```text
 Phase 1
@@ -657,26 +880,39 @@ Phase 6
 Controlled Execution
 ```
 
-Direct auto-remediation risky hai because:
+### Why Direct Auto-Remediation Risky Hai?
+
+Suppose agent thinks:
+
+```text
+NSG rule missing hai
+```
+
+Aur direct create kar diya.
+
+Possible issues:
 
 ```text
 Wrong NSG selected
-Wrong environment
-Intentional security change undo ho sakta hai
+Wrong Subnet selected
+Wrong Environment
+Old rule intentionally removed tha
+Security policy violate ho sakti hai
 Terraform state drift create ho sakta hai
-Wrong target receive ho sakta hai
 ```
 
-> **Correct diagnosis and safe remediation are two different problems.**
+Very important line:
+
+> **Correct diagnosis hona aur safe remediation hona do alag problems hain.**
 
 ---
 
 ## 16. Human-in-the-Loop
 
 **English Definition:**
-> Human-in-the-loop is a control pattern where a human reviews or approves important AI-generated decisions or actions before execution.
+> Human-in-the-loop is a control pattern where a person reviews or approves important AI-generated decisions or actions before execution.
 
-Flow:
+### Flow
 
 ```text
 Agent Investigates
@@ -691,24 +927,39 @@ Human Reviews
       ↓
 Approve / Reject
       ↓
-Execution
+Controlled Execution
 ```
 
-AKS example:
+### AKS Example
+
+Agent:
 
 ```text
-Agent:
 Required NSG rule Terraform change me remove hua.
+```
 
-Suggested Fix:
-Restore AKS subnet allow rule.
+Recommendation:
+
+```text
+Restore required AKS subnet allow rule.
+```
 
 Human checks:
-Terraform diff
-Security impact
-Correct resource
-Correct environment
-Change window
+
+```text
+Terraform Diff
+Security Impact
+Correct Resource Group
+Correct Environment
+Change Window
+```
+
+Then:
+
+```text
+Approve
+   ↓
+Existing Pipeline Executes
 ```
 
 ### Golden Line
@@ -724,17 +975,18 @@ Change window
 **English Definition:**
 > Error handling is the process of detecting, reporting, and safely responding to failures in an application or external system.
 
-Real systems fail:
+Real tools kabhi bhi fail ho sakte hain:
 
 ```text
-401 authentication failed
-403 permission denied
-Resource not found
+401 Authentication Failed
+403 Permission Denied
+Resource Not Found
 Timeout
-API unavailable
-CLI command failed
-Invalid argument
-Rate limit
+API Unavailable
+CLI Command Failed
+Invalid Argument
+Rate Limit
+Network Failure
 ```
 
 ### Dangerous Code
@@ -752,14 +1004,14 @@ Why dangerous?
 ```text
 Azure Call Failed
        ↓
-Tool returns Healthy
+Tool returned Healthy
        ↓
-Agent believes false evidence
+Agent accepts false evidence
        ↓
 Wrong RCA
 ```
 
-Better principle:
+### Correct Principle
 
 ```text
 Tool Failed
@@ -772,7 +1024,7 @@ Instead:
 ```text
 Tool Failed
    =
-Investigation Evidence
+Important Investigation Evidence
 ```
 
 Example:
@@ -785,17 +1037,29 @@ Example:
 }
 ```
 
+Agent should say:
+
+```text
+AKS health could not be verified because the tool lacks permission.
+```
+
+Not:
+
+```text
+AKS is healthy.
+```
+
 ---
 
 ## 18. Error Taxonomy
 
-Instead of:
+Instead of generic:
 
 ```text
 Something went wrong
 ```
 
-Better:
+better categories:
 
 ```text
 authentication_failed
@@ -805,9 +1069,12 @@ timeout
 rate_limited
 api_unavailable
 invalid_argument
+network_failure
 ```
 
-Agent can reason differently:
+Why useful?
+
+Because agent can choose different next steps.
 
 ```text
 permission_denied
@@ -817,7 +1084,10 @@ timeout
 → connectivity / controlled retry
 
 resource_not_found
-→ environment/cluster mapping verify
+→ name/environment mapping verify
+
+rate_limited
+→ wait/backoff
 ```
 
 ---
@@ -836,21 +1106,35 @@ result = call_api(timeout=10)
 Meaning:
 
 ```text
-Maximum 10 seconds wait
+10 seconds tak wait
       ↓
 No response
       ↓
-Timeout error
+Timeout Error
 ```
 
-Example normalized error:
+Why needed?
 
-```json
-{
-  "success": false,
-  "error_type": "timeout",
-  "message": "AKS status could not be retrieved within 10 seconds"
-}
+Without timeout:
+
+```text
+Agent calls external API
+        ↓
+API hangs
+        ↓
+Agent workflow stuck
+```
+
+With timeout:
+
+```text
+Agent calls external API
+        ↓
+10 sec no response
+        ↓
+Timeout evidence
+        ↓
+Retry / alternate action
 ```
 
 ---
@@ -867,36 +1151,40 @@ Attempt 1 → Timeout
 Attempt 2 → Success
 ```
 
-Retry useful ho sakta hai for:
+Retry useful ho sakta hai for read operations:
 
 ```text
-Read AKS status
-Read logs
-Read monitoring data
-Read pipeline status
+Get AKS Status
+Get Pipeline Logs
+Read Monitoring Data
+Read Metrics
 ```
 
-But blindly retry dangerous for:
+### Why Blind Retry Dangerous for Write Operations?
+
+Suppose:
 
 ```text
-terraform apply
-Delete Resource
-Create NSG Rule
-Restart Production Workload
+Terraform Apply
 ```
 
-Because:
+Attempt 1 actually successful ho gaya, but response network me lost ho gaya.
+
+Agent thinks:
 
 ```text
-Attempt 1 actually succeeded
-but response lost
-        ↓
-Agent thinks failed
-        ↓
-Retry
-        ↓
-Duplicate / unsafe action
+Apply failed
 ```
+
+Then retry:
+
+```text
+Attempt 2
+```
+
+Could cause unwanted duplicate or unsafe behavior depending on operation.
+
+So:
 
 > **Read retries aur write retries ko same way treat nahi karna chahiye.**
 
@@ -905,7 +1193,7 @@ Duplicate / unsafe action
 ## 21. Backoff
 
 **English Definition:**
-> Backoff is a retry strategy in which an application waits longer between repeated attempts.
+> Backoff is a retry strategy in which an application waits progressively longer between repeated attempts.
 
 Example:
 
@@ -925,8 +1213,16 @@ Benefits:
 
 ```text
 Less pressure on external service
-Better handling of transient failures
-Avoid aggressive retry loops
+Better handling of temporary outages
+Useful for rate limits
+Prevents retry storms
+```
+
+### Mental Model
+
+```text
+Retry = Try again
+Backoff = Try again, but don't hammer the service
 ```
 
 ---
@@ -938,18 +1234,31 @@ Avoid aggressive retry loops
 **English Definition:**
 > Output normalization is the process of converting raw tool responses into a consistent structure that an application or agent can reliably consume.
 
-Real tool output often noisy hota hai:
+### Why Needed?
 
-```text
-Hundreds of lines
-Warnings
-Timestamps
-Metadata
-CLI formatting
-Irrelevant fields
+Real tools ka raw output messy hota hai.
+
+Example:
+
+```bash
+kubectl get pods -A
 ```
 
-Better architecture:
+Could return:
+
+```text
+Dozens/Hundreds of lines
+Namespaces
+Pod names
+Statuses
+Restart counts
+Ages
+Noise
+```
+
+Agent ko har baar poora dump dena efficient nahi hai.
+
+Better flow:
 
 ```text
 Real Tool
@@ -967,7 +1276,7 @@ LLM
 
 ## 23. AKS Normalization Example
 
-Raw information:
+Raw evidence:
 
 ```text
 Cluster: prod-aks
@@ -977,7 +1286,7 @@ Status: Running
 NetworkPluginNotReady event detected
 ```
 
-Normalized evidence:
+Normalized:
 
 ```json
 {
@@ -990,15 +1299,22 @@ Normalized evidence:
 }
 ```
 
-Benefits:
+### Benefits
 
 ```text
 Less Noise
-+ Fewer Tokens
-+ Better Consistency
-+ Easier Validation
-+ Better Agent Reasoning
+Fewer Tokens
+Consistent Format
+Easier Validation
+Better Agent Reasoning
+Easier Testing
 ```
+
+### Important Warning
+
+> **Normalization truth create nahi karta. Normalization existing evidence ko clean format me represent karta hai.**
+
+Agar source data wrong hai, normalized result bhi wrong hoga.
 
 ---
 
@@ -1026,11 +1342,13 @@ Normalized:
 }
 ```
 
+Now agent ko most important signal mil gaya.
+
 ---
 
 ## 25. Terraform Normalization Example
 
-Instead of entire plan:
+Instead of poora `terraform plan` dump:
 
 ```json
 {
@@ -1043,11 +1361,98 @@ Instead of entire plan:
 }
 ```
 
+### Combined Evidence
+
+```json
+{
+  "pipeline": {
+    "status": "failed",
+    "stage": "Terraform Apply"
+  },
+  "terraform": {
+    "change": "AKS subnet NSG allow rule removed"
+  },
+  "aks": {
+    "status": "degraded",
+    "network_issue": true
+  }
+}
+```
+
+Now agent can correlate:
+
+```text
+Pipeline failed during Terraform Apply
+              +
+Terraform removed AKS NSG rule
+              +
+AKS network degraded
+              ↓
+Strong evidence for network-related RCA
+```
+
 ---
 
-## 26. Structured Evidence
+## 26. Structured Evidence vs Structured Output
 
-Multiple tools ka clean evidence:
+Ye distinction bahut important hai.
+
+### Structured Evidence
+
+Tools se aane wala clean machine-readable data.
+
+Example:
+
+```json
+{
+  "status": "degraded",
+  "network_issue": true
+}
+```
+
+### Structured Output
+
+LLM ka final result fixed schema me.
+
+Example:
+
+```json
+{
+  "root_cause": "Required NSG rule was removed",
+  "impact": "AKS network connectivity degraded",
+  "fix": "Restore the required NSG rule",
+  "severity": "critical"
+}
+```
+
+### Full Flow
+
+```text
+Raw System Data
+       ↓
+Normalization
+       ↓
+Structured Evidence
+       ↓
+LLM Reasoning
+       ↓
+Structured RCA Output
+```
+
+### Interview Point
+
+> Structured evidence is normalized data collected from tools, while structured output is the model's final response constrained to a schema.
+
+---
+
+# PART 10 — Agent State + Grounding
+
+## 27. Agent State
+
+**English Definition:**
+> State is the information an application preserves across multiple steps so later decisions can use earlier observations.
+
+Example:
 
 ```python
 evidence = {
@@ -1065,88 +1470,44 @@ evidence = {
 }
 ```
 
-Correlation:
+Without state:
 
 ```text
-Pipeline failed during Terraform Apply
-              +
-Terraform removed AKS NSG rule
-              +
-AKS network health degraded
-              ↓
-Strong evidence for network-related RCA
+Step 1 evidence lost
+Step 2 evidence lost
+Agent repeats tools
+Agent loses correlation
 ```
 
-### Important Rule
+With state:
 
-> **Normalization truth create nahi karta. Normalization existing evidence ko clean aur consistent format me represent karta hai.**
-
-If source data wrong hai, normalized data bhi wrong ho sakta hai.
+```text
+Step 1 Pipeline Evidence
+Step 2 Terraform Evidence
+Step 3 AKS Evidence
+         ↓
+Preserved State
+         ↓
+Final RCA
+```
 
 ---
-
-## 27. Structured Evidence vs Structured Output
-
-Do not confuse these:
-
-```text
-Structured Evidence
-= Tools se aane wala clean machine-readable data
-
-Structured Output
-= LLM ka final answer fixed schema me
-```
-
-Complete flow:
-
-```text
-External Systems
-      ↓
-Tools
-      ↓
-Structured Evidence
-      ↓
-Agent State
-      ↓
-LLM Reasoning
-      ↓
-Structured RCA Output
-```
-
-Final RCA example:
-
-```json
-{
-  "root_cause": "Required AKS subnet NSG rule was removed",
-  "impact": "AKS network connectivity degraded",
-  "fix": "Restore the required NSG rule",
-  "severity": "critical"
-}
-```
-
-### Interview Line
-
-> Normalizing tool output reduces irrelevant noise and gives the agent consistent, machine-readable evidence for reasoning and validation.
-
----
-
-# PART 10 — Grounding + State
 
 ## 28. Grounding
 
 **English Definition:**
-> Grounding means basing the model's answer on supplied authoritative evidence instead of relying only on model memory or speculation.
+> Grounding means basing the model's answer on supplied evidence or authoritative data rather than relying only on model memory or speculation.
 
 Without tools:
 
 ```text
 Deployment failed after Terraform change.
 
-LLM:
+LLM may say:
 Maybe NSG
 Maybe DNS
-Maybe route table
-Maybe identity
+Maybe Routes
+Maybe Identity
 ```
 
 With evidence:
@@ -1162,40 +1523,23 @@ AKS:
 Network connectivity degraded
 ```
 
-Then:
+Now answer:
 
 ```text
-Removed NSG rule disrupted required AKS network traffic.
+Removed NSG rule likely disrupted required AKS network traffic.
 ```
 
----
+This is grounded reasoning.
 
-## 29. State
+### Important
 
-State means collected evidence preserve karna across steps.
-
-```text
-Step 1
-Pipeline Evidence
-      ↓
-Step 2
-Terraform Evidence
-      ↓
-Step 3
-AKS Evidence
-      ↓
-Agent State
-      ↓
-Final RCA
-```
-
-Agent ko har tool call ke baad previous information lose nahi karni chahiye.
+Grounding hallucination risk reduce karta hai, but zero nahi karta. Evidence quality, tool correctness aur reasoning still matter.
 
 ---
 
 # PART 11 — Audit Logging + Traceability
 
-## 30. Audit Logging
+## 29. Audit Logging
 
 **English Definition:**
 > Audit logging is the recording of important system actions and decisions so they can be reviewed later for security, compliance, debugging, and accountability.
@@ -1204,23 +1548,6 @@ Simple Hinglish:
 
 ```text
 Audit Log = Agent ki activity history
-```
-
-Useful fields:
-
-```text
-Request ID / Incident ID
-User / Service Identity
-Agent Version
-Tool Name
-Tool Arguments
-Tool Result Status
-Error Details
-Evidence Timestamp
-Final Recommendation
-Human Approval
-Executed Action
-Execution Result
 ```
 
 Example:
@@ -1234,26 +1561,35 @@ Result: Degraded
 Time: 13:42
 ```
 
-### Never Log Secrets
-
-Bad:
+Then:
 
 ```text
-client_secret = abc123
+Tool: get_terraform_changes
+Input: production
+Result: NSG rule removed
 ```
 
-Good:
+And remediation:
 
 ```text
-authentication_method = managed_identity
+Suggested Action:
+Restore AKS subnet NSG rule
+
+Approval:
+Approved by DevOps Lead
+
+Execution:
+Pipeline Run #7821
 ```
 
 ---
 
-## 31. Traceability
+## 30. Traceability
 
 **English Definition:**
-> Traceability is the ability to follow the complete path from the initial request through evidence, decisions, approvals, and final actions.
+> Traceability is the ability to follow the complete path from an initial request through evidence, decisions, approvals, and final actions.
+
+Mental model:
 
 ```text
 Incident
@@ -1273,49 +1609,129 @@ Approval
 Execution
 ```
 
+Production me useful fields:
+
+```text
+Request ID / Incident ID
+User / Service Identity
+Agent Version
+Tool Name
+Tool Arguments
+Tool Result Status
+Error Details
+Evidence Timestamp
+Model/Prompt Version
+Final Recommendation
+Human Approval
+Executed Action
+Execution Result
+```
+
+### Secrets Log Mat Karo
+
+Bad:
+
+```text
+client_secret = abc123
+```
+
+Good:
+
+```text
+authentication_method = managed_identity
+```
+
+### Why Useful?
+
+Agar agent wrong RCA de:
+
 Without logs:
 
 ```text
-"Agent ne kya kiya?"
+Pata nahi agent ne kya kiya.
 ```
 
-With audit logs:
+With logs:
 
 ```text
-Exactly which tool
-which arguments
-which evidence
-which recommendation
-who approved
-what executed
+Agent used incomplete Terraform evidence
+      ↓
+Wrong correlation
+      ↓
+Exact failure point found
 ```
 
 ---
 
-# PART 12 — Final Production Architecture
+# PART 12 — Controlled Remediation
 
-## 32. End-to-End Architecture
+## 31. Production Me Fix Kaise Execute Hona Chahiye?
+
+Recommended flow:
+
+```text
+Agent
+ ↓
+Proposed Fix
+ ↓
+Human Approval
+ ↓
+Existing CI/CD Pipeline
+ ↓
+Terraform Plan / Policy Checks
+ ↓
+Controlled Apply
+```
+
+Not:
+
+```text
+LLM
+ ↓
+Unrestricted Shell
+ ↓
+Direct Production Mutation
+```
+
+### Existing Pipeline Reuse Kyun?
+
+Because pipeline me already ho sakta hai:
+
+```text
+Approvals
+Policy Checks
+Terraform Plan
+Security Scans
+Audit Trail
+Rollback Process
+Environment Controls
+```
+
+Agent ko existing governance bypass nahi karna chahiye.
+
+---
+
+# PART 13 — Final Production Architecture
+
+## 32. Complete End-to-End Architecture
 
 ```text
 User / Incident
       ↓
-AI Agent / LLM Brain
+AI Agent
       ↓
 Tool Router
       ↓
 Read-Only Real Tools
  ├── AKS Resource Status
- ├── Node Health
+ ├── Node Status
  ├── Pod Failures
  ├── Cluster Events
  ├── Pipeline Status
  ├── Terraform Changes
- ├── Logs
- └── Monitoring
+ └── Monitoring / Logs
       ↓
-Authentication
-      ↓
-RBAC / Least Privilege
+Authentication + RBAC
       ↓
 Real External Systems
       ↓
@@ -1337,103 +1753,126 @@ Human Approval
       ↓
 Controlled CI/CD Remediation
       ↓
-Audit Logs / Traceability
+Audit Logs
 ```
 
 ---
 
-## 33. Why Existing CI/CD Pipeline Should Execute the Change
+## 33. Complete AKS Incident Walkthrough
 
-Preferred:
-
-```text
-Agent
- ↓
-Proposed Fix
- ↓
-Human Approval
- ↓
-Existing CI/CD Pipeline
- ↓
-Terraform Apply
-```
-
-Avoid unrestricted:
+Incident:
 
 ```text
-LLM
- ↓
-Direct Production Command
+Production deployment Terraform changes ke baad fail ho gaya.
 ```
 
-Existing pipeline already may provide:
+### Step 1 — Pipeline Tool
 
 ```text
-Approvals
-Policy Checks
-Terraform Plan
-Security Scans
-Audit Trail
-Rollback Process
+get_pipeline_status("production")
 ```
 
----
+Result:
 
-# PART 13 — Our AKS Incident Example
+```json
+{
+  "status": "failed",
+  "stage": "Terraform Apply"
+}
+```
 
-## 34. Evidence
+### Step 2 — Terraform Tool
 
 ```text
-Pipeline:
-Failed during Terraform Apply
-
-Terraform:
-NSG rule allowing AKS subnet traffic was removed
-
-AKS:
-Degraded - network connectivity failures detected
+get_terraform_changes("production")
 ```
 
-Agent correlation:
+Result:
+
+```json
+{
+  "removed": "AKS subnet NSG allow rule"
+}
+```
+
+### Step 3 — AKS Tool
 
 ```text
-Pipeline failed during Terraform Apply
-       +
-Terraform removed required NSG rule
-       +
-AKS network connectivity degraded
-       ↓
-Likely causal relationship
+get_aks_status("prod-aks")
 ```
 
-Structured RCA:
+Result:
+
+```json
+{
+  "status": "degraded",
+  "network_issue": true
+}
+```
+
+### Step 4 — State
+
+```text
+Pipeline Failure
++
+Terraform NSG Removal
++
+AKS Network Degradation
+```
+
+### Step 5 — Grounded RCA
 
 ```json
 {
   "root_cause": "Required AKS subnet NSG rule was removed during Terraform changes.",
   "impact": "AKS network connectivity degraded and deployment failed.",
-  "fix": "Restore the required NSG rule and validate related network configuration before redeployment.",
+  "fix": "Restore the required NSG rule and validate connectivity.",
   "severity": "critical"
 }
 ```
 
-Then:
+### Step 6 — Human Review
+
+Engineer verifies:
 
 ```text
-Agent recommends fix
+Correct NSG
+Correct Environment
+Security Intent
+Terraform Diff
+```
+
+### Step 7 — Controlled Remediation
+
+```text
+Approved Terraform PR / Pipeline
       ↓
-Human reviews Terraform diff
+Plan
       ↓
-Approve
+Policy Checks
       ↓
-Controlled pipeline executes
+Apply
+```
+
+### Step 8 — Audit
+
+Record:
+
+```text
+Who investigated?
+Which tools ran?
+What evidence was found?
+What RCA was generated?
+Who approved?
+What pipeline executed?
+What was final result?
 ```
 
 ---
 
 # PART 14 — Fake Agent vs Production Agent
 
-## 35. Learning Agent
+## Learning Agent
 
 ```text
 LLM
@@ -1445,7 +1884,7 @@ Hard-coded Evidence
 RCA
 ```
 
-## 36. Production Agent
+## Production Agent
 
 ```text
 LLM
@@ -1456,7 +1895,7 @@ Authenticated Read-Only Tools
  ↓
 Real Systems
  ↓
-Normalized Structured Evidence
+Normalized Evidence
  ↓
 State
  ↓
@@ -1471,153 +1910,138 @@ Controlled Pipeline
 Audit
 ```
 
-> **Yahi Fake Tool → Real Tool ka actual production meaning hai.**
-
 ---
 
-# PART 15 — Interview Corner
-
-## Q1. What is a fake tool?
-
-> A fake tool returns controlled or hard-coded data instead of calling a real external system.
-
-## Q2. What is a real tool?
-
-> A real tool connects to an actual external system to retrieve authoritative data or perform an approved action.
-
-## Q3. What is a tool contract?
-
-> A tool contract defines the tool name, purpose, accepted arguments, expected output, and behavioral expectations.
-
-## Q4. What changes when a fake tool becomes a real tool?
-
-> The implementation changes to call a real external system, while the tool contract can often remain stable.
-
-## Q5. Does the LLM execute Azure or Python functions directly?
-
-> No. The LLM selects a tool and arguments; the application executes the actual function.
-
-## Q6. What is the difference between authentication and authorization?
-
-> Authentication verifies identity, while authorization determines what that authenticated identity is allowed to do.
-
-## Q7. Why should a DevOps AI agent use least privilege?
-
-> Least privilege limits blast radius by giving the agent only the permissions required for its task.
-
-## Q8. Why should an AI DevOps agent start read-only?
-
-> A read-only design limits blast radius while the agent proves its reasoning, grounding, authorization, and reliability.
-
-## Q9. What is human-in-the-loop?
-
-> Human-in-the-loop requires a person to review or approve important AI-generated actions before execution.
-
-## Q10. Why is error handling important in AI tools?
-
-> Tool failures must be represented explicitly so that the agent does not mistake missing evidence for a healthy system.
-
-## Q11. What is a timeout?
-
-> A timeout defines the maximum time an application waits for an operation before treating it as failed.
-
-## Q12. What is retry?
-
-> Retry is a controlled repetition of an operation after a temporary failure.
-
-## Q13. Should all operations be retried automatically?
-
-> No. Read-only transient operations may be retried, but write or destructive actions require much more careful handling.
-
-## Q14. What is output normalization?
-
-> Output normalization converts raw tool responses into a consistent structure that an application or agent can reliably consume.
-
-## Q15. What is structured evidence?
-
-> Structured evidence is clean, machine-readable data returned by tools and used by the agent for reasoning.
-
-## Q16. What is the difference between structured evidence and structured output?
-
-> Structured evidence comes from tools, while structured output is the model's final response constrained to a schema.
-
-## Q17. What is grounding?
-
-> Grounding means generating conclusions from supplied authoritative evidence instead of relying only on model memory or guesses.
-
-## Q18. Why is audit logging important?
-
-> Audit logging provides accountability and traceability by recording tool calls, evidence, decisions, approvals, and actions.
-
-## Q19. How would you design a production-grade DevOps troubleshooting agent?
-
-> I would separate reasoning from execution. The LLM would select approved read-only tools, while the application layer would authenticate using secure workload identities. Tool outputs would be normalized into structured evidence and preserved in state. The model would generate a schema-validated RCA grounded in that evidence. Any remediation would require human approval and execute through controlled CI/CD workflows with RBAC, error handling, retries, and audit logging.
-
----
-
-# 🧠 Final Revision Sheet
+# PART 15 — Final Revision Sheet
 
 ```text
 Fake Tool
-= Hard-coded / controlled learning data
+= Hard-coded / controlled learning implementation
 
 Real Tool
-= Actual external system se data
+= Actual external system integration
 
 Tool Contract
-= Name + purpose + input + expected output
+= Name + Purpose + Inputs + Expected Output
 
-Tool Implementation
-= Function ke andar actual logic
+Implementation
+= Tool ke andar actual logic
 
 Authentication
 = Who are you?
 
-Authorization / RBAC
-= What can you do?
+Authorization
+= What are you allowed to do?
+
+RBAC
+= Which role gives those permissions?
 
 Least Privilege
-= Only minimum required permissions
+= Minimum required permission
 
 Read-Only First
-= Investigate before changing production
+= Investigate safely before changing production
 
 Human-in-the-Loop
-= Human approval before high-impact action
+= Human approval before important action
 
 Error Handling
-= Failure ko hide mat karo
+= Failure ko safely represent karna
 
 Timeout
-= Forever wait mat karo
+= Maximum wait time
 
 Retry
-= Controlled repeat
+= Temporary failure ke baad controlled repeat
 
 Backoff
 = Retry ke beech increasing wait
 
 Normalization
-= Raw output → clean consistent data
+= Raw output ko clean consistent structure me convert karna
 
 Structured Evidence
-= Tools se clean machine-readable data
-
-State
-= Previous evidence preserve karna
-
-Grounding
-= Evidence ke basis par reason karna
+= Tool se aaya normalized machine-readable data
 
 Structured Output
-= Final LLM answer in fixed schema
+= LLM ka schema-constrained final result
+
+State
+= Collected evidence ko preserve karna
+
+Grounding
+= Evidence-based reasoning
 
 Audit Logging
-= Agent ki activity history
+= Agent activity ka record
 
 Traceability
-= Incident → Evidence → Decision → Approval → Execution chain
+= Request se action tak full path reconstruct karna
+
+Controlled Remediation
+= Approved workflow/pipeline ke through change execute karna
 ```
+
+---
+
+# 🎯 Interview Corner
+
+### Q1. What is the difference between a fake tool and a real tool?
+> A fake tool returns controlled data, while a real tool connects to an actual external system and returns live or authoritative evidence.
+
+### Q2. What is a tool contract?
+> A tool contract defines the tool name, purpose, arguments, expected result, and behavioral expectations.
+
+### Q3. If a fake tool starts calling Azure but keeps the same name and arguments, what changed?
+> The implementation changed; the tool contract can remain the same.
+
+### Q4. Does the LLM execute the Azure API call itself?
+> No. The LLM selects the tool; the application executes the authenticated API or SDK call.
+
+### Q5. Why use small focused tools?
+> They provide cleaner contracts, more precise evidence, easier testing, and lower ambiguity for the agent.
+
+### Q6. What is the difference between authentication and authorization?
+> Authentication verifies identity; authorization determines what that identity is allowed to do.
+
+### Q7. Why use least privilege for AI agents?
+> It limits blast radius by giving the agent only the permissions required for its task.
+
+### Q8. Why should DevOps agents start read-only?
+> Read-only access lets the system prove its reasoning, grounding, logging, and safety before it is allowed to modify production.
+
+### Q9. What is human-in-the-loop?
+> A person reviews or approves important model-generated decisions or actions before execution.
+
+### Q10. Why is `except: return "Healthy"` dangerous?
+> A failed tool call would be converted into false evidence, which can cause an incorrect RCA.
+
+### Q11. What is a timeout?
+> A timeout is the maximum time an application waits for an operation to complete.
+
+### Q12. What is a retry?
+> A retry is a controlled repeat of an operation after a temporary failure.
+
+### Q13. What is backoff?
+> Backoff increases the waiting time between retries to reduce pressure on a failing or rate-limited service.
+
+### Q14. What is output normalization?
+> Output normalization converts raw external-system responses into a consistent structure that an agent can reliably consume.
+
+### Q15. Structured evidence vs structured output?
+> Structured evidence is normalized data from tools; structured output is the model's final schema-constrained response.
+
+### Q16. What is grounding?
+> Grounding means basing model conclusions on supplied authoritative evidence instead of speculation alone.
+
+### Q17. What is state in an agent?
+> State is preserved information from earlier steps that later reasoning can use.
+
+### Q18. Why is audit logging important?
+> It provides accountability, debugging, compliance, and the ability to reconstruct what the agent did and why.
+
+### Q19. Should an AI agent directly run Terraform Apply in production?
+> Not by default. A safer pattern is read-only investigation, recommendation, human approval, and controlled execution through an existing CI/CD workflow.
 
 ---
 
@@ -1628,13 +2052,13 @@ Fake Tool
    ↓
 Stable Tool Contract
    ↓
-Real External Integration
+Real Tool
    ↓
 Authentication
    ↓
-RBAC
+RBAC / Least Privilege
    ↓
-Read-Only Access
+Read-Only Investigation
    ↓
 Error Handling
    ↓
@@ -1648,20 +2072,22 @@ Structured Evidence
    ↓
 State
    ↓
-Grounded RCA
+Grounded Reasoning
    ↓
-Validation
+Structured RCA
    ↓
 Human Approval
    ↓
 Controlled Execution
    ↓
-Audit Logging
+Audit Trail
 ```
+
+> **Lesson 5 ka main takeaway:** Agent ko real banane ka matlab sirf fake return statement ko API call se replace karna nahi hai. Real production agent ke liye authentication, RBAC, focused tools, error handling, normalization, grounding, state, approval aur audit controls equally important hain.
 
 ---
 
-# 🚩 Module 1 Completion Flow
+# ✅ Module 1 Completion Flow
 
 ```text
 Lesson 1
@@ -1677,7 +2103,5 @@ Lesson 4
 Ollama + Structured Output + Tool Calling + Agent Loop + V1–V4
         ↓
 Lesson 5
-Fake Tool → Real Tool
+Fake Tool → Real Tool + Production Controls
 ```
-
-> **Module 1 outcome:** Ab hum sirf model se answer lena nahi samajhte; hum samajhte hain ki existing LLM ko real DevOps tools, structured evidence, state, safety controls, approvals aur auditability ke saath production-grade agent application me kaise use kiya jata hai.
