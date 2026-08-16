@@ -1,169 +1,450 @@
-# Lesson 10 — Indexing & Retrieval Flow
+# 🚩 Lesson 10 — Indexing & Retrieval Flow
 
-> **Indexing prepares knowledge; retrieval finds the right part of that knowledge at query time.**
-
-## 🎯 Lesson Goal
-
-Complete ingestion/indexing pipeline aur query/retrieval pipeline ko separate but connected flows ki tarah samajhna.
+> **Ab tak ke saare pieces ko ek architecture me jodenge: load → chunk → embed → index → query → retrieve.**
 
 ---
 
-# Part 1 — Indexing / Ingestion
+## 🎯 Lesson Goal
+
+Is lesson ke end tak aap samjhoge:
+
+- ingestion/indexing pipeline
+- query/retrieval pipeline
+- offline vs online work
+- stable chunk IDs
+- incremental indexing
+- update/delete handling
+- Top-K + metadata filters
+- retrieval trace/logging
+- failure handling
+- complete DevOps architecture
+
+---
+
+# PART 1 — Two Separate Pipelines
+
+Production mental model me indexing aur querying ko separate rakho.
+
+## Pipeline A — Ingestion / Indexing
 
 ```text
 Source Documents
       ↓
 Load
       ↓
-Clean / Normalize
+Clean / Validate
       ↓
 Chunk
       ↓
 Attach Metadata
       ↓
-Create Embeddings
+Embed
       ↓
 Store / Index
 ```
 
-## Example Sources
+## Pipeline B — Query / Retrieval
 
 ```text
-runbooks/
-incidents/
-terraform-guides/
-architecture/
-pipeline-troubleshooting/
+User Query
+      ↓
+Validate / Scope
+      ↓
+Query Embedding
+      ↓
+Metadata / Authorization Scope
+      ↓
+Vector Search
+      ↓
+Top-K
+      ↓
+Return Text + Source + Scores
 ```
 
-## Pseudo Code
+Important:
 
-```python
-for document in documents:
-    chunks = chunk(document.text)
-
-    for chunk in chunks:
-        vector = embed(chunk.text)
-        store(
-            text=chunk.text,
-            embedding=vector,
-            metadata=chunk.metadata
-        )
+```text
+Index documents once/update when changed
+NOT
+re-index everything for every user query
 ```
 
 ---
 
-# Part 2 — Retrieval
+# PART 2 — English Definitions
+
+> **Indexing** is the process of preparing and storing searchable representations of source content.
+
+> **Retrieval** is the runtime process of finding the most relevant indexed content for a query.
+
+Hinglish:
 
 ```text
-User Query
-    ↓
-Normalize Query
-    ↓
-Create Query Embedding
-    ↓
-Apply Valid Filters
-    ↓
-Similarity Search
-    ↓
-Top-K Chunks
-    ↓
-Return text + source + metadata + score/distance
+Indexing = knowledge ko search-ready banana
+Retrieval = question ke waqt right knowledge nikalna
 ```
 
-## DevOps Query
+---
+
+# PART 3 — Step-by-Step Ingestion
+
+Suppose files:
 
 ```text
-AKS deployment failed after subnet security rule change
+sample_docs/
+├── aks-networking.md
+├── terraform-state.md
+├── pipeline-failure.md
+└── docker-build.md
 ```
 
-Possible retrieved results:
+## Step 1 — Discover
 
-```text
-1. previous-nsg-incident.md / Root Cause
-2. aks-networking-runbook.md / NSG Validation
-3. terraform-network-policy.md / Required Rules
+```python
+from pathlib import Path
+
+files = list(Path("sample_docs").glob("*.md"))
 ```
 
-## Indexing Is Not One-Time Forever
+## Step 2 — Read
 
-Documents change.
-
-```text
-New runbook
-Updated policy
-Deleted incident note
-Embedding model migration
-Metadata correction
+```python
+text = path.read_text(encoding="utf-8")
 ```
 
-So production ingestion needs lifecycle:
+Validate:
 
 ```text
-create
-update
-re-index
-version
-remove
+not empty
+supported type
+reasonable size
+not secret dump
 ```
 
-## Idempotency
-
-Same document repeatedly ingest karne par accidental duplicates create na ho. Stable IDs useful hain:
+## Step 3 — Chunk
 
 ```text
-source + version + chunk_number
+Document → chunk-0, chunk-1, chunk-2...
+```
+
+## Step 4 — Metadata
+
+```json
+{
+  "source": "aks-networking.md",
+  "chunk_id": 2,
+  "service": "aks"
+}
+```
+
+## Step 5 — Embed
+
+```python
+vectors = model.encode(chunk_texts)
+```
+
+## Step 6 — Index
+
+```text
+vectors + mapping → FAISS/Vector Store
+```
+
+---
+
+# PART 4 — Stable IDs
+
+Bad ID strategy:
+
+```text
+0,1,2,3
+```
+
+If file ordering changes, identity ambiguous ho sakti hai.
+
+Better concept:
+
+```text
+source + section/chunk + version/hash
 ```
 
 Example:
 
 ```text
-aks-networking-v2-chunk-003
+aks-networking.md::chunk-003::v4
 ```
 
-## Observability
+Or deterministic content/source hash.
 
-Useful indexing metrics:
+Why stable IDs?
 
 ```text
-documents discovered
-chunks created
-embedding failures
-records indexed
-duplicates skipped
-indexing duration
+update
+replace
+delete
+deduplicate
+audit
 ```
 
-Useful retrieval metrics:
+---
+
+# PART 5 — Incremental Indexing
+
+Naive:
 
 ```text
-query latency
-number of results
-similarity distribution
-filter usage
-no-result rate
-retrieval relevance evaluation
+1 file changed
+→ re-embed all 50,000 files
 ```
 
-## Freshness Problem
-
-Old document semantically relevant ho sakta hai but operationally invalid.
-
-Use:
+Better:
 
 ```text
-metadata status
-version
-timestamp
-source-of-truth policy
+Detect changed files
+ ↓
+Delete/replace affected chunks
+ ↓
+Embed only changed chunks
+ ↓
+Update index
 ```
 
-## Interview Point
+Common mechanisms:
 
-**Q: Difference between indexing and retrieval?**
+- file hash
+- Git commit SHA
+- modified timestamp
+- document version
+- source database revision
 
-Indexing transforms source knowledge into searchable vector records. Retrieval transforms a query into a compatible vector and searches the index for relevant records at runtime.
+---
 
-## Next Lesson Kyu?
+# PART 6 — Delete Handling
 
-Ab full pipeline clear hai. Next lesson me ise **DevOps knowledge base** ke actual design me convert karenge.
+Source doc delete hua but vectors index me reh gaye:
+
+```text
+Source deleted
+but
+stale vector remains
+   ↓
+Ghost retrieval
+```
+
+So ingestion lifecycle should support:
+
+```text
+create
+update
+replace
+delete
+```
+
+Vector index is not fire-and-forget.
+
+---
+
+# PART 7 — Query Flow
+
+User asks:
+
+```text
+AKS pods lost SQL connectivity after NSG change
+```
+
+Step-by-step:
+
+```text
+1. Validate query
+2. Resolve user scope
+3. Build query embedding
+4. Apply allowed metadata scope
+5. Search Top-K
+6. Map vector hits → chunks
+7. Attach source + score/distance
+8. Optionally reject weak results
+9. Return retrieval result
+```
+
+No LLM generation required yet.
+
+---
+
+# PART 8 — Retrieval Result Contract
+
+Instead of raw string:
+
+```text
+"Check NSG rules"
+```
+
+Return structured result:
+
+```json
+{
+  "rank": 1,
+  "source": "aks-networking.md",
+  "chunk_id": "aks-networking::003",
+  "text": "Validate outbound NSG rules...",
+  "score": 0.87,
+  "metadata": {
+    "service": "aks",
+    "environment": "prod"
+  }
+}
+```
+
+This helps later RAG citations/evaluation.
+
+---
+
+# PART 9 — Top-K Tuning
+
+Too low:
+
+```text
+K=1 → may miss supporting evidence
+```
+
+Too high:
+
+```text
+K=20 → noise + duplicates
+```
+
+Choose based on evaluation.
+
+Potential enhancements later:
+
+```text
+retrieve top 20
+   ↓
+rerank
+   ↓
+keep top 5
+```
+
+Reranking Module 5/advanced RAG territory hai.
+
+---
+
+# PART 10 — Retrieval Logging
+
+For debugging/evaluation log:
+
+```text
+query_id
+query text/hash (privacy-aware)
+embedding model/version
+filters
+Top-K
+returned chunk IDs
+scores/distances
+latency
+index version
+```
+
+Do not log secrets or sensitive raw text unnecessarily.
+
+---
+
+# PART 11 — Failure Cases
+
+### Empty corpus
+
+Return clear error:
+
+```text
+No indexed documents available.
+```
+
+### Empty query
+
+Reject before embedding.
+
+### Model mismatch
+
+Block search/re-index.
+
+### No useful result
+
+Do not pretend irrelevant Top-K is good knowledge.
+
+### Stale index
+
+Expose index/document version and refresh mechanism.
+
+---
+
+# PART 12 — Full DevOps Architecture
+
+```text
+Git / Wiki / Runbooks / Postmortems
+             ↓
+      Ingestion Pipeline
+             ↓
+     Document Validation
+             ↓
+          Chunking
+             ↓
+          Metadata
+             ↓
+         Embeddings
+             ↓
+       Vector Index
+             │
+             │ runtime
+             ▼
+        User Question
+             ↓
+      Query Embedding
+             ↓
+ Authorization + Filters
+             ↓
+        Vector Search
+             ↓
+          Top-K
+             ↓
+ Source + Chunk + Score
+```
+
+---
+
+# PART 13 — Interview Corner
+
+**Q: Difference between indexing and retrieval?**  
+Indexing prepares/stores searchable document representations; retrieval searches that prepared corpus at query time.
+
+**Q: What is incremental indexing?**  
+Updating only changed/deleted/new content instead of rebuilding the entire corpus every time.
+
+**Q: Why stable chunk IDs?**  
+For traceability, deduplication, updates, deletes and evaluation.
+
+---
+
+# PART 14 — Revision
+
+```text
+OFFLINE / INGESTION
+Docs → Chunks → Metadata → Embeddings → Index
+
+ONLINE / QUERY
+Query → Embedding → Filters → Search → Top-K → Sources
+```
+
+---
+
+# PART 15 — Homework
+
+1. Apne words me ingestion vs query pipeline draw karo.
+2. Source document update hone par exact lifecycle likho.
+3. Retrieval result ke minimum 5 fields define karo.
+4. Why `Top-K=10` blindly use nahi karna chahiye?
+
+---
+
+# Next Lesson Kyu?
+
+Architecture samajh aa gayi. Ab theory ko multiple real DevOps docs par run karenge.
+
+# 👉 Lesson 11 — DevOps Knowledge Base Practical
