@@ -2,3 +2,6 @@ langgraph>=1.1,<2
 langchain-core>=0.3
 langchain-ollama>=0.3
 pydantic>=2
+openai>=1.0.0
+requests>=2.31.0
+python-dotenv>=1.0.0
