@@ -6,7 +6,7 @@
 
 Module 0 me humne LLM fundamentals samjhe. Module 1 me hum existing LLM ko Python application ke andar use karke **API calls, local AI, structured output, tool calling aur DevOps agent flow** build karte hain.
 
-> **Important:** Ye README ab actual live-class sequence ko follow karta hai. Extra lesson numbering use nahi ki gayi hai.
+> **Important:** Ye README actual live-class sequence ko follow karta hai.
 
 ---
 
@@ -28,8 +28,14 @@ Module ke end tak aap samjhoge:
 - state and evidence grounding
 - basic DevOps investigation agent
 - `devops_agent_v1.py` → `v4.py` evolution
-- fake tool se real DevOps integration ka architecture
-- authentication, authorization, least privilege aur human approval
+- fake tool se real tool transition
+- real `pipeline.log` evidence collection
+- no-evidence/no-RCA guardrail
+- evidence-only reporting
+- tool allowlist + argument validation
+- deterministic impact validation
+- confidence policy
+- final trusted RCA architecture
 
 ---
 
@@ -142,16 +148,14 @@ Lesson 4 includes:
 
 ## 5. [Lesson 05 — Fake Tool → Real Tool](Lesson-05-Fake-Tool-to-Real-Tool.md)
 
-Final Module-1 transition:
+Lesson 05 starts with the architecture transition:
 
 ```text
 Fake / Hard-coded Tool
         ↓
 Stable Tool Contract
         ↓
-Real Azure / AKS / Pipeline / Terraform Source
-        ↓
-Normalized Evidence
+Real Evidence Source
         ↓
 Grounded Agent Reasoning
 ```
@@ -167,6 +171,40 @@ Production concepts introduced:
 - timeouts/retries
 - audit logging
 - human-in-the-loop approval
+
+### ✅ Lesson 05 Live Practical
+
+The exact practical sequence is preserved here:
+
+**[Lesson 05 Real Tool → Trusted RCA Practical](examples/lesson-05-real-tool-practical/README.md)**
+
+```text
+pipeline.log
+   ↓
+real file-reading tool
+   ↓
+Qwen tool call
+   ↓
+no-tool guardrail
+   ↓
+evidence_log / preserved evidence
+   ↓
+V3 evidence-only reporting
+   ↓
+V4 Pydantic validation
+   ↓
+tool-argument hallucination discovered
+   ↓
+tool allowlist + argument validation
+   ↓
+deterministic impact extraction
+   ↓
+confidence policy
+   ↓
+FINAL TRUSTED RCA
+```
+
+This practical is important because it shows that **structured output alone is not enough**. The host application must also validate tool calls, evidence support, business claims and confidence.
 
 ---
 
@@ -184,6 +222,11 @@ All runnable code is inside [`examples/`](examples/README.md).
 | V2 | [`devops_agent_v2.py`](examples/devops_agent_v2.py) | Better tool arguments + correct environment/cluster mapping |
 | V3 | [`devops_agent_v3.py`](examples/devops_agent_v3.py) | State + duplicate-call handling + evidence grounding |
 | V4 | [`devops_agent_v4.py`](examples/devops_agent_v4.py) | Investigation separated from schema-validated RCA reporting |
+| Real Tool V1 | [`real_tool_qwen_v1.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v1.py) | Read actual `pipeline.log` through a Qwen-requested tool |
+| Guardrail V2 | [`real_tool_qwen_v2_guardrail.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v2_guardrail.py) | No-tool/no-evidence RCA block + evidence preservation |
+| Real Tool V3 | [`real_tool_qwen_v3.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v3.py) | Evidence-only final reporting |
+| Real Tool V4 | [`real_tool_qwen_v4.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v4.py) | `FinalRCA` Pydantic validation |
+| Final | [`real_tool_qwen_v4_final.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v4_final.py) | Allowlist, argument validation, evidence validation, deterministic impact, confidence policy |
 
 Setup files:
 
@@ -192,88 +235,74 @@ Setup files:
 
 ---
 
-# 🔁 V1 → V4 Evolution
+# 🔁 Agent Evolution
 
-## V1 — Basic Agent Loop
+## Earlier V1 → V4
 
 ```text
-User Issue
- ↓
-LLM
- ↓
-Tool Call
- ↓
-Python Tool
- ↓
-Tool Result
- ↓
-LLM
- ↓
-Final Answer
+Basic Agent Loop
+   ↓
+Better Tool Arguments
+   ↓
+State & Grounding
+   ↓
+Investigation + Structured RCA
 ```
 
-## V2 — Better Tool Arguments
+## Lesson 05 Real Tool Evolution
 
 ```text
-Correct environment / cluster mapping
-+ typed arguments
-+ consistent tool inputs
-```
-
-## V3 — State & Grounding
-
-```text
-Collect Evidence
- ↓
-Preserve State
- ↓
-Avoid Duplicate Calls
- ↓
-Ground Final Answer in Evidence
-```
-
-## V4 — Investigation + Structured RCA
-
-```text
-Investigation Agent
-      ↓
-Application Evidence State
-      ↓
-Structured RCA Generator
-      ↓
-Schema Validation
-      ↓
-Human Approval
+Hard-coded evidence
+   ↓
+Real pipeline.log
+   ↓
+Tool-request guardrail
+   ↓
+Preserved evidence
+   ↓
+Evidence-only reporter
+   ↓
+Pydantic schema
+   ↓
+Tool-call contract validation
+   ↓
+Evidence/business validation
+   ↓
+Deterministic controls
+   ↓
+Trusted RCA
 ```
 
 ---
 
-# 🔍 Practical DevOps Evidence Used
-
-Our learning scenario converged on:
+# 🔍 Real Practical Evidence — 16 Aug 2026
 
 ```text
-Pipeline:
-Failed during Terraform Apply
-
-Terraform:
-NSG rule allowing AKS subnet traffic was removed
-
-AKS:
-Degraded - network connectivity failures detected
+2026-08-16 10:02:11 - Pipeline started
+2026-08-16 10:02:45 - Terraform init completed
+2026-08-16 10:03:18 - Terraform plan completed
+2026-08-16 10:04:01 - Terraform apply started
+2026-08-16 10:04:37 - ERROR:
+Network Security Group rule aks-subnet-allow was removed.
+2026-08-16 10:04:41 - ERROR:
+AKS subnet connectivity validation failed.
+2026-08-16 10:04:45 - Deployment failed during Terraform Apply.
 ```
 
-Evidence-based RCA:
+Evidence-grounded conclusion:
 
 ```text
-Root Cause:
-Terraform change removed a required NSG rule for AKS subnet traffic.
+Likely Root Cause:
+The aks-subnet-allow NSG rule was removed and AKS subnet connectivity validation then failed.
 
-Impact:
-AKS connectivity degraded and deployment failed.
+Confirmed Impact:
+AKS subnet connectivity validation failed and the deployment failed during Terraform Apply.
 
-Fix:
-Restore the required NSG allow rule and validate related network configuration before redeployment.
+Recommended Fix:
+Restore/correct the required NSG rule, validate subnet connectivity, review the Terraform change, and redeploy after validation.
+
+Confidence:
+Medium under the practical policy because the current investigation contains only one evidence source.
 ```
 
 ---
@@ -284,13 +313,17 @@ Restore the required NSG allow rule and validate related network configuration b
 1. We are NOT training a new LLM.
 2. We use an existing LLM as the brain.
 3. Python/application code executes tools.
-4. LLM decides which tool is needed.
+4. LLM decides which tool is needed, but the host validates the request.
 5. Tool output gives evidence.
-6. State preserves evidence across steps.
+6. State/evidence_log preserves authoritative observations.
 7. Structured output makes results machine-consumable.
-8. Fake tools are useful for learning/testing architecture.
-9. Real tools require auth, RBAC, safety and observability.
-10. Production remediation should be controlled and approved.
+8. Pydantic validates structure, not factual truth.
+9. Tool name and tool arguments both require validation.
+10. No evidence should mean no RCA.
+11. Final impact should be evidence-supported, not model-invented.
+12. Confidence can be controlled by application policy.
+13. Real tools require auth, RBAC, safety and observability.
+14. Production remediation should be controlled and approved.
 ```
 
 ---
@@ -311,7 +344,7 @@ Lesson 4
 Ollama + Structured Output + Tool Calling + Agent Loop + V1–V4
         ↓
 Lesson 5
-Fake Tool → Real Tool
+Fake Tool → Real Tool → Real Evidence → Trusted RCA
 ```
 
-> **Module 1 outcome:** Aap sirf AI response lena nahi, balki AI ko application logic, tools, evidence aur controlled DevOps workflows ke andar use karna samajh chuke ho.
+> **Module 1 outcome:** Aap sirf AI response lena nahi, balki AI ko application logic, tools, real evidence, validation aur controlled DevOps workflows ke andar safely use karna samajh chuke ho.
