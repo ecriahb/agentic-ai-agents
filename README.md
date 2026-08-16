@@ -1,505 +1,296 @@
 # 🚩 Agentic AI for Azure DevOps Engineers
 
-> **From ChatGPT User → AI Engineer → Agentic DevOps Builder**
+> **From AI foundations → evidence-grounded agents → secure enterprise DevOps AI systems**
 
-This repository is a hands-on learning journey for understanding and building **Agentic AI systems for real DevOps use cases**.
+This repository is a hands-on, module-by-module course for learning how to design and build **Agentic AI systems for real DevOps use cases**.
 
-The course does not jump directly into agents. It follows a deliberate progression:
-
-```text
-AI Fundamentals
-      ↓
-LLM Fundamentals
-      ↓
-Prompting & Safety
-      ↓
-AI APIs / Local Models
-      ↓
-Structured Output
-      ↓
-Tool Calling
-      ↓
-Agent Loop
-      ↓
-Evidence Grounding
-      ↓
-Real Tools
-      ↓
-Trusted RCA
-      ↓
-Production-Grade Agentic DevOps Systems
-```
+The course deliberately does not jump from “LLM” directly to “autonomous agent.” Each module adds one engineering layer and keeps earlier trust/safety principles intact.
 
 ---
 
-# 🎯 Repository Goal
+# 🎯 Final Course Goal
 
-The long-term target is to build a **DevOps AI Assistant** that can safely investigate engineering incidents using trusted evidence.
-
-Example target flow:
+Build a **Production DevOps AI Assistant** that can:
 
 ```text
-Pipeline Failure
-      ↓
-Collect Trusted Evidence
-      ↓
-Analyze Logs / Terraform / AKS / Metrics
-      ↓
+Incident / Pipeline Failure
+        ↓
+Collect Trusted Current Evidence
+        ↓
+Retrieve Approved Reference Knowledge
+        ↓
+Coordinate Specialist Agents
+        ↓
 Generate Evidence-Grounded RCA
-      ↓
-Recommend Fix
-      ↓
-Human Approval
-      ↓
-Controlled Action
+        ↓
+Validate Claims / Citations
+        ↓
+Recommend Safest Next Action
+        ↓
+Policy + Authorization
+        ↓
+Human Approval for Risky Write
+        ↓
+Controlled / Audited Execution Path
 ```
 
-The important principle throughout the repository is:
+Core principle:
 
-> **LLM reasoning must be grounded in real evidence, validated by application logic, and controlled by safety guardrails.**
+> **LLM reasoning is never treated as authority. Evidence, authorization, policy, validation and execution remain application-controlled.**
 
 ---
 
-# 📚 Course Progress
+# 📚 Complete Course Roadmap — Module 0 to Module 12
 
-| Module | Focus | Status |
+> **Status below means repository content is available. It does not imply every module has already been personally studied/completed.**
+
+| Module | Focus | Repository Content |
 |---|---|---|
-| [Module 0](Module-0/README.md) | AI & LLM Foundation | ✅ Completed |
-| [Module 1](Module-1/README.md) | APIs, Local Models, Tools & First DevOps Agent | ✅ Completed |
+| [Module 0](Module-0/README.md) | AI & LLM Foundation | ✅ Available |
+| [Module 1](Module-1/README.md) | APIs, Local Models, Tools & First DevOps Agent | ✅ Available |
+| [Module 2](Module-2/README.md) | Prompt & Context Engineering for DevOps AI | ✅ Available |
+| [Module 3](Module-3/README.md) | APIs & Python for AI Applications | ✅ Available |
+| [Module 4](Module-4/README.md) | Embeddings & Vector Databases | ✅ Available |
+| [Module 5](Module-5/README.md) | Retrieval-Augmented Generation (RAG) for DevOps | ✅ Available |
+| [Module 6](Module-6/README.md) | LangChain & AI Application Orchestration | ✅ Available |
+| [Module 7](Module-7/README.md) | Model Context Protocol (MCP) for DevOps AI | ✅ Available |
+| [Module 8](Module-8/README.md) | Stateful Agents & LangGraph Workflows | ✅ Available |
+| [Module 9](Module-9/README.md) | Multi-Agent Systems for DevOps AI | ✅ Available |
+| [Module 10](Module-10/README.md) | Agent Security, Evaluation & Red Teaming | ✅ Available |
+| [Module 11](Module-11/README.md) | Enterprise DevOps AI Architecture & Production Deployment | ✅ Available |
+| [Module 12](Module-12/README.md) | Final Enterprise Project — Production DevOps AI Assistant | ✅ Available |
 
 ---
 
-# 🧠 Module 0 — AI & LLM Foundation
-
-## [Open Module 0](Module-0/README.md)
-
-> **From ChatGPT User → AI Thinker**
-
-Module 0 builds the conceptual foundation before coding or tool integration.
-
-You learn what an LLM actually is, how it generates text, why context matters, how hallucination happens, how prompts influence behavior, and why safety and verification are mandatory in production AI systems.
-
-### Lesson Map
-
-| No. | Lesson |
-|---|---|
-| 00 | [Orientation — The Beginning of an AI Engineer](Module-0/Lesson-00-Orientation.md) |
-| 01 | [The AI Revolution](Module-0/Lesson-01-AI-Revolution.md) |
-| 02 | [AI → ML → DL → LLM](Module-0/Lesson-02-AI-ML-DL-LLM.md) |
-| 03 | [Next Token Prediction](Module-0/Lesson-03-Next-Token-Prediction.md) |
-| 04 | [Transformer & Attention](Module-0/Lesson-04-Transformer-Attention.md) |
-| 05 | [Context Window](Module-0/Lesson-05-Context-Window.md) |
-| 06 | [Hallucination](Module-0/Lesson-06-Hallucination.md) |
-| 07 | [Prompt Engineering](Module-0/Lesson-07-Prompt-Engineering.md) |
-| 08 | [System Prompt vs User Prompt](Module-0/Lesson-08-System-vs-User-Prompt.md) |
-| 09 | [Temperature](Module-0/Lesson-09-Temperature.md) |
-| 10 | [Role Prompting](Module-0/Lesson-10-Role-Prompting.md) |
-| 11 | [Zero-Shot, One-Shot & Few-Shot](Module-0/Lesson-11-Zero-One-Few-Shot.md) |
-| 12 | [Structured Reasoning](Module-0/Lesson-12-Structured-Reasoning.md) |
-| 13 | [AI Limitations & Safety](Module-0/Lesson-13-AI-Limitations-Safety.md) |
-| 14 | [Grand Revision + Mini Project](Module-0/Lesson-14-Grand-Revision-Mini-Project.md) |
-
-### Module 0 Mental Model
+# 🧠 Full Learning Progression
 
 ```text
-AI
- ↓
-Machine Learning
- ↓
-Deep Learning
- ↓
-LLM
- ↓
-Next Token Prediction
- ↓
-Transformer + Attention
- ↓
-Context
- ↓
-Prompting
- ↓
-Grounding + Verification
- ↓
-Safety + Human Approval
+Module 0
+AI / LLM Fundamentals
+        ↓
+Module 1
+Tools + Evidence + First DevOps Agent
+        ↓
+Module 2
+Prompt + Context Engineering
+        ↓
+Module 3
+APIs + Minimal Python
+        ↓
+Module 4
+Embeddings + Vector Search
+        ↓
+Module 5
+RAG + Grounding + Citations
+        ↓
+Module 6
+LangChain / Orchestration
+        ↓
+Module 7
+MCP / Standardized Capabilities
+        ↓
+Module 8
+Stateful Agents / LangGraph
+        ↓
+Module 9
+Multi-Agent Systems
+        ↓
+Module 10
+Security + Evaluation + Red Teaming
+        ↓
+Module 11
+Enterprise Azure Architecture / Operations
+        ↓
+Module 12
+Production DevOps AI Assistant Capstone
 ```
-
-### Module 0 Outcome
-
-By the end of Module 0, you understand:
-
-- AI vs ML vs Deep Learning vs LLM
-- next-token prediction
-- Transformer and Attention concepts
-- context windows
-- hallucination
-- prompt engineering
-- system vs user prompts
-- temperature
-- role prompting
-- zero-shot / one-shot / few-shot prompting
-- structured reasoning
-- AI limitations
-- safety, verification and human approval
 
 ---
 
-# ⚙️ Module 1 — LLM APIs, Local Models, Tools & First DevOps Agent
+# 🔥 The Incident That Evolves Through the Course
 
-## [Open Module 1](Module-1/README.md)
-
-> **From AI Thinker → AI Application Developer**
-
-Module 1 turns the concepts from Module 0 into working code.
-
-The progression is:
-
-```text
-ChatGPT UI vs API
-      ↓
-Development Environment
-      ↓
-First Real AI API Call
-      ↓
-Local AI with Ollama
-      ↓
-Structured Output
-      ↓
-Tool Calling
-      ↓
-Multiple DevOps Tools
-      ↓
-Agent Loop
-      ↓
-State + Grounding
-      ↓
-Fake Tool → Real Tool
-      ↓
-Real Evidence
-      ↓
-Trusted RCA
-```
-
-### Lesson Map
-
-| No. | Lesson |
-|---|---|
-| 01 | [ChatGPT UI vs API](Module-1/Lesson-01-ChatGPT-UI-vs-API.md) |
-| 02 | [Development Environment & Secrets](Module-1/Lesson-02-Development-Environment-and-Secrets.md) |
-| 03 | [Our First Real AI API Call](Module-1/Lesson-03-Our-First-Real-AI-API-Call.md) |
-| 04 | [Local AI with Ollama](Module-1/Lesson-04-Local-AI-with-Ollama.md) |
-| 05 | [Fake Tool → Real Tool](Module-1/Lesson-05-Fake-Tool-to-Real-Tool.md) |
-
----
-
-# 🧪 Module 1 Hands-On Journey
-
-All runnable examples are available in:
-
-## [Module 1 Practical Examples](Module-1/examples/README.md)
-
-The practical progression includes:
-
-```text
-First AI Call
-   ↓
-Local Ollama Call
-   ↓
-Structured Output
-   ↓
-Basic Tool Calling
-   ↓
-DevOps Agent V1
-   ↓
-DevOps Agent V2
-   ↓
-DevOps Agent V3
-   ↓
-DevOps Agent V4
-```
-
-Core runnable examples:
-
-| Stage | File |
-|---|---|
-| First API Call | [01_first_ai_call.py](Module-1/examples/01_first_ai_call.py) |
-| Local Ollama | [02_ollama_ai_call.py](Module-1/examples/02_ollama_ai_call.py) |
-| Structured Output | [03_structured_output.py](Module-1/examples/03_structured_output.py) |
-| Tool Calling | [04_tool_call_basic.py](Module-1/examples/04_tool_call_basic.py) |
-| Agent V1 | [devops_agent_v1.py](Module-1/examples/devops_agent_v1.py) |
-| Agent V2 | [devops_agent_v2.py](Module-1/examples/devops_agent_v2.py) |
-| Agent V3 | [devops_agent_v3.py](Module-1/examples/devops_agent_v3.py) |
-| Agent V4 | [devops_agent_v4.py](Module-1/examples/devops_agent_v4.py) |
-
----
-
-# 🔥 Lesson 05 Real Tool Practical
-
-One of the most important Module 1 practicals is the transition from a fake/hard-coded tool to a real local evidence source.
-
-## [Open Full Real Tool → Trusted RCA Practical](Module-1/examples/lesson-05-real-tool-practical/README.md)
-
-Exact learning sequence:
-
-```text
-pipeline.log
-   ↓
-Real File-Reading Tool
-   ↓
-Qwen Tool Call
-   ↓
-No-Tool Guardrail
-   ↓
-Preserved Evidence
-   ↓
-V3 Evidence-Only Reporting
-   ↓
-V4 Pydantic Validation
-   ↓
-Tool-Argument Hallucination Discovered
-   ↓
-Tool Allowlist
-   ↓
-Argument Validation
-   ↓
-Deterministic Impact Extraction
-   ↓
-Evidence Support Validation
-   ↓
-Confidence Policy
-   ↓
-FINAL TRUSTED RCA
-```
-
-### Practical Files
-
-| Stage | File |
-|---|---|
-| Real Evidence | [pipeline.log](Module-1/examples/lesson-05-real-tool-practical/logs/pipeline.log) |
-| Real Tool V1 | [real_tool_qwen_v1.py](Module-1/examples/lesson-05-real-tool-practical/real_tool_qwen_v1.py) |
-| No-Tool Guardrail | [real_tool_qwen_v2_guardrail.py](Module-1/examples/lesson-05-real-tool-practical/real_tool_qwen_v2_guardrail.py) |
-| Evidence-Only V3 | [real_tool_qwen_v3.py](Module-1/examples/lesson-05-real-tool-practical/real_tool_qwen_v3.py) |
-| Pydantic V4 | [real_tool_qwen_v4.py](Module-1/examples/lesson-05-real-tool-practical/real_tool_qwen_v4.py) |
-| Final Hardened Version | [real_tool_qwen_v4_final.py](Module-1/examples/lesson-05-real-tool-practical/real_tool_qwen_v4_final.py) |
-
----
-
-# 🔍 DevOps Incident Used in the Practical
-
-The real-tool lab reads evidence from `pipeline.log`:
+A recurring practical scenario makes the progression easy to understand:
 
 ```text
 Pipeline started
       ↓
-Terraform init completed
+Terraform Apply started
       ↓
-Terraform plan completed
+NSG rule `aks-subnet-allow` removed
       ↓
-Terraform apply started
+AKS network connectivity validation degraded/failed
       ↓
-NSG rule aks-subnet-allow was removed
-      ↓
-AKS subnet connectivity validation failed
-      ↓
-Deployment failed during Terraform Apply
+Deployment failed
 ```
 
-The important learning is not merely producing an RCA.
-
-The application must distinguish between:
+Early modules teach how to read and reason about this evidence. Later modules progressively add:
 
 ```text
-What the model thinks
-        vs
-What the evidence proves
-```
-
-So the final architecture uses application-level validation before trusting the result.
-
----
-
-# 🏗️ Current Agent Architecture
-
-```text
-                    USER / INCIDENT
-                          │
-                          ▼
-                       LLM
-                  Investigation Brain
-                          │
-                    requests tool
-                          │
-                          ▼
-                 Tool Contract Check
-                          │
-                 Tool Allowlist Check
-                          │
-                Argument Validation
-                          │
-                          ▼
-                  Python Application
-                          │
-                    executes tool
-                          │
-                          ▼
-                  Trusted Evidence
-                          │
-                          ▼
-                    evidence_log
-                          │
-                          ▼
-               Evidence-Only Reporter
-                          │
-                          ▼
-                  Pydantic Schema
-                          │
-                          ▼
-              Evidence Claim Validation
-                          │
-                          ▼
-           Deterministic Impact Validation
-                          │
-                          ▼
-                 Confidence Policy
-                          │
-                          ▼
-                    TRUSTED RCA
+Tool Contracts
+→ Evidence Preservation
+→ Structured RCA
+→ Prompt/Context Controls
+→ RAG
+→ Orchestration
+→ MCP
+→ Stateful Graph
+→ Specialist Agents
+→ Security/Evals
+→ Enterprise Deployment
 ```
 
 ---
 
-# 🧠 Core Principles Learned So Far
+# 🏗️ Final Capstone Architecture
 
 ```text
-1. LLM is the brain, not the executor.
-2. Python/application code executes tools.
-3. A tool request from an LLM is untrusted input.
-4. Tool name and tool arguments must both be validated.
-5. Tool output is evidence.
-6. Evidence must be preserved outside model memory.
-7. No evidence should mean no RCA.
-8. Structured output makes responses machine-consumable.
-9. Pydantic validates structure, not factual truth.
-10. Final claims must be checked against evidence.
-11. Confirmed impact must not be invented by the model.
-12. Confidence can be controlled by application policy.
-13. Real integrations require authentication and authorization.
-14. Least privilege and read-only-first reduce risk.
-15. Human approval should protect destructive/remediation actions.
+                         USER / INCIDENT API
+                                ↓
+                        AuthN + Input Policy
+                                ↓
+                      Stateful Supervisor Graph
+                                ↓
+        ┌───────────────────────┼───────────────────────┐
+        ↓                       ↓                       ↓
+ Pipeline Specialist     Terraform Specialist      AKS Specialist
+        ↓                       ↓                       ↓
+      [E1]                    [E2]                    [E3]
+        └───────────────────────┼───────────────────────┘
+                                ↓
+                         Evidence Contract
+                                ↓
+                       Knowledge / RAG [R*]
+                                ↓
+                      Conflict + Evidence Gate
+                                ↓
+                         Grounded LLM RCA
+                                ↓
+                    Citation / Claim Validation
+                                ↓
+                       Security / Policy Gate
+                                ↓
+                     Remediation Action Proposal
+                                ↓
+                       HUMAN APPROVAL GATE
+                                ↓
+                      Isolated Write Executor
+                                ↓
+                     Post-Action Verification
+                                ↓
+                      Final Audit / Observability
+```
+
+The learning implementation keeps production writes simulated/read-only by default.
+
+---
+
+# 🔐 Trust Model Used Throughout the Repository
+
+```text
+USER INPUT              = untrusted
+RAG DOCUMENT             = untrusted reference data
+MCP RESOURCE             = external data
+TOOL REQUEST FROM LLM    = untrusted proposal
+TOOL OUTPUT              = evidence only with provenance
+MODEL OUTPUT             = untrusted analysis/proposal
+AUTHORIZATION            = trusted external decision
+POLICY                    = deterministic host control
+HUMAN APPROVAL            = explicit risk gate
+EXECUTOR                  = isolated known implementation
 ```
 
 ---
 
-# 🛠️ Technologies Used So Far
+# 🧩 What Each Major Layer Solves
 
 ```text
-Python
-OpenAI API concepts
-Ollama
-Gemma
-Qwen
-Pydantic
-Tool / Function Calling
-Agent Loops
-Structured Output
-Local Log Files
-DevOps Incident Investigation
-AKS concepts
-Terraform concepts
-Azure Networking / NSG concepts
+Tools          → obtain current evidence
+Prompting      → guide reasoning
+APIs           → connect systems
+Embeddings     → semantic representation
+RAG            → retrieve approved reference knowledge
+LangChain      → compose reusable application components
+MCP            → standardize capability connectivity
+LangGraph      → explicit state, routing, loops and pause/resume
+Multi-Agent    → specialist decomposition and coordination
+Security/Evals → prove boundaries and prevent regression
+Enterprise Arch→ identity, network, state, scale, HA/DR, operations
+Capstone       → integrate everything into one system
 ```
 
 ---
 
-# 🎓 Learning Style
+# 🧪 Practical Philosophy
 
-The course is maintained lesson-by-lesson with a practical DevOps focus.
+Most modules include incremental practical versions instead of jumping directly to the final solution:
 
-Each topic aims to include:
+```text
+V1 → one new concept
+V2 → next boundary
+V3 → validation
+...
+V10 → integrated module project
+```
 
-- simple Hinglish explanation
-- concise English definition
-- mental model / architecture flow
-- DevOps or office example
-- practical code
-- common confusion / mistakes
-- interview-oriented points
-- revision-friendly notes
-- connection to the next topic
+This keeps the learning path debuggable and makes it clear **why** each production control was added.
 
 ---
 
-# 🚀 Repository Learning Path
-
-If you are starting from the beginning, follow this order:
+# 🛡️ Core Engineering Principles
 
 ```text
-START
-  │
-  ▼
-Module 0
-AI & LLM Foundation
-  │
-  ▼
-Prompting + Hallucination + Safety
-  │
-  ▼
-Module 1
-AI APIs + Local Models
-  │
-  ▼
-Structured Output
-  │
-  ▼
-Tool Calling
-  │
-  ▼
-Agent Loop
-  │
-  ▼
-Evidence Grounding
-  │
-  ▼
-Real Tools
-  │
-  ▼
-Guardrails + Validation
-  │
-  ▼
-Trusted DevOps RCA
+1. LLM is a reasoner, not an authority.
+2. Application code executes capabilities.
+3. Model tool calls are untrusted requests.
+4. Tool names, arguments and targets must be validated.
+5. Tool output becomes evidence only with provenance.
+6. No evidence should mean no forced RCA.
+7. RAG reference knowledge is not current incident evidence.
+8. Structured output validates shape, not truth.
+9. Conversation memory is not workflow state or authorization.
+10. MCP discovery is not permission.
+11. Agent-to-agent messages are not trusted evidence.
+12. Agent loops must be bounded.
+13. High-risk writes require deterministic policy + authorization + approval.
+14. Secrets should remain outside model context whenever possible.
+15. Evaluate trajectories, retrieval, tools and final answers.
+16. Red-team findings become permanent regression tests.
+17. Critical security failures block releases.
+18. Production agents require identity, private networking, durable state, observability, HA/DR and FinOps.
 ```
 
 ---
 
-# ✅ Current Repository Milestone
+# 🚀 Recommended Study Order
 
-At the end of Module 1, the repository has progressed from:
+Follow the modules sequentially. Even if you already know Azure/DevOps, avoid skipping the trust foundations in Modules 1–5; Modules 7–12 assume you understand evidence, grounding and host-controlled execution.
 
-```text
-"Ask an LLM a question"
-```
-
-to:
+For each module:
 
 ```text
-Incident
-  ↓
-LLM decides what evidence is needed
-  ↓
-Application validates the tool request
-  ↓
-Python collects real evidence
-  ↓
-Evidence is preserved
-  ↓
-LLM creates structured analysis
-  ↓
-Application validates claims
-  ↓
-Trusted RCA
+Read Lesson 1
+ ↓
+Understand mental model
+ ↓
+Run practical V1
+ ↓
+Continue lesson-by-lesson
+ ↓
+Run matching practicals
+ ↓
+Complete mini project
+ ↓
+Revision + interview questions
 ```
-
-This is the foundation required before moving toward larger multi-tool, multi-step and production-grade Agentic AI systems.
 
 ---
 
-🚩 **Jai Bajrangbali — Learn • Build • Automate • Impact**
+# 🎓 Final Portfolio Statement
+
+After completing the course, the project can be described as:
+
+> **An evidence-grounded DevOps AI incident investigation platform using controlled read-only tools, RAG, MCP, stateful multi-agent orchestration, deterministic security policy, human approval, evaluation/red teaming and an enterprise Azure production architecture.**
+
+---
+
+🚩 **Jai Bajrangbali — Learn • Build • Validate • Secure • Operate**
