@@ -4,6 +4,27 @@
 
 Agar aap AI/LLM/Agentic AI me bilkul beginner ho, to repo ko random files ki tarah mat padho. Is guide ko pehle follow karo.
 
+## Most Important Hands-On Guide
+
+Theory read karne ke saath **har module ka practical ladder mandatory** hai:
+
+👉 [`PRACTICALS-INDEX.md`](PRACTICALS-INDEX.md)
+
+Har Module 0–12 ke andar dedicated `PRACTICAL-ROADMAP.md` hai:
+
+```text
+ZERO → BASIC → BUILD → CONTROL → FAILURE DRILL → ADVANCED → PROVIDER PARITY → V10/HERO
+```
+
+A practical tab complete nahi maana jayega jab script sirf run ho jaye. Learner ko explain karna hoga:
+- previous version se kya change hua
+- ye version kis problem ko solve karta hai
+- kya fail ho sakta hai
+- model-driven aur deterministic part kaunsa hai
+- evidence/source kya hai
+- safety/policy control kaha hai
+- next version kyun chahiye
+
 ---
 
 # 1. Is Repository ka Goal Kya Hai?
@@ -118,7 +139,7 @@ or `.env`:
 
 ```env
 OPENAI_API_KEY=your-key
-OPENAI_MODEL=gpt-5.6-luna
+OPENAI_MODEL=your-supported-model
 ```
 
 > API usage may require billing/credits. Never commit your real API key.
@@ -192,7 +213,7 @@ Set variables:
 ```powershell
 $env:LLM_PROVIDER="openai"
 $env:OPENAI_API_KEY="your-key"
-$env:OPENAI_MODEL="gpt-5.6-luna"
+$env:OPENAI_MODEL="your-supported-model"
 ```
 
 Run:
@@ -205,7 +226,7 @@ Expected shape:
 
 ```text
 Provider: openai
-Model: gpt-5.6-luna
+Model: <configured-model>
 Answer: ...
 ```
 
@@ -228,6 +249,8 @@ Start here if you do not know:
 
 No API required.
 
+Practical: [`Module-0/PRACTICAL-ROADMAP.md`](Module-0/PRACTICAL-ROADMAP.md)
+
 ---
 
 ## Module 1 — APIs, Local Models, Tools & First DevOps Agent
@@ -243,7 +266,7 @@ You learn:
 - real evidence
 - trusted RCA
 
-This module deliberately shows both hosted and local model paths.
+Practical: [`Module-1/PRACTICAL-ROADMAP.md`](Module-1/PRACTICAL-ROADMAP.md)
 
 ---
 
@@ -260,155 +283,77 @@ Role
 + Evaluation
 ```
 
-Run the same prompt against both providers to understand that prompt design is provider-independent.
+Practical: [`Module-2/PRACTICAL-ROADMAP.md`](Module-2/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 3 — APIs & Minimal Python
 
-You learn:
+You learn HTTP, REST, JSON, secrets, functions/errors and LLM API calls.
 
-- HTTP
-- REST
-- JSON
-- environment variables
-- authentication
-- Python functions/errors
-- LLM API calls
-
-Do not try to become a Python expert here. Learn only what the AI application needs.
+Practical: [`Module-3/PRACTICAL-ROADMAP.md`](Module-3/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 4 — Embeddings & Vector Databases
 
-You learn:
-
 ```text
 Text → Embedding → Vector → Similarity → Retrieval
 ```
 
-Local path uses Sentence Transformers.
-OpenAI path demonstrates hosted embeddings separately.
-
-Important:
-
-```text
-Embedding model != LLM
-Vector DB != LLM
-Similarity score != factual confidence
-```
+Practical: [`Module-4/PRACTICAL-ROADMAP.md`](Module-4/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 5 — RAG
 
-You combine retrieval with generation:
-
 ```text
-Question
-→ Retrieve evidence/reference
-→ Build context
-→ LLM
-→ Validate
-→ Answer + Sources
+Question → Retrieve → Context → LLM → Validate → Answer + Sources
 ```
 
-Compare the same retrieved context with Ollama and OpenAI generation.
+Practical: [`Module-5/PRACTICAL-ROADMAP.md`](Module-5/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 6 — LangChain / Orchestration
 
-You learn reusable composition:
-
-```text
-Prompt → Retriever → LLM → Parser → Validator
-```
-
-Framework does not create intelligence. It orchestrates components.
+Practical: [`Module-6/PRACTICAL-ROADMAP.md`](Module-6/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 7 — MCP
 
-You learn standardized capability connectivity:
-
-```text
-Host → MCP Client → MCP Server → Tools/Resources
-```
-
-MCP is provider-independent. The final reasoning step can use either local or hosted LLM.
+Practical: [`Module-7/PRACTICAL-ROADMAP.md`](Module-7/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 8 — Stateful Agents / LangGraph
 
-You learn:
-
-- explicit state
-- nodes and edges
-- conditional routing
-- loops
-- checkpoints
-- human approval
-
-State machine behavior must remain safe regardless of model provider.
+Practical: [`Module-8/PRACTICAL-ROADMAP.md`](Module-8/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 9 — Multi-Agent Systems
 
-You build specialist agents:
-
-```text
-Supervisor
-├─ Pipeline Specialist
-├─ Terraform Specialist
-└─ AKS Specialist
-```
-
-Agent count does not create truth. Evidence contracts do.
+Practical: [`Module-9/PRACTICAL-ROADMAP.md`](Module-9/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 10 — Security, Evaluation & Red Teaming
 
-You learn to attack your own agent safely:
-
-- prompt injection
-- tool abuse
-- secret leakage
-- RAG poisoning
-- MCP trust
-- multi-agent contamination
-- deterministic policy
-- trajectory evaluation
-- release gates
+Practical: [`Module-10/PRACTICAL-ROADMAP.md`](Module-10/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 11 — Enterprise Production Architecture
 
-You move from local app to enterprise design:
-
-- identity
-- RBAC
-- networking
-- private endpoints
-- DNS
-- egress
-- runtime choice
-- state/data layer
-- scaling
-- HA/DR
-- observability
-- CI/CD
-- governance
+Practical: [`Module-11/PRACTICAL-ROADMAP.md`](Module-11/PRACTICAL-ROADMAP.md)
 
 ---
 
 ## Module 12 — Final Capstone
+
+Practical: [`Module-12/PRACTICAL-ROADMAP.md`](Module-12/PRACTICAL-ROADMAP.md)
 
 Everything is combined:
 
@@ -427,9 +372,7 @@ Trusted Evidence
 
 ---
 
-# 8. How to Study Every Lesson
-
-Do not only read Markdown.
+# 8. How to Study Every Lesson + Practical
 
 Use this loop:
 
@@ -438,36 +381,33 @@ Use this loop:
 2. Understand English definition
 3. Read Hinglish explanation
 4. Draw mental model yourself
-5. Run practical
-6. Change one input
-7. Break the practical intentionally
-8. Understand the error
-9. Read common mistakes
-10. Answer interview questions without looking
-11. Do homework
-12. Move to next lesson
+5. Open module PRACTICAL-ROADMAP.md
+6. Run/do current practical stage
+7. Change one input
+8. Break the practical intentionally
+9. Predict expected failure
+10. Compare actual behavior
+11. Explain what control caught the failure
+12. Answer interview questions without looking
+13. Do homework
+14. Move to next stage
 ```
 
 ---
 
-# 9. How to Use V1 → V10 Labs
-
-Later modules use incremental versions.
-
-Do not jump directly to V10.
-
-Example:
+# 9. Never Jump Directly to V10
 
 ```text
 V1 = simplest concept
 V2 = one more feature
-V3 = validation
-V4 = evidence
+V3 = validation / contract
 ...
 V10 = integrated project
 ```
 
-The difference between versions is the lesson.
+The **difference between versions is the lesson**.
+
+Every module follows the same learning philosophy even when the exact files differ.
 
 ---
 
@@ -497,68 +437,42 @@ No evidence → no forced RCA
 # 11. Beginner Troubleshooting
 
 ## `python` not found
-
-Install Python and restart terminal.
-
-Check:
-
 ```powershell
 python --version
 ```
 
-## Virtual environment activation blocked
-
-PowerShell may require execution-policy adjustment. Prefer a user-scoped safe policy based on your organization rules.
-
 ## `ModuleNotFoundError`
-
-Install the module requirements:
-
 ```powershell
 pip install -r Module-X/examples/requirements.txt
 ```
 
 ## Ollama connection refused
-
-Check:
-
 ```powershell
 ollama list
 ```
 
-Start/run Ollama and confirm port `11434` is available locally.
-
 ## Ollama model not found
-
 ```powershell
 ollama pull qwen3:4b
 ```
 
-or set:
-
+or:
 ```powershell
 $env:OLLAMA_MODEL="your-installed-model"
 ```
 
 ## OpenAI authentication error
-
-Check that `OPENAI_API_KEY` exists in your current shell or `.env`.
-
-Do not paste secrets into code.
+Check `OPENAI_API_KEY` in current shell or `.env`. Never paste secrets into code.
 
 ## OpenAI billing/rate error
+Hosted API access depends on account/billing/rate limits; this is not automatically a Python logic bug.
 
-This is not a Python logic error. Hosted API access depends on your account/billing/rate limits.
-
-## Output is different every run
-
-LLMs are probabilistic. The course validates contracts/evidence/policies instead of depending on exact wording.
+## Output differs every run
+LLMs are probabilistic. Validate evidence/contracts/policies instead of depending on exact wording.
 
 ---
 
-# 12. Local vs OpenAI — What Should a Beginner Choose?
-
-Recommended sequence:
+# 12. Recommended Provider Learning Sequence
 
 ```text
 First learn with Ollama
@@ -578,7 +492,7 @@ Keep application contracts provider-independent
 
 # 13. What "Course Complete" Means
 
-Reading all Markdown files is not enough.
+Reading Markdown or successfully running scripts is not enough.
 
 You should be able to explain:
 
@@ -596,26 +510,28 @@ Why security evals inspect trajectories
 Why production architecture needs identity/network/state/observability
 ```
 
-And you should be able to run the Module 12 capstone safely.
+And you should be able to run/explain the Module 12 capstone safely.
 
 ---
 
 # 14. Recommended First Action
 
-If you are completely new:
-
 ```text
 Open Module-0/README.md
+→ Open Module-0/PRACTICAL-ROADMAP.md
 → Read Lesson 00
+→ Do V1
 → Continue sequentially
 ```
 
-If your environment is not ready:
+If environment is not ready:
 
 ```text
-Read MODEL-PROVIDERS.md
+Read PREREQUISITES.md
+→ Read MODEL-PROVIDERS.md
 → configure Ollama or OpenAI
+→ run shared/preflight.py
 → run shared/provider_smoke_test.py
 ```
 
-🚩 **Start simple. Run everything. Trust evidence, not model confidence.**
+🚩 **Start simple. Run everything. Break it intentionally. Trust evidence, not model confidence.**
