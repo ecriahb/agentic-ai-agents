@@ -8,6 +8,51 @@ The course deliberately does not jump from “LLM” directly to “autonomous a
 
 ---
 
+# 👶 Completely New to AI? Start Here
+
+If you are a complete beginner, do **not** jump directly into LangChain, MCP or agents.
+
+Start with:
+
+## 👉 [START-HERE.md](START-HERE.md)
+
+It explains:
+
+- what to install
+- how to create a Python virtual environment
+- how to use Ollama/local LLMs
+- how to use the OpenAI API
+- which module to study first
+- how to run V1→V10 practicals
+- common beginner errors
+- the trust/safety mental model used throughout the repository
+
+For model setup and provider switching:
+
+## 👉 [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md)
+
+The repository supports two learning paths:
+
+```text
+Track A → Ollama / Local LLM
+Track B → OpenAI API
+```
+
+Shared provider smoke test:
+
+```powershell
+pip install -r shared/requirements.txt
+python shared/provider_smoke_test.py
+```
+
+The model provider may change, but the engineering contract does not:
+
+```text
+Evidence → Context → Model → Validation → Policy
+```
+
+---
+
 # 🎯 Final Course Goal
 
 Build a **Production DevOps AI Assistant** that can:
@@ -217,6 +262,31 @@ Security/Evals → prove boundaries and prevent regression
 Enterprise Arch→ identity, network, state, scale, HA/DR, operations
 Capstone       → integrate everything into one system
 ```
+
+---
+
+# 🤖 Model Provider Parity
+
+Provider-specific code should never replace application safety.
+
+The course therefore treats providers as swappable components:
+
+```text
+Local learning route  → Ollama
+Hosted API route      → OpenAI
+```
+
+Provider-parity examples are added to the relevant modules so the learner can run the same concept on both paths.
+
+Important:
+
+```text
+OpenAI/Ollama = generation provider
+Evidence      = source of current facts
+Host code     = policy/execution owner
+```
+
+See [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md).
 
 ---
 
