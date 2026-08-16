@@ -1,350 +1,206 @@
-# 🚩 Jai Bajrangbali!
+# 🚩 Module 1 — LLM APIs, Local Models, Tools & First DevOps Agent
 
-# Module 1 — LLM APIs, Local Models, Tools & First DevOps Agent
+> **Canonical live-class sequence restored exactly:** Roadmap → UI/API → environment → OpenAI → Ollama → first call → tokens/context → structured output → tools → basic agent → complete lab → troubleshooting → interview/revision → official references.
 
-> **From ChatGPT User → AI Application Developer**
-
-Module 0 me humne LLM fundamentals samjhe. Module 1 me hum existing LLM ko Python application ke andar use karke **API calls, local AI, structured output, tool calling aur DevOps agent flow** build karte hain.
-
-> **Important:** Ye README actual live-class sequence ko follow karta hai.
+Module 0 me LLM fundamentals samjhe. Module 1 me existing LLM ko Python application ke andar use karke cloud/local model calls, validation, tools, evidence aur first controlled DevOps agent build karte hain.
 
 ---
 
-## 🎯 Module 1 Learning Promise
+# 🎯 Learning Promise
 
-Module ke end tak aap samjhoge:
+Module ke end tak learner samjhega:
 
 - ChatGPT UI vs API
-- Python AI development environment
-- virtual environment aur secret management
-- API, SDK, API key, client, request aur response
-- first real AI API call
-- OpenAI cloud API billing/credential behavior
-- Ollama par local zero-cost AI experimentation
-- structured output + Pydantic validation
-- tool calling / function calling
-- `LLM decides; Python executes`
-- agent loop
-- state and evidence grounding
-- basic DevOps investigation agent
-- `devops_agent_v1.py` → `v4.py` evolution
-- fake tool se real tool transition
-- real `pipeline.log` evidence collection
+- Python/venv/secrets
+- OpenAI hosted API setup
+- Ollama local zero-cost learning path
+- first request and response object
+- tokens, cost and context engineering
+- structured output + Pydantic
+- tool/function calling
+- host-controlled execution
+- agent loop + state
+- evidence grounding
 - no-evidence/no-RCA guardrail
-- evidence-only reporting
-- tool allowlist + argument validation
-- deterministic impact validation
-- confidence policy
-- final trusted RCA architecture
+- tool allowlists and argument validation
+- trusted DevOps RCA architecture
 
 ---
 
-## 🧠 Core Mental Model
+# 🧠 Core Mental Model
 
 ```text
-LLM = Brain
-API = Communication Channel
-Python Application = Controller
-Tool = Hand
-Tool Result = Evidence
-State = Collected Investigation Memory
-Structured Output = Data Contract
-Agent Loop = Decide → Act → Observe → Repeat
+User / Incident
+      ↓
+Python Host Application
+      ↓
+Prompt + Context
+      ↓
+LLM (OpenAI or Ollama)
+      ↓
+Response / Tool Request
+      ↓
+Host Validation
+      ↓
+Known Tool Execution
+      ↓
+Evidence
+      ↓
+Grounded RCA
+      ↓
+Validation / Policy
+```
+
+Remember:
+
+```text
+LLM = reasoner
+Host = controller/executor
+Tool = capability
+Tool output = evidence
+Schema = data contract
+Policy = deterministic boundary
 ```
 
 ---
 
-# 📚 Actual Live-Class Lesson Sequence
+# 📚 Canonical Module 1 Lesson Sequence
 
-## 1. [Lesson 01 — ChatGPT UI vs API](Lesson-01-ChatGPT-UI-vs-API.md)
+## 0 — [Module 1 Roadmap & Mental Model](Lesson-00-Module-1-Roadmap-and-Mental-Model.md)
+Why this module exists, full architecture, two provider tracks, recurring DevOps incident and learning order.
 
-Foundation:
+## 1 — [ChatGPT UI vs API](Lesson-01-ChatGPT-UI-vs-API.md)
+Human-facing product interaction vs software integration.
 
-```text
-ChatGPT UI
-   vs
-AI API
-```
+## 2 — [Development Environment & Secret Management](Lesson-02-Development-Environment-and-Secrets.md)
+Python, venv, pip, `.env`, secret hygiene and local setup.
 
-We understand how an end user talks to ChatGPT versus how a software application talks to an AI model.
+## 3 — [OpenAI Cloud API Setup](Lesson-03-OpenAI-Cloud-API-Setup.md)
+Hosted provider setup, API key handling, account/billing/model-access concepts and common failures.
+
+## 4 — [Zero-Cost Local AI with Ollama](Lesson-04-Zero-Cost-Local-AI-with-Ollama.md)
+Local models, `localhost:11434`, provider comparison and hardware trade-offs.
+
+## 5 — [First API Call & Response Object](Lesson-05-First-API-Call-and-Response-Object.md)
+`client.responses.create()`, request anatomy, response object, metadata and first provider failure drills.
+
+## 6 — [Tokens, Cost & Context Engineering](Lesson-06-Tokens-Cost-and-Context-Engineering.md)
+Tokens, context window, hosted usage/cost thinking, log trimming and evidence density.
+
+## 7 — [Structured Output & Validation](Lesson-07-Structured-Output-and-Validation.md)
+JSON/schema/Pydantic, layered validation and the crucial rule `schema-valid != factually true`.
+
+## 8 — [Tool Calling / Function Calling](Lesson-08-Tool-Calling-Function-Calling.md)
+Model requests tools; host validates and executes. All tool names/arguments/targets are treated as untrusted proposals.
+
+## 9 — [From Tool Calling to a Basic DevOps Agent](Lesson-09-From-Tool-Calling-to-Basic-DevOps-Agent.md)
+Bounded decide→act→observe loop, state, evidence, stop conditions and V1→V4 evolution.
+
+## A — [Complete Lab Code](A-Complete-Lab-Code.md)
+Cloud + local calls → structured output → tools → V1–V4 → real `pipeline.log` → final trusted RCA.
+
+## B — [Troubleshooting Playbook](B-Troubleshooting-Playbook.md)
+Environment, credentials, provider, Ollama, response, schema, tool, evidence and validation failures.
+
+## C — [Interview & Revision Sheet](C-Interview-and-Revision-Sheet.md)
+Definitions, core distinctions, architecture answer, Q&A, viva and rapid revision.
+
+## D — [Official References](D-Official-References.md)
+Where to verify current OpenAI/Ollama/Python/Pydantic behavior and version-sensitive details.
 
 ---
 
-## 2. [Lesson 02 — AI Development Environment Setup](Lesson-02-Development-Environment-and-Secrets.md)
+# 🧪 Zero-to-Hero Practical Track
 
-Hands-on setup:
+Follow [`PRACTICAL-ROADMAP.md`](PRACTICAL-ROADMAP.md) in parallel with the lessons.
 
 ```text
-Python
+V1  First Hosted/OpenAI Call
  ↓
-venv
+V2  First Local/Ollama Call
  ↓
-pip packages
+V3  Structured Output
  ↓
-.env
+V4  Basic Tool Request
  ↓
-secret management
+V5  Real File Tool
+ ↓
+V6  DevOps Agent V1
+ ↓
+V7  DevOps Agent V2
+ ↓
+V8  DevOps Agent V3
+ ↓
+V9  DevOps Agent V4
+ ↓
+V10 Trusted RCA / Provider Comparison
+```
+
+All runnable files: [`examples/`](examples/README.md)
+
+---
+
+# 🔥 Recurring DevOps Evidence
+
+```text
+Terraform Apply started
+      ↓
+NSG rule aks-subnet-allow removed
+      ↓
+AKS subnet connectivity validation failed
+      ↓
+Deployment failed during Terraform Apply
+```
+
+Safe conclusion should be based on evidence, not model confidence.
+
+---
+
+# 🔐 Most Important Module 1 Rules
+
+```text
+1. We use an existing LLM; we are not training a model.
+2. Cloud/local model output is untrusted analysis.
+3. Tool call is a proposal, not execution authority.
+4. Host validates tool name, arguments and target.
+5. Tool output becomes evidence only with provenance.
+6. Structured output validates shape, not factual truth.
+7. No evidence → no forced RCA.
+8. Agent loops need stop conditions and budgets.
+9. Read-only tools first; risky writes need authorization + approval.
+10. Provider can change; evidence/validation/policy rules must not.
 ```
 
 ---
 
-## 3. [Lesson 03 — Our First Real AI API Call](Lesson-03-Our-First-Real-AI-API-Call.md)
+# 📎 Supplementary Deep Dives Preserved
 
-Core concepts:
+These older expanded files contain useful combined material from the live practical evolution. They are **supplementary**, not the canonical lesson numbering:
 
-```text
-API
-SDK
-API Key
-OpenAI Client
-Request
-Response
-client.responses.create()
-```
+- [`Lesson-03-Our-First-Real-AI-API-Call.md`](Lesson-03-Our-First-Real-AI-API-Call.md) — expanded API-call notes
+- [`Lesson-04-Local-AI-with-Ollama.md`](Lesson-04-Local-AI-with-Ollama.md) — expanded Ollama + structured/tool/agent experiments
+- [`Lesson-05-Fake-Tool-to-Real-Tool.md`](Lesson-05-Fake-Tool-to-Real-Tool.md) — deep real-tool/evidence/trusted-RCA progression
 
-Important lesson:
-
-> `create()` model create nahi karta; it asks an existing model to generate a response.
+The canonical learning path above should be followed first.
 
 ---
 
-## 4. [Lesson 04 — Local AI with Ollama](Lesson-04-Local-AI-with-Ollama.md)
+# ✅ Module Completion Test
 
-This is the major hands-on lesson.
-
-```text
-Ollama Local Model
-       ↓
-First Local AI Call
-       ↓
-Structured Output
-       ↓
-Tool Calling
-       ↓
-Multiple DevOps Tools
-       ↓
-Agent Loop
-       ↓
-DevOps Agent V1 → V4
-```
-
-Lesson 4 includes:
-
-- `gemma3:1b`
-- localhost API
-- hallucination lesson
-- structured RCA
-- Pydantic/schema validation
-- `get_aks_status`
-- `get_terraform_changes`
-- `get_pipeline_status`
-- single/multiple tool calling
-- agent loop
-- state
-- grounding
-- V1/V2/V3/V4 evolution
-
----
-
-## 5. [Lesson 05 — Fake Tool → Real Tool](Lesson-05-Fake-Tool-to-Real-Tool.md)
-
-Lesson 05 starts with the architecture transition:
+Before Module 2, learner should explain without notes:
 
 ```text
-Fake / Hard-coded Tool
-        ↓
-Stable Tool Contract
-        ↓
-Real Evidence Source
-        ↓
-Grounded Agent Reasoning
+Why API instead of only UI?
+How are secrets stored safely in development?
+How do OpenAI and Ollama differ?
+What does client.responses.create() do?
+What is a response object?
+Why do tokens/context matter?
+Why is structured output not truth?
+Who actually executes tools?
+What makes tool arguments untrusted?
+What turns tool calling into an agent?
+Why does no evidence mean no forced RCA?
 ```
 
-Production concepts introduced:
-
-- real integrations
-- authentication
-- authorization/RBAC
-- least privilege
-- read-only first
-- error handling
-- timeouts/retries
-- audit logging
-- human-in-the-loop approval
-
-### ✅ Lesson 05 Live Practical
-
-The exact practical sequence is preserved here:
-
-**[Lesson 05 Real Tool → Trusted RCA Practical](examples/lesson-05-real-tool-practical/README.md)**
-
-```text
-pipeline.log
-   ↓
-real file-reading tool
-   ↓
-Qwen tool call
-   ↓
-no-tool guardrail
-   ↓
-evidence_log / preserved evidence
-   ↓
-V3 evidence-only reporting
-   ↓
-V4 Pydantic validation
-   ↓
-tool-argument hallucination discovered
-   ↓
-tool allowlist + argument validation
-   ↓
-deterministic impact extraction
-   ↓
-confidence policy
-   ↓
-FINAL TRUSTED RCA
-```
-
-This practical is important because it shows that **structured output alone is not enough**. The host application must also validate tool calls, evidence support, business claims and confidence.
-
----
-
-# 🧪 Practical Python Labs
-
-All runnable code is inside [`examples/`](examples/README.md).
-
-| Order | File | What You Learn |
-|---|---|---|
-| 01 | [`01_first_ai_call.py`](examples/01_first_ai_call.py) | First cloud AI API call |
-| 02 | [`02_ollama_ai_call.py`](examples/02_ollama_ai_call.py) | Local Ollama through OpenAI-compatible client |
-| 03 | [`03_structured_output.py`](examples/03_structured_output.py) | Schema-constrained / validated RCA output |
-| 04 | [`04_tool_call_basic.py`](examples/04_tool_call_basic.py) | First tool request + Python execution |
-| V1 | [`devops_agent_v1.py`](examples/devops_agent_v1.py) | Basic multi-tool agent loop |
-| V2 | [`devops_agent_v2.py`](examples/devops_agent_v2.py) | Better tool arguments + correct environment/cluster mapping |
-| V3 | [`devops_agent_v3.py`](examples/devops_agent_v3.py) | State + duplicate-call handling + evidence grounding |
-| V4 | [`devops_agent_v4.py`](examples/devops_agent_v4.py) | Investigation separated from schema-validated RCA reporting |
-| Real Tool V1 | [`real_tool_qwen_v1.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v1.py) | Read actual `pipeline.log` through a Qwen-requested tool |
-| Guardrail V2 | [`real_tool_qwen_v2_guardrail.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v2_guardrail.py) | No-tool/no-evidence RCA block + evidence preservation |
-| Real Tool V3 | [`real_tool_qwen_v3.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v3.py) | Evidence-only final reporting |
-| Real Tool V4 | [`real_tool_qwen_v4.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v4.py) | `FinalRCA` Pydantic validation |
-| Final | [`real_tool_qwen_v4_final.py`](examples/lesson-05-real-tool-practical/real_tool_qwen_v4_final.py) | Allowlist, argument validation, evidence validation, deterministic impact, confidence policy |
-
-Setup files:
-
-- [`requirements.txt`](examples/requirements.txt)
-- [`.env.example`](examples/.env.example)
-
----
-
-# 🔁 Agent Evolution
-
-## Earlier V1 → V4
-
-```text
-Basic Agent Loop
-   ↓
-Better Tool Arguments
-   ↓
-State & Grounding
-   ↓
-Investigation + Structured RCA
-```
-
-## Lesson 05 Real Tool Evolution
-
-```text
-Hard-coded evidence
-   ↓
-Real pipeline.log
-   ↓
-Tool-request guardrail
-   ↓
-Preserved evidence
-   ↓
-Evidence-only reporter
-   ↓
-Pydantic schema
-   ↓
-Tool-call contract validation
-   ↓
-Evidence/business validation
-   ↓
-Deterministic controls
-   ↓
-Trusted RCA
-```
-
----
-
-# 🔍 Real Practical Evidence — 16 Aug 2026
-
-```text
-2026-08-16 10:02:11 - Pipeline started
-2026-08-16 10:02:45 - Terraform init completed
-2026-08-16 10:03:18 - Terraform plan completed
-2026-08-16 10:04:01 - Terraform apply started
-2026-08-16 10:04:37 - ERROR:
-Network Security Group rule aks-subnet-allow was removed.
-2026-08-16 10:04:41 - ERROR:
-AKS subnet connectivity validation failed.
-2026-08-16 10:04:45 - Deployment failed during Terraform Apply.
-```
-
-Evidence-grounded conclusion:
-
-```text
-Likely Root Cause:
-The aks-subnet-allow NSG rule was removed and AKS subnet connectivity validation then failed.
-
-Confirmed Impact:
-AKS subnet connectivity validation failed and the deployment failed during Terraform Apply.
-
-Recommended Fix:
-Restore/correct the required NSG rule, validate subnet connectivity, review the Terraform change, and redeploy after validation.
-
-Confidence:
-Medium under the practical policy because the current investigation contains only one evidence source.
-```
-
----
-
-# 🧠 Most Important Module 1 Principles
-
-```text
-1. We are NOT training a new LLM.
-2. We use an existing LLM as the brain.
-3. Python/application code executes tools.
-4. LLM decides which tool is needed, but the host validates the request.
-5. Tool output gives evidence.
-6. State/evidence_log preserves authoritative observations.
-7. Structured output makes results machine-consumable.
-8. Pydantic validates structure, not factual truth.
-9. Tool name and tool arguments both require validation.
-10. No evidence should mean no RCA.
-11. Final impact should be evidence-supported, not model-invented.
-12. Confidence can be controlled by application policy.
-13. Real tools require auth, RBAC, safety and observability.
-14. Production remediation should be controlled and approved.
-```
-
----
-
-# ✅ Module 1 Completion Flow
-
-```text
-Lesson 1
-ChatGPT UI vs API
-        ↓
-Lesson 2
-AI Development Environment
-        ↓
-Lesson 3
-First Real AI API Call
-        ↓
-Lesson 4
-Ollama + Structured Output + Tool Calling + Agent Loop + V1–V4
-        ↓
-Lesson 5
-Fake Tool → Real Tool → Real Evidence → Trusted RCA
-```
-
-> **Module 1 outcome:** Aap sirf AI response lena nahi, balki AI ko application logic, tools, real evidence, validation aur controlled DevOps workflows ke andar safely use karna samajh chuke ho.
+> **Module 1 outcome:** Beginner can move from a simple model call to a controlled, evidence-grounded first DevOps AI agent and can explain every layer instead of only running final code.
