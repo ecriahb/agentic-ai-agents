@@ -1,0 +1,9 @@
+2026-08-16 10:02:11 - Pipeline started
+2026-08-16 10:02:45 - Terraform init completed
+2026-08-16 10:03:18 - Terraform plan completed
+2026-08-16 10:04:01 - Terraform apply started
+2026-08-16 10:04:37 - ERROR:
+Network Security Group rule aks-subnet-allow was removed.
+2026-08-16 10:04:41 - ERROR:
+AKS subnet connectivity validation failed.
+2026-08-16 10:04:45 - Deployment failed during Terraform Apply.
