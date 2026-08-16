@@ -42,6 +42,48 @@ Agent Loop = Brain repeatedly deciding what the hands should do
 8. [Lesson 08 — Tool Calling / Function Calling](Lesson-08-Tool-Calling.md)
 9. [Lesson 09 — From Tool Calling to a Basic DevOps Agent](Lesson-09-Basic-DevOps-Agent.md)
 
+## 🧪 Practical Python Labs
+
+All runnable examples are inside [`examples/`](examples/README.md).
+
+| Order | File | What You Learn |
+|---|---|---|
+| 01 | [`01_first_ai_call.py`](examples/01_first_ai_call.py) | OpenAI cloud API + Response object |
+| 02 | [`02_ollama_ai_call.py`](examples/02_ollama_ai_call.py) | Local Ollama through OpenAI-compatible API |
+| 03 | [`03_structured_output.py`](examples/03_structured_output.py) | Pydantic + schema-constrained RCA |
+| 04 | [`04_tool_call_basic.py`](examples/04_tool_call_basic.py) | First external tool request/execution |
+| V1 | [`devops_agent_v1.py`](examples/devops_agent_v1.py) | Basic multi-tool agent loop |
+| V2 | [`devops_agent_v2.py`](examples/devops_agent_v2.py) | Correct environment/cluster mapping + typed arguments |
+| V3 | [`devops_agent_v3.py`](examples/devops_agent_v3.py) | State, duplicate-call handling and evidence grounding |
+| V4 | [`devops_agent_v4.py`](examples/devops_agent_v4.py) | Investigation separated from schema-validated RCA reporting |
+
+Setup files:
+
+- [`requirements.txt`](examples/requirements.txt)
+- [`.env.example`](examples/.env.example)
+
+## V1 → V4 Evolution
+
+```text
+V1
+Basic Agent Loop
+   ↓
+V2
+Better Tool Arguments + Correct prod Mapping
+   ↓
+V3
+State + Evidence Preservation + Grounding
+   ↓
+V4
+Investigation Agent
+   ↓
+Application Evidence State
+   ↓
+Structured RCA Generator
+   ↓
+Validation + Human Approval
+```
+
 ## 🧪 What We Build
 
 ```text
