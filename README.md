@@ -12,37 +12,28 @@ The course deliberately does not jump from “LLM” directly to “autonomous a
 
 If you are a complete beginner, do **not** jump directly into LangChain, MCP or agents.
 
-Start with:
-
 ## 👉 [START-HERE.md](START-HERE.md)
 
-It explains:
+Then use these supporting guides:
 
-- what to install
-- how to create a Python virtual environment
-- how to use Ollama/local LLMs
-- how to use the OpenAI API
-- which module to study first
-- how to run V1→V10 practicals
-- common beginner errors
-- the trust/safety mental model used throughout the repository
+- [PREREQUISITES.md](PREREQUISITES.md) — Python 3.10+, virtual environment, Ollama/OpenAI setup checklist
+- [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md) — Ollama local vs OpenAI hosted provider guide
+- [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md) — exactly where to run the same concepts on both providers
+- [COURSE-AUDIT.md](COURSE-AUDIT.md) — detailed Module 0–12 content/practical/provider audit and limitations
 
-For model setup and provider switching:
+Beginner preflight:
 
-## 👉 [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md)
+```powershell
+pip install -r shared/requirements.txt
+python shared/preflight.py
+python shared/provider_smoke_test.py
+```
 
 The repository supports two learning paths:
 
 ```text
 Track A → Ollama / Local LLM
 Track B → OpenAI API
-```
-
-Shared provider smoke test:
-
-```powershell
-pip install -r shared/requirements.txt
-python shared/provider_smoke_test.py
 ```
 
 The model provider may change, but the engineering contract does not:
@@ -286,7 +277,7 @@ Evidence      = source of current facts
 Host code     = policy/execution owner
 ```
 
-See [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md).
+See [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md).
 
 ---
 
@@ -303,6 +294,8 @@ V10 → integrated module project
 ```
 
 This keeps the learning path debuggable and makes it clear **why** each production control was added.
+
+Module 0 uses no-code experiments because the learner should understand the mental model before coding. Module 11 uses architecture simulations/checkers because identity, network, state, HA/DR and governance are provider-independent engineering concerns.
 
 ---
 
@@ -342,7 +335,7 @@ Read Lesson 1
  ↓
 Understand mental model
  ↓
-Run practical V1
+Run practical V1 / matching experiment
  ↓
 Continue lesson-by-lesson
  ↓
