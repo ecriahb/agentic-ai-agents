@@ -2,5 +2,5 @@ sentence-transformers
 faiss-cpu
 numpy
 requests
-openai>=1.0.0
+openai>=2.38,<3
 python-dotenv>=1.0.0
