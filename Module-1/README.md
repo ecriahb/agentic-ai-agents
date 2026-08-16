@@ -119,11 +119,11 @@ V1  First Hosted/OpenAI Call
  ↓
 V2  First Local/Ollama Call
  ↓
-V3  Structured Output
+V3  Token / Context Experiment
  ↓
-V4  Basic Tool Request
+V4  Structured Output
  ↓
-V5  Real File Tool
+V5  Basic Tool Request
  ↓
 V6  DevOps Agent V1
  ↓
@@ -133,7 +133,7 @@ V8  DevOps Agent V3
  ↓
 V9  DevOps Agent V4
  ↓
-V10 Trusted RCA / Provider Comparison
+V10 Real Tool + Trusted RCA / Provider Comparison
 ```
 
 All runnable files: [`examples/`](examples/README.md)
@@ -170,18 +170,6 @@ Safe conclusion should be based on evidence, not model confidence.
 9. Read-only tools first; risky writes need authorization + approval.
 10. Provider can change; evidence/validation/policy rules must not.
 ```
-
----
-
-# 📎 Supplementary Deep Dives Preserved
-
-These older expanded files contain useful combined material from the live practical evolution. They are **supplementary**, not the canonical lesson numbering:
-
-- [`Lesson-03-Our-First-Real-AI-API-Call.md`](Lesson-03-Our-First-Real-AI-API-Call.md) — expanded API-call notes
-- [`Lesson-04-Local-AI-with-Ollama.md`](Lesson-04-Local-AI-with-Ollama.md) — expanded Ollama + structured/tool/agent experiments
-- [`Lesson-05-Fake-Tool-to-Real-Tool.md`](Lesson-05-Fake-Tool-to-Real-Tool.md) — deep real-tool/evidence/trusted-RCA progression
-
-The canonical learning path above should be followed first.
 
 ---
 
