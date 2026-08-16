@@ -2,241 +2,404 @@
 
 # Lesson 08 — Deterministic Guardrails & Policy Gates
 
-> **Critical safety decisions ko probabilistic model se deterministic application policy me shift karo.**
+> **Use the LLM for reasoning where uncertainty is acceptable; use deterministic code/policy for boundaries where uncertainty is not acceptable.**
 
 ---
 
 # 🎯 Lesson Goal
 
-Aap samjhoge:
-- model guardrail vs deterministic guardrail
-- policy engine mental model
-- allowlist/denylist/schema/risk gates
-- authorization + approval separation
-- input/output/tool/result guards
-- fail-open vs fail-closed
+You will understand:
+
+- deterministic vs probabilistic controls
+- input, retrieval, tool, output and action gates
+- policy decision contracts
+- deny/allow/approval-required states
+- authorization integration
+- confidence and evidence gates
+- rate/loop budgets
+- fail-closed behavior
+- policy observability and tests
 
 ---
 
 # PART 1 — English Definition
 
-A **deterministic guardrail** is application-controlled logic that enforces a rule predictably regardless of the LLM's preference or output.
+**A deterministic guardrail is application logic that enforces a repeatable rule independently of the LLM's willingness or interpretation.**
 
 ---
 
-# PART 2 — Model Rule vs Policy Rule
+# PART 2 — Model Rule vs Host Rule
 
-Prompt rule:
+Model rule:
+
 ```text
-Never restart production without approval.
+Please do not call dangerous tools.
 ```
-Useful, but probabilistic.
 
-Policy rule:
+Host rule:
+
 ```python
-if env == "production" and operation == "restart":
-    return "HUMAN_APPROVAL_REQUIRED"
+if tool_name not in allowed_tools:
+    raise PolicyDenied()
 ```
-Enforceable.
 
-Use both, but trust policy for safety.
+The second is enforceable and testable.
 
 ---
 
-# PART 3 — Guardrail Locations
+# PART 3 — Guardrail Stack
 
 ```text
-Input Guard
+Input Gate
  ↓
-Planner/Model
+Identity / Authorization Gate
  ↓
-Tool Proposal Guard
+Retrieval ACL/Freshness Gate
  ↓
-Tool Executor
+Tool Selection Gate
  ↓
-Tool Result Guard
+Argument/Target Gate
  ↓
-Model/Synthesis
+Execution Risk Gate
  ↓
-Output Guard
+Output/Citation Gate
  ↓
-Downstream Consumer
+Approval Gate
+ ↓
+Post-Action Verification
 ```
 
-Security is not one middleware call.
+Defense in depth.
 
 ---
 
-# PART 4 — Policy Inputs
+# PART 4 — Policy Decision Contract
 
-Policy may inspect:
+Prefer enum-like outputs:
+
 ```text
-user identity
-role/team
+ALLOW
+DENY
+APPROVAL_REQUIRED
+INSUFFICIENT_EVIDENCE
+RETRYABLE_FAILURE
+```
+
+Avoid only prose:
+
+```text
+"This seems mostly safe."
+```
+
+---
+
+# PART 5 — Input Gate
+
+Validate:
+
+```text
+request length
+supported intent
 environment
-tool name
-tool arguments
-resource scope
-incident/change ID
-risk class
-maintenance window
-approval token
-current workflow state
+resource identifiers
+encoding/content limits
+caller identity
 ```
 
-Do not ask LLM to infer trusted identity or permission.
-
----
-
-# PART 5 — Example Policy
+Example:
 
 ```python
-WRITE_TOOLS = {"restart_deployment", "apply_terraform"}
-PROD = {"production"}
-
-if tool not in APPROVED_TOOLS:
-    return "BLOCKED_UNKNOWN_TOOL"
-
-if environment not in ALLOWED_ENVIRONMENTS:
-    return "BLOCKED_SCOPE"
-
-if tool in WRITE_TOOLS and environment in PROD:
-    return "APPROVAL_REQUIRED"
-
-return "ALLOWED"
+if environment not in {"dev", "stage", "production"}:
+    return "INVALID_ENVIRONMENT"
 ```
-
-Then separate authorization check should validate caller permission.
 
 ---
 
-# PART 6 — Fail Closed
+# PART 6 — Retrieval Gate
 
-If policy service fails:
+Before context:
+
 ```text
-unknown policy result + prod write
-```
-Safer default:
-```text
-BLOCK / REVIEW
-```
-not:
-```text
-allow because policy unavailable
+caller authorized?
+source approved?
+source current?
+classification allowed?
+metadata complete?
 ```
 
-For low-risk read operations, availability trade-offs may differ.
+No policy → no document in prompt.
 
 ---
 
-# PART 7 — Structured Output Guard
+# PART 7 — Evidence Gate
 
-Model proposal:
-```json
-{
-  "action":"restart_deployment",
-  "environment":"production",
-  "reason":"network issue"
+Required for current RCA:
+
+```python
+required = {"E1", "E2", "E3"}
+current = evidence_ids()
+if not required.issubset(current):
+    return "INSUFFICIENT_EVIDENCE"
+```
+
+This prevents model from filling gaps.
+
+---
+
+# PART 8 — Tool Gate
+
+```python
+ALLOWED_TOOLS_BY_AGENT = {
+  "pipeline": {"get_pipeline_status"},
+  "terraform": {"get_terraform_changes"},
+  "aks": {"get_aks_status"},
 }
 ```
 
-Validation sequence:
+Tool must be allowed for both caller/agent and task/environment.
+
+---
+
+# PART 9 — Argument Gate
+
+Check:
+
+```text
+type
+length
+format
+enum
+inventory membership
+resource ownership
+environment
+```
+
+Valid JSON can still be unsafe.
+
+---
+
+# PART 10 — Risk Gate
+
+Example classification:
+
+```text
+READ_ONLY          → allow if authorized
+LOW_RISK_WRITE     → policy-specific
+HIGH_RISK_WRITE    → approval required
+DESTRUCTIVE        → deny or special break-glass path
+```
+
+Model does not select the risk class.
+
+---
+
+# PART 11 — Output Gate
+
+Validate:
+
 ```text
 schema
-→ allowed enum
-→ target exists
-→ evidence references valid
-→ caller authorization
-→ risk policy
-→ approval
+required sections
+citation IDs
+source class for current facts
+forbidden unsupported claims
+secret leakage
+unsafe executable content
 ```
 
-Pydantic validates shape, not permission or factual support.
+Output failure becomes explicit status.
 
 ---
 
-# PART 8 — Result Guard
+# PART 12 — Confidence Gate
 
-Tool can return unexpected content:
-```text
-status + secret
-status + malicious instruction
-massive payload
-```
+Host computes confidence from evidence policy.
 
-Normalize:
-```text
-expected fields only
-size limit
-secret redaction
-source/provenance
-error classification
-```
-
----
-
-# PART 9 — Human Approval Is Not Authorization
-
-Human clicks Approve.
-Still verify:
-```text
-who approved?
-are they authorized?
-what exact arguments were approved?
-has proposal changed since approval?
-is approval expired?
-```
-
-Bind approval to exact action hash/version.
-
----
-
-# PART 10 — Guardrail Test Matrix
+Example:
 
 ```text
-unknown tool → blocked
-prod read → allowed if authorized
-prod write → approval required
-invalid environment → blocked
-approval for old args → blocked
-secret in output → redacted/block
-policy unavailable + destructive action → blocked
+missing evidence → LOW
+full sequence, no direct mechanism verification → MEDIUM
+direct multi-source verification → HIGH
 ```
 
----
-
-# PART 11 — Interview Q&A
-
-### Q1. Why deterministic guardrails?
-They provide predictable enforcement for critical rules that should not depend on model compliance.
-
-### Q2. Model-based guardrails useful kaha hain?
-For fuzzy detection/classification signals such as suspicious content, but high-impact execution policy should be deterministic where possible.
-
-### Q3. Fail-open vs fail-closed?
-Fail-open allows operation when control fails; fail-closed blocks. High-risk actions should generally fail closed.
+LLM may explain confidence but not override host rubric.
 
 ---
 
-# PART 12 — Revision
+# PART 13 — Approval Gate
 
 ```text
-Prompt = behavior guidance
-Guardrail = enforcement
-Auth = permission
-Approval = decision
-Schema = shape
-Evidence = support
+proposal
+ ↓
+policy classifies HIGH_RISK
+ ↓
+authorization check
+ ↓
+approval request bound to exact action
+ ↓
+resume
+ ↓
+revalidate
+```
+
+No raw `approved=True` shared forever.
+
+---
+
+# PART 14 — Loop/Cost Gate
+
+```python
+if iterations >= max_iterations:
+    return "MAX_ITERATIONS"
+if tool_calls >= max_tool_calls:
+    return "TOOL_BUDGET_EXCEEDED"
+```
+
+Also limit:
+
+```text
+tokens
+runtime
+parallel calls
+retrieved context size
+```
+
+Security and FinOps reinforce each other.
+
+---
+
+# PART 15 — Fail Closed
+
+High-risk dependency failure:
+
+```text
+policy service unavailable
+```
+
+Result:
+
+```text
+DENY / POLICY_UNAVAILABLE
+```
+
+Never infer permission.
+
+---
+
+# PART 16 — Policy as Code
+
+Store versioned rules:
+
+```text
+policy_version=p7
+```
+
+Test in CI.
+
+Audit records include policy version so decisions are reproducible.
+
+---
+
+# PART 17 — Policy Test Examples
+
+```text
+P-01 unknown tool → DENY
+P-02 read prod status with read role → ALLOW
+P-03 Terraform apply from investigator → DENY
+P-04 approved exact NSG restore → ALLOW executor
+P-05 approval target mismatch → DENY
+P-06 missing evidence → no remediation proposal
+P-07 cross-tenant retrieval → DENY
+P-08 loop budget exceeded → TERMINATE
 ```
 
 ---
 
-# PART 13 — Homework
+# PART 18 — Observability
 
-Create policy rules for 10 tools across dev/stage/prod, with read/write risk, auth requirement, approval rule and failure behavior.
+Track:
+
+```text
+policy decision counts
+policy version
+reason code
+denied operation
+agent/caller
+environment
+approval-required rate
+policy service failures
+```
+
+Do not log raw secrets.
+
+---
+
+# PART 19 — Vulnerable vs Secure Pattern
+
+Vulnerable:
+
+```python
+if llm_says_safe:
+    execute()
+```
+
+Secure:
+
+```python
+proposal = parse()
+auth = authorize(identity, proposal)
+policy = evaluate(proposal, evidence, env)
+if policy == APPROVAL_REQUIRED:
+    pause()
+```
+
+---
+
+# PART 20 — Common Mistakes
+
+- all guardrails implemented in prompt
+- no explicit policy status codes
+- schema check only
+- approval not bound to exact target
+- missing policy service fails open
+- loop/cost has no limits
+- model chooses own confidence/risk class
+- policy changes not versioned/tested
+
+---
+
+# PART 21 — Interview Q&A
+
+### Q1. What should be deterministic in an agent?
+Authorization, capability allowlists, argument validation, risk policy, approval requirements, budgets and critical output validation.
+
+### Q2. Why not let LLM decide policy?
+LLM outputs are probabilistic and vulnerable to prompt manipulation; critical boundaries need repeatable enforcement.
+
+### Q3. What is fail-closed behavior?
+When a required security decision cannot be safely made, the action is denied rather than allowed by default.
+
+### Q4. How do you make policy auditable?
+Version policy, emit structured reason codes and record decisions with caller/action/request metadata.
+
+---
+
+# 🧠 Revision
+
+```text
+LLM = Proposal / Reasoning
+Policy Engine = Permission / Safety Decision
+```
+
+---
+
+# 📝 Homework
+
+Create 12 policy test cases for the final DevOps AI Assistant and mark which are critical release blockers.
 
 ---
 
 # 🔁 Next Lesson Kyu?
 
-Controls ban gaye. Ab prove karna hai ki agent expected behavior consistently follow karta hai. Next: agent evaluation fundamentals.
+We now have controls. Next we measure whether the agent behaves correctly through **agent evaluation fundamentals**.
