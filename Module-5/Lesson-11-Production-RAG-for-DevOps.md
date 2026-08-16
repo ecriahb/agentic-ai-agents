@@ -1,418 +1,660 @@
+# 🚩 Jai Bajrangbali!
+
 # Lesson 11 — Production RAG for DevOps
 
-> **Production RAG sirf embeddings + LLM nahi hai; knowledge freshness, access control, observability, security and failure handling equally important hain.**
+> **Local demo me answer mil jana start hai. Production RAG me security, freshness, observability, cost, reliability aur governance equally important hain.**
 
 ---
 
-## 🎯 Lesson Goal
+# 🎯 Lesson Goal
 
 Is lesson ke end tak aap samjhoge:
 
-- production knowledge lifecycle
-- document freshness/versioning
-- RBAC and tenant boundaries
+- local RAG vs production RAG
+- source governance
+- document lifecycle and freshness
+- incremental indexing
+- authentication and authorization
+- tenant/team isolation
 - secret handling
-- prompt injection risk
-- observability
-- caching and cost
-- failure modes
-- safe deployment architecture
+- retrieval and LLM observability
+- caching
+- resilience/timeouts/retries
+- cost and latency controls
+- auditability
+- deployment architecture
+- safe DevOps action boundary
 
 ---
 
-## English Definition
+# PART 1 — Local Demo vs Production System
 
-A **production RAG system** is a retrieval-and-generation application that manages knowledge freshness, authorization, security, reliability, observability and quality controls in addition to retrieval relevance.
+Local:
+
+```text
+Markdown files
+→ FAISS
+→ Ollama
+→ terminal answer
+```
+
+Production may need:
+
+```text
+Multiple knowledge sources
+Identity
+ACLs
+Versioning
+Incremental ingestion
+Vector service
+Reranker
+LLM gateway
+Monitoring
+Evaluation
+Audit logs
+High availability
+```
+
+Productionization means system behavior operationally trustworthy banana.
 
 ---
 
-# PART 1 — Production Architecture
+# PART 2 — Reference Architecture
 
 ```text
-Trusted Knowledge Sources
-        ↓
-Ingestion Pipeline
-        ↓
-Validation / Sanitization
-        ↓
-Chunk + Metadata
-        ↓
-Embeddings
-        ↓
-Versioned Index
-        ↓
-Authorized User Query
-        ↓
-Identity / RBAC
-        ↓
-Filtered Retrieval
-        ↓
-Context Guardrails
-        ↓
-LLM
-        ↓
-Schema / Citation Validation
-        ↓
-Answer + Audit Trail
-```
+                    KNOWLEDGE PLANE
 
----
+Approved Sources
+  │
+  ├── Runbooks
+  ├── Wiki / Docs
+  ├── RCAs
+  ├── Terraform Standards
+  └── Pipeline SOPs
+          ↓
+     Ingestion Service
+          ↓
+ Clean / Chunk / Metadata / ACL
+          ↓
+      Embedding Service
+          ↓
+      Vector / Search Index
 
-# PART 2 — Knowledge Freshness
 
-DevOps procedures change.
+                     QUERY PLANE
 
-Old runbook:
-
-```text
-Use pipeline-v1 for rollback.
-```
-
-New runbook:
-
-```text
-pipeline-v1 retired; use deployment-controller.
-```
-
-If stale content remains searchable, RAG can confidently return obsolete instructions.
-
-Useful metadata:
-
-```text
-version
-status
-last_updated
-valid_from
-valid_until
-owner
-```
-
-Possible policy:
-
-```text
-status=active only
+User / DevOps Portal
+        ↓
+ Authentication
+        ↓
+ Authorization Context
+        ↓
+ Query Validation
+        ↓
+ Retrieval Filters
+        ↓
+ Vector + Keyword Search
+        ↓
+ Rerank / Threshold
+        ↓
+ Context Builder
+        ↓
+ LLM Gateway
+        ↓
+ Output Validation
+        ↓
+ Answer + Sources
+        ↓
+ Audit / Metrics
 ```
 
 ---
 
 # PART 3 — Source Governance
 
-Not every document should be indexed automatically.
-
-Potential dangerous sources:
-
-- temporary chat dump
-- unreviewed draft
-- secrets/config exports
-- generated AI notes
-- deprecated runbooks
-- user-uploaded malicious content
-
-Ingestion should classify source trust.
-
-Example:
+Before a source becomes searchable:
 
 ```text
-Tier 1 → approved runbook
-Tier 2 → reviewed incident RCA
-Tier 3 → informal troubleshooting note
+Who owns it?
+Who approves it?
+What classification?
+What retention policy?
+What version?
+What status?
+Who may access it?
+When should it expire?
 ```
 
-Answer can prefer higher-authority sources.
+Metadata example:
+
+```json
+{
+  "owner": "platform-team",
+  "classification": "internal",
+  "status": "approved",
+  "version": "2026-08",
+  "valid_from": "2026-08-01",
+  "environment": "production"
+}
+```
 
 ---
 
-# PART 4 — Authorization Before Retrieval
+# PART 4 — Freshness & Incremental Indexing
 
-Critical principle:
-
-```text
-Retrieve only what user is allowed to see.
-```
-
-Bad architecture:
+Bad model:
 
 ```text
-Search all docs
-   ↓
-Retrieve secret/private chunk
-   ↓
-Try to hide it later
+Rebuild entire corpus manually once a year
 ```
 
 Better:
 
 ```text
-User Identity
-   ↓
-Access Scope
-   ↓
-Metadata / ACL Filter
-   ↓
-Authorized Retrieval
+Source change detected
+      ↓
+Identify changed document
+      ↓
+Delete/expire old chunks
+      ↓
+Re-chunk changed document
+      ↓
+Re-embed
+      ↓
+Update index
 ```
 
-Security must happen before sensitive content reaches LLM context.
+Store content hash:
+
+```text
+same hash → no re-index
+changed hash → process
+```
+
+Freshness is operational correctness.
 
 ---
 
-# PART 5 — Metadata Filter Is Not Full Authorization
+# PART 5 — Authentication vs Authorization
 
-Metadata helps:
-
-```text
-team=payments
-environment=prod
-classification=internal
-```
-
-But real security requires trusted identity + policy enforcement.
-
-Never rely on user-supplied metadata alone:
+Authentication:
 
 ```text
-user says team=admin
+Who are you?
 ```
 
-Host application must derive permission from authenticated identity.
+Authorization:
+
+```text
+Which sources/chunks may you retrieve?
+```
+
+Wrong:
+
+```text
+retrieve all docs
+→ ask model to hide unauthorized information
+```
+
+Correct:
+
+```text
+identity
+→ policy/ACL
+→ permitted retrieval scope
+→ model sees only permitted context
+```
 
 ---
 
-# PART 6 — Secrets
+# PART 6 — Multi-Team / Tenant Isolation
 
-Never intentionally embed/store secrets such as:
-
-- API keys
-- passwords
-- connection strings
-- tokens
-- private keys
-
-Why?
-
-Because vector DB and retrieval context become another sensitive storage/exposure path.
-
-Ingestion pipeline can add:
+Metadata:
 
 ```text
+team = payments
+team = platform
+team = security
+```
+
+User from platform team should not automatically retrieve restricted security incident docs.
+
+Possible controls:
+
+```text
+separate collections/indexes
+ACL metadata filters
+data-layer authorization
+service identity boundaries
+```
+
+Do not rely on prompt instructions for isolation.
+
+---
+
+# PART 7 — Secrets and Sensitive Data
+
+Never casually index:
+
+```text
+API keys
+passwords
+private keys
+access tokens
+customer secrets
+connection strings
+```
+
+Ingestion pipeline should support:
+
+```text
+classification
 secret scanning
+redaction/exclusion
+approved source allowlist
+```
+
+If sensitive data enters context, LLM controls are already too late.
+
+---
+
+# PART 8 — LLM Gateway Pattern
+
+Instead of every service calling model directly:
+
+```text
+RAG App
+  ↓
+LLM Gateway
+  ↓
+Model Provider / Ollama / Azure OpenAI / etc.
+```
+
+Gateway can centralize:
+
+```text
+timeouts
+retries
+model selection
+rate limits
+logging
+cost tracking
 redaction
-source allowlist
-classification checks
+policy
 ```
 
 ---
 
-# PART 7 — Observability
+# PART 9 — Resilience
 
-Log enough to debug quality without leaking secrets.
+Possible failures:
 
-Useful fields:
+```text
+embedding service unavailable
+vector DB unavailable
+LLM timeout
+429/rate limit
+source connector failure
+malformed model output
+```
+
+Design explicit behavior:
+
+```text
+retrieval unavailable → do not pretend no evidence exists
+LLM unavailable → return retrievable sources without generated answer if useful
+validation failure → flag/retry safely
+```
+
+---
+
+# PART 10 — Timeout & Retry Policy
+
+Not every failure should be retried.
+
+Potentially retryable:
+
+```text
+429
+transient 5xx
+network timeout
+```
+
+Usually not fixed by retry:
+
+```text
+401 authentication
+403 authorization
+invalid request/schema
+```
+
+Use:
+
+```text
+bounded retries
+exponential backoff
+jitter
+idempotent operations
+```
+
+---
+
+# PART 11 — Observability
+
+Trace one query:
 
 ```text
 request_id
-user_scope
-original_query
-rewritten_query
-retrieved_chunk_ids
+user/team
+query hash/text policy
+retrieved chunk IDs
 scores
-source_versions
-threshold decision
-model name
+filters applied
+context size
+model
 latency
-answer status
-citation validation result
+validation status
+final source IDs
 ```
 
-Avoid raw secret-containing prompts in logs.
+Metrics:
+
+```text
+retrieval_latency_ms
+llm_latency_ms
+no_context_rate
+invalid_citation_rate
+retrieval_hit_rate from eval
+request_error_rate
+index_freshness_age
+```
 
 ---
 
-# PART 8 — Latency Breakdown
+# PART 12 — Logging Safety
 
-RAG request latency may include:
+Do not log everything blindly.
 
-```text
-query rewrite
-embedding
-vector search
-reranking
-context building
-LLM generation
-validation
-```
-
-Measure separately.
-
-Example:
+Avoid:
 
 ```text
-Embedding: 40 ms
-Search: 15 ms
-Rerank: 120 ms
-LLM: 1800 ms
+raw secrets
+full confidential docs
+access tokens
+complete sensitive prompts
 ```
 
-Now optimization becomes evidence-based.
+Prefer structured safe logs:
+
+```text
+request_id
+source IDs
+status
+latency
+model name
+policy result
+```
+
+with controlled access.
 
 ---
 
-# PART 9 — Cost Controls
+# PART 13 — Cost & Latency Controls
 
-Cloud-based RAG cost may come from:
+Cost/latency drivers:
 
-- embedding calls
-- generation tokens
-- reranking service
-- vector DB
-- storage/network
+```text
+embedding volume
+retrieval candidate count
+reranker calls
+context size
+LLM input/output tokens
+multi-query count
+```
 
-Controls:
+Optimization examples:
 
 ```text
 incremental indexing
 embedding cache
-small relevant context
-response limits
-query/result cache where safe
-```
-
-But cache must respect access scopes and freshness.
-
----
-
-# PART 10 — Failure Handling
-
-What if vector DB unavailable?
-
-```text
-Do not silently answer from model memory as if grounded.
-```
-
-Return explicit degraded status:
-
-```text
-Knowledge retrieval is unavailable; I cannot provide a grounded internal answer right now.
-```
-
-Other failures:
-
-- embedding timeout
-- LLM timeout
-- malformed model output
-- stale index
-- authorization service failure
-
-Fail safely.
-
----
-
-# PART 11 — Production DevOps Use Case
-
-```text
-On-call Engineer
-      ↓
-SSO Identity
-      ↓
-Authorized Project Scope
-      ↓
-Query: "How do I validate AKS private DNS after PE change?"
-      ↓
-Retrieve active project runbooks only
-      ↓
-Rerank
-      ↓
-Context with source/version
-      ↓
-Grounded LLM
-      ↓
-Answer + citations
-      ↓
-No automatic production changes
+query cache where safe
+small retrieval K
+rerank only when needed
+bounded context
+appropriate model tier
 ```
 
 ---
 
-# PART 12 — Read-Only First
+# PART 14 — Caching
 
-Knowledge assistant should initially:
+Possible caches:
 
 ```text
-Search
-Explain
-Summarize
-Recommend
+document embeddings
+query embeddings
+retrieval results
+final answers
 ```
 
-not automatically:
+But caching has freshness/security risks.
+
+Never serve cached answer across users if source authorization differs.
+
+Cache key may need:
 
 ```text
-Delete
-Apply
-Restart
-Rollback
-Rotate
+normalized query
+user authorization scope
+index version
+model/prompt version
 ```
 
-Later agentic remediation requires separate tool permissions and approval architecture.
-
 ---
 
-## Common Mistakes
+# PART 15 — Prompt & Model Versioning
 
-- index every available document
-- stale docs remain active
-- authorization after retrieval
-- secrets embedded
-- retrieval outage falls back to ungrounded answer
-- no source/version logs
-- cache leaks cross-user results
-- RAG answer wired directly to write operations
-
----
-
-## Interview Corner
-
-**Q: What are the biggest production concerns in RAG?**
-
-Knowledge freshness, access control, source trust, secret protection, retrieval quality, prompt injection, observability, latency, cost and safe failure behavior.
-
-**Q: Where should authorization happen?**
-
-Before or during retrieval so unauthorized content never enters the model context.
-
----
-
-## Revision
+Store:
 
 ```text
-Production RAG
-= Retrieval
-+ Freshness
-+ RBAC
-+ Security
+prompt_version = rag-v5
+embedding_model = ...
+reranker_version = ...
+generation_model = ...
+index_version = ...
+```
+
+Why?
+
+When regression appears, you need to know which component changed.
+
+---
+
+# PART 16 — Deployment Strategy
+
+For a service:
+
+```text
+Containerized RAG API
+        ↓
+AKS / App Service
+        ↓
+Private network where needed
+        ↓
+Managed identity / workload identity
+        ↓
+Vector DB + document sources
+        ↓
+LLM endpoint
+```
+
+CI/CD should run:
+
+```text
+unit tests
+retrieval eval subset
+security scans
+prompt/schema tests
+integration tests
+```
+
+before promotion.
+
+---
+
+# PART 17 — Production RAG and Actions
+
+Knowledge assistant:
+
+```text
+Read → Retrieve → Analyze → Recommend
+```
+
+Agent with actions:
+
+```text
+Read → Analyze → Propose Action
+             ↓
+       Policy Validation
+             ↓
+       Human Approval
+             ↓
+       Controlled Tool
+```
+
+Do not jump directly from RAG answer to production mutation.
+
+---
+
+# PART 18 — SLO Thinking
+
+Possible service goals:
+
+```text
+99.9% API availability
+p95 retrieval latency < target
+index freshness < 30 minutes
+invalid citation rate < threshold
+no-context false-positive rate monitored
+```
+
+Quality SLOs may be harder than infrastructure SLOs but should still be measured.
+
+---
+
+# PART 19 — Production Checklist
+
+```text
+[ ] approved sources only
+[ ] secret scanning
+[ ] ownership metadata
+[ ] document versions
+[ ] incremental indexing
+[ ] authorization before retrieval
+[ ] retrieval evaluation
+[ ] grounded prompt
+[ ] citation validation
+[ ] explicit failure statuses
+[ ] safe logs
+[ ] metrics/tracing
+[ ] model/prompt versioning
+[ ] bounded retries/timeouts
+[ ] read-only first
+[ ] human approval for destructive actions
+```
+
+---
+
+# PART 20 — Common Mistakes
+
+1. Local FAISS script ko directly enterprise architecture samajhna.
+2. ACL only prompt me define karna.
+3. Stale documents never delete karna.
+4. Full sensitive context logs me dump karna.
+5. Multi-query/reranker without latency measurement.
+6. Prompt/model changes version na karna.
+7. Cached answers authorization scope ke bina reuse karna.
+8. RAG answer se direct production action execute karna.
+
+---
+
+# PART 21 — Interview Corner
+
+### Q1. What is the biggest security rule for enterprise RAG?
+
+Enforce authorization before retrieval so unauthorized content never enters model context.
+
+### Q2. Why is incremental indexing important?
+
+It keeps the knowledge index current without rebuilding the entire corpus for every small change.
+
+### Q3. What should be observable in RAG?
+
+Retrieval sources/scores, context size, component latency, model/prompt versions, validation outcomes and failure states.
+
+### Q4. Why version prompts and indexes?
+
+To reproduce behavior, investigate regressions and safely roll out changes.
+
+### Q5. Why separate RAG from action execution?
+
+RAG produces information/recommendations; operational mutations need additional policy, validation and approval controls.
+
+---
+
+# PART 22 — Revision
+
+```text
+Production RAG =
+Knowledge Governance
++ Fresh Index
++ Identity/ACL
++ Retrieval Quality
++ Grounding
++ Validation
++ Resilience
 + Observability
-+ Evaluation
-+ Safe Failure
++ Safe Operations
 ```
 
 ---
 
-## Homework
+# PART 23 — Homework
 
-Design a production policy for internal RAG with:
+Design a production architecture for:
 
-- Dev / Stage / Prod documents
-- two application teams
-- deprecated runbooks
-- confidential RCA docs
+```text
+Internal DevOps Knowledge Assistant
+```
 
-Explain how retrieval filters should work.
+Include:
+
+1. sources
+2. ingestion
+3. vector/search store
+4. authentication
+5. authorization
+6. LLM access
+7. logging/metrics
+8. evaluation
+9. failure handling
+10. human approval boundary
 
 ---
 
-## Next Lesson Kyu?
+# 🔗 Why Lesson 12 Next?
 
-All concepts ready hain. Ab complete system build karna hai:
+Ab individual concepts complete hain. Final lesson me hum sab combine karenge:
 
-**DevOps RAG Knowledge Assistant**.
+```text
+Documents
+→ Retrieval
+→ Quality Gate
+→ Context
+→ Grounded Generation
+→ Citations
+→ Validation
+→ Evaluation
+```
+
+into one **DevOps RAG Knowledge Assistant mini-project**.
