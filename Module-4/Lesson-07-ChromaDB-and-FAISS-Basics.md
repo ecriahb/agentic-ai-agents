@@ -1,126 +1,354 @@
-# Lesson 07 — ChromaDB / FAISS Basics
+# 🚩 Lesson 07 — ChromaDB & FAISS Basics
 
-> **Same vector-search problem, different abstraction levels.**
+> **Ab manual vector comparison se real local vector tooling par move karenge.**
+
+---
 
 ## 🎯 Lesson Goal
 
-ChromaDB aur FAISS ka beginner-level difference samajhna aur dono ka basic search flow dekhna.
+Is lesson ke end tak aap samjhoge:
 
-## FAISS Mental Model
+- Chroma aur FAISS ka practical role
+- collection/index concept
+- add vs query/search
+- IDs, documents, metadata mapping
+- FAISS dimension requirement
+- Chroma practical
+- FAISS practical
+- kab kaunsa tool useful ho sakta hai
+- common errors
+
+---
+
+# PART 1 — Why Two Tools?
+
+Hum deliberately do approaches dekh rahe hain:
 
 ```text
-Vectors
-  ↓
-FAISS Index
-  ↓
-add()
-  ↓
-search(query_vector, k)
-  ↓
-nearest vector IDs + distances
+Chroma → higher-level developer experience
+FAISS  → lower-level vector index/search
 ```
 
-FAISS ka `IndexFlatL2` simple exact L2 nearest-neighbor search ke liye useful learning index hai.
+Goal kisi ek product ko memorize karna nahi. Goal vector retrieval mechanics samajhna hai.
+
+---
+
+# PART 2 — Chroma Mental Model
+
+```text
+Client
+ ↓
+Collection
+ ↓
+IDs + Documents + Metadata + Embeddings
+ ↓
+Query
+ ↓
+Nearest Results
+```
+
+A collection ko DevOps knowledge namespace samajh sakte ho.
+
+Example:
+
+```text
+collection = devops_knowledge
+```
+
+---
+
+# PART 3 — Chroma Practical
+
+```python
+import chromadb
+from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("all-MiniLM-L6-v2")
+client = chromadb.Client()
+collection = client.get_or_create_collection("devops_knowledge")
+
+documents = [
+    "AKS subnet NSG blocked required traffic",
+    "Terraform state lock prevented apply",
+    "Docker build failed because disk was full"
+]
+
+ids = ["aks-1", "tf-1", "docker-1"]
+metadatas = [
+    {"service": "aks"},
+    {"service": "terraform"},
+    {"service": "docker"}
+]
+
+embeddings = model.encode(documents).tolist()
+
+collection.add(
+    ids=ids,
+    documents=documents,
+    metadatas=metadatas,
+    embeddings=embeddings
+)
+
+query = "Kubernetes networking issue"
+query_embedding = model.encode([query]).tolist()
+
+result = collection.query(
+    query_embeddings=query_embedding,
+    n_results=2
+)
+
+print(result)
+```
+
+---
+
+# PART 4 — Chroma Code Explanation
+
+```python
+chromadb.Client()
+```
+Creates local client for the demo.
+
+```python
+get_or_create_collection(...)
+```
+Logical collection gets created/reused.
+
+```python
+collection.add(...)
+```
+Stores IDs, text, metadata and embeddings.
+
+```python
+collection.query(...)
+```
+Searches nearest vectors for query embedding.
+
+### Important
+
+Production configuration/persistence depends on how Chroma is deployed. Demo client ko production architecture assume mat karo.
+
+---
+
+# PART 5 — FAISS Mental Model
+
+FAISS typically focuses on vectors + nearest-neighbor index.
+
+```text
+Documents
+ ↓ embedding
+NumPy vectors
+ ↓
+FAISS Index
+ ↓
+search(query_vector, k)
+ ↓
+indices + distances/scores
+ ↓
+map index position back to document
+```
+
+Document/metadata mapping app ko manage karni pad sakti hai.
+
+---
+
+# PART 6 — FAISS Practical
 
 ```python
 import faiss
 import numpy as np
+from sentence_transformers import SentenceTransformer
 
-vectors = np.array([
-    [1.0, 0.9, 0.1],
-    [0.1, 0.2, 1.0],
-    [0.8, 1.0, 0.2],
-], dtype="float32")
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-index = faiss.IndexFlatL2(vectors.shape[1])
+documents = [
+    "AKS subnet NSG blocked required traffic",
+    "Terraform state lock prevented apply",
+    "Docker build failed because disk was full"
+]
+
+vectors = model.encode(documents, normalize_embeddings=True)
+vectors = np.asarray(vectors, dtype="float32")
+
+dimension = vectors.shape[1]
+index = faiss.IndexFlatIP(dimension)
 index.add(vectors)
 
-query = np.array([[0.9, 0.95, 0.1]], dtype="float32")
-distances, ids = index.search(query, k=2)
+query = "Kubernetes networking issue"
+query_vector = model.encode([query], normalize_embeddings=True)
+query_vector = np.asarray(query_vector, dtype="float32")
 
-print(ids)
-print(distances)
+scores, indices = index.search(query_vector, k=2)
+
+for score, idx in zip(scores[0], indices[0]):
+    print(float(score), documents[idx])
 ```
-
-FAISS index vector IDs return karta hai, so original documents/metadata ko application side map karna padta hai.
 
 ---
 
-## Chroma Mental Model
+# PART 7 — Why `float32`?
 
-```text
-Documents + IDs + Metadata
-          ↓
-       Collection
-          ↓
-         add
-          ↓
-        query
-          ↓
-documents + metadata + distances
-```
-
-Conceptual example:
+FAISS commonly expects arrays in compatible numeric format such as `float32`.
 
 ```python
-import chromadb
-
-client = chromadb.PersistentClient(path="./chroma_data")
-collection = client.get_or_create_collection("devops_docs")
-
-collection.add(
-    ids=["doc1", "doc2"],
-    documents=[
-        "AKS subnet NSG troubleshooting steps",
-        "Docker image build optimization guide"
-    ],
-    metadatas=[
-        {"service": "aks"},
-        {"service": "docker"}
-    ]
-)
-
-results = collection.query(
-    query_texts=["Kubernetes networking issue"],
-    n_results=2
-)
-
-print(results)
+np.asarray(vectors, dtype="float32")
 ```
 
-A collection can store documents, embeddings and metadata and return matching records.
+Avoid mysterious type/shape bugs by checking:
 
-## Difference for This Course
+```python
+print(vectors.dtype)
+print(vectors.shape)
+```
+
+---
+
+# PART 8 — Why `dimension = vectors.shape[1]`?
+
+FAISS index dimension must match embedding dimension.
 
 ```text
-FAISS
-→ learn vector index mechanics clearly
-→ you manage document mapping/metadata separately
-
-Chroma
-→ higher-level developer experience
-→ document + metadata + vector retrieval together
+Embedding shape = (3, 384)
+                    ↑
+             dimension = 384
 ```
 
-Neither is automatically “best”. Choice depends on scale, deployment, persistence, filtering, operations and application requirements.
+If query vector dimension differs, search cannot work correctly.
 
-## Production Warning
+---
 
-Demo defaults are not production architecture. Before production use, evaluate persistence, backup, auth, tenancy, data lifecycle, index behavior and operational support.
+# PART 9 — `IndexFlatIP` vs `IndexFlatL2`
 
-## Common Mistakes
+Simplified:
 
-- vector DB ko embedding model samajhna
-- FAISS ko document database samajhna
-- test collection me duplicate IDs blindly insert karna
-- local persistent directory ko source-controlled data samajhna
+```text
+IndexFlatIP → inner product
+IndexFlatL2 → L2 distance
+```
 
-## Interview Point
+If using normalized vectors with inner product, ranking can be used for cosine-like similarity behavior.
 
-**Q: Chroma and FAISS me conceptual difference?**
+Do not mix metric interpretation:
 
-FAISS is primarily a vector similarity search/indexing library, while Chroma exposes a collection-oriented vector-store/database experience with documents and metadata around retrieval.
+```text
+IP score: higher often better
+L2 distance: lower better
+```
 
-## Next Lesson Kyu?
+---
 
-Search engine ready hai, but poor document splitting se poor retrieval milega. Next: **chunking strategy**.
+# PART 10 — Chroma vs FAISS Comparison
+
+| Area | Chroma | FAISS |
+|---|---|---|
+| Abstraction | Higher | Lower |
+| Documents | Built into collection workflow | App mapping often needed |
+| Metadata | Convenient | Usually app-side/separate |
+| Vector indexing | Yes | Core strength |
+| Learning goal | End-to-end store/query | Understand vector index mechanics |
+
+This table is conceptual, not a universal product benchmark.
+
+---
+
+# PART 11 — DevOps Practical
+
+Query:
+
+```text
+production pods cannot connect after security rule update
+```
+
+Expected relevant record:
+
+```text
+AKS subnet NSG blocked required traffic
+```
+
+Now semantic search is no longer manually sorting cosine scores; index/store is doing retrieval.
+
+---
+
+# PART 12 — Common Errors
+
+### Error: dimension mismatch
+
+Fix: same embedding model/compatible vectors.
+
+### Error: wrong dtype in FAISS
+
+Fix: inspect/convert to `float32`.
+
+### Error: duplicates in collection
+
+Use stable IDs and deliberate ingestion strategy.
+
+### Error: documents returned but no source
+
+Always store useful metadata.
+
+### Error: model changed
+
+Re-index; do not assume old embeddings compatible.
+
+---
+
+# PART 13 — Production Thinking
+
+Prototype tool selection se pehle think about:
+
+- persistent storage
+- backups
+- update/delete
+- metadata filtering
+- authorization
+- scale
+- latency
+- multi-tenancy
+- observability
+- deployment model
+
+---
+
+# PART 14 — Interview Corner
+
+**Q: Difference between Chroma and FAISS at a high level?**  
+Chroma provides a higher-level vector collection workflow including documents/metadata, while FAISS is primarily a vector similarity indexing/search library.
+
+**Q: Why must FAISS index dimension match embeddings?**  
+Because all indexed and query vectors must share the dimensionality expected by the index.
+
+---
+
+# PART 15 — Revision
+
+```text
+Embedding Model
+   ↓
+Vectors
+   ↓
+Chroma Collection OR FAISS Index
+   ↓
+Query Vector
+   ↓
+Top-K Search
+```
+
+---
+
+# PART 16 — Homework
+
+1. `03_chromadb_search.py` run karo.
+2. `04_faiss_search.py` run karo.
+3. Dono me 5 same DevOps documents use karo.
+4. Top-3 result compare karo.
+
+---
+
+# Next Lesson Kyu?
+
+Ab tool ready hai. Lekin real runbook ek single sentence nahi hota—wo pages long hota hai.
+
+**Large document ko searchable units me kaise split karein?**
+
+# 👉 Lesson 08 — Chunking Strategies
