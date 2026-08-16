@@ -1,144 +1,232 @@
 # Module 1 — Zero-to-Hero Practical Roadmap
 
-> Goal: beginner ko first model call se trusted evidence-based DevOps agent tak step-by-step le jana.
+> **Canonical lesson alignment:** 0 Roadmap → 1 UI/API → 2 Environment → 3 OpenAI Setup → 4 Ollama → 5 First Call → 6 Tokens/Context → 7 Structured Output → 8 Tools → 9 Basic Agent → A Complete Lab.
 
 ## Setup
+
 ```powershell
 cd Module-1/examples
 python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-Choose one path:
-- Local: Ollama running + installed model
-- Hosted: `OPENAI_API_KEY` in local `.env`
+Choose provider path:
+
+```text
+OpenAI hosted → OPENAI_API_KEY + available model
+Ollama local  → Ollama running + installed model
+```
 
 ---
 
-## V1 — First Hosted LLM Call
-Run: `01_first_ai_call.py`
+# Before V1 — Lessons 0–4
 
-**Why first:** API request/response ko simplest possible form me samajhna.
+Do not start V1 blindly. First complete:
 
-**Observe:** request, model, response object, `output_text`.
+```text
+Lesson 0 → understand full architecture
+Lesson 1 → UI vs API
+Lesson 2 → create venv + secrets
+Lesson 3 → configure OpenAI path
+Lesson 4 → configure Ollama path
+```
 
-**Common errors:** missing key, billing/credits, wrong model name, network failure.
-
----
-
-## V2 — First Local LLM Call
-Run: `02_ollama_ai_call.py`
-
-**Why:** same AI concept without hosted API dependency.
-
-**Observe:** local endpoint, model installed locally, no cloud key required.
-
-**Compare:** latency, privacy, hardware dependency, model quality.
+Pass condition: both provider architectures can be explained even if only one provider is actually available to you.
 
 ---
 
-## V3 — Structured Output
-Run: `03_structured_output.py`
+## V1 — First Hosted/OpenAI LLM Call
+**Lesson:** 5 — First API Call & Response Object  
+**Run:** `01_first_ai_call.py`
 
-**Goal:** free-text answer ko predictable contract me lana.
+Observe:
 
-**Learning:** JSON/Pydantic shape validate kar sakte hain; factual truth automatically validate nahi hoti.
+- client construction
+- `responses.create()`
+- model + input
+- response ID/status/model/usage
+- `output_text`
 
----
+Failure drills:
 
-## V4 — Basic Tool Request
-Run: `04_tool_call_basic.py`
+- missing key
+- unavailable model
+- provider/network error
 
-**Goal:** model ko tool/capability concept introduce karna.
-
-**Critical rule:** LLM tool call = request/proposal, execution authority nahi.
-
----
-
-## V5 — Real File Tool
-Open: `examples/lesson-05-real-tool-practical/`
-
-Start with sample `pipeline.log`.
-
-Build/read a tool that actually reads the file instead of returning fake hard-coded evidence.
-
-**Expected:** learner clearly sees `LLM → tool request → host executes → tool result → model`.
+Pass: explain why `create()` creates a response, not a model.
 
 ---
 
-## V6 — DevOps Agent V1
-Run: `devops_agent_v1.py`
+## V2 — First Local/Ollama LLM Call
+**Lessons:** 4 + 5  
+**Run:** `02_ollama_ai_call.py`
 
-**Goal:** multiple DevOps observations ko one analysis flow me connect karna.
+Observe:
 
-**Check:** evidence and model narrative ko separate print karo.
+- local base URL
+- installed model
+- no cloud API key
+- same request/response mental model
+
+Failure drills:
+
+- stop Ollama
+- use missing model
+
+Pass: explain local-vs-hosted trade-offs without saying either output is automatically trusted.
+
+---
+
+## V3 — Token / Context Experiment
+**Lesson:** 6 — Tokens, Cost & Context Engineering
+
+Use the same incident question with:
+
+1. short evidence
+2. noisy long log
+3. trimmed source-labeled evidence
+
+On hosted path, inspect usage metadata when available. On local path, compare latency/quality.
+
+Pass: explain why more context is not automatically better.
+
+---
+
+## V4 — Structured Output
+**Lesson:** 7  
+**Run:** `03_structured_output.py`
+
+Test:
+
+- correct schema
+- missing field
+- invalid confidence
+- schema-valid but unsupported factual claim
+
+Pass: explain `schema-valid != factually true`.
+
+---
+
+## V5 — Basic Tool Request
+**Lesson:** 8  
+**Run:** `04_tool_call_basic.py`
+
+Observe:
+
+```text
+LLM tool request
+→ host validates
+→ Python executes
+→ tool result
+```
+
+Failure drills:
+
+- unknown tool
+- invalid target
+- missing argument
+
+Pass: explain `tool request != execution authority`.
+
+---
+
+## V6 — Basic DevOps Agent V1
+**Lesson:** 9  
+**Run:** `devops_agent_v1.py`
+
+Goal: first multi-tool decide→act→observe loop.
+
+Pass: identify state, tool selection and stop condition.
 
 ---
 
 ## V7 — DevOps Agent V2
-Run: `devops_agent_v2.py`
+**Run:** `devops_agent_v2.py`
 
-**Goal:** pipeline + Terraform + AKS evidence combine karna.
+Goal: better environment/cluster/tool argument mapping.
 
-**Pass:** model should not fabricate unavailable evidence.
+Failure drill: invalid environment or cluster.
+
+Pass: explain why model-generated args need host validation.
 
 ---
 
 ## V8 — DevOps Agent V3
-Run: `devops_agent_v3.py`
+**Run:** `devops_agent_v3.py`
 
-**Goal:** evidence-only RCA discipline.
+Goal:
 
-Add/verify:
-- evidence IDs
-- no evidence → no RCA
-- confirmed facts vs inference
-- no invented customer impact
+- explicit state
+- duplicate/no-progress protection
+- evidence grounding
+
+Pass: evidence must be distinguishable from model narrative.
 
 ---
 
 ## V9 — DevOps Agent V4
-Run: `devops_agent_v4.py`
+**Run:** `devops_agent_v4.py`
 
-**Goal:** structured schema + validation + safer host control.
+Goal:
 
-Test intentionally bad inputs:
-- unknown environment
-- invented tool name
-- unexpected argument
+- investigation separated from reporting
+- structured RCA
+- safer validation
+
+Failure drills:
+
 - missing evidence
+- invented tool
+- unsupported impact
 
-**Learning:** schema validates structure; host validates policy/trust.
+Pass: agent must fail closed rather than fabricate RCA.
 
 ---
 
-## V10 — Provider-Parity Trusted RCA
-Run the same incident using both provider tracks through the shared provider setup from repo root.
+## V10 — Complete Real-Tool Trusted RCA
+**Section:** A — Complete Lab Code  
+**Open:** `lesson-05-real-tool-practical/README.md`
 
-Suggested sequence:
-```powershell
-# Local
-$env:LLM_PROVIDER="ollama"
-python shared/provider_smoke_test.py
+Evolution:
 
-# OpenAI
-$env:LLM_PROVIDER="openai"
-python shared/provider_smoke_test.py
+```text
+pipeline.log
+→ real file-reading tool
+→ model requests tool
+→ no-tool guardrail
+→ evidence preservation
+→ evidence-only reporter
+→ Pydantic
+→ tool allowlist + arg validation
+→ deterministic impact
+→ confidence policy
+→ TRUSTED RCA
 ```
 
-Then compare final RCA quality while keeping **exact same evidence**.
+Provider comparison bonus: use same evidence/prompt with Ollama and OpenAI where supported, while keeping host validation identical.
 
-### Acceptance Criteria
+### Hero acceptance criteria
 Learner can explain:
+
 ```text
 LLM = reasoner
 Host = executor/policy owner
-Tool output = evidence
 Tool request = untrusted proposal
+Tool result = evidence with provenance
+Schema = shape
+Evidence validation = factual trust gate
 No evidence = no forced RCA
-Structured output = shape, not truth
 ```
 
-## Hero Outcome
-Beginner ab simple LLM consumer nahi; woh first controlled, evidence-grounded DevOps AI application ka mental model samajhta hai.
+---
+
+# After V10
+
+Complete:
+
+- `B-Troubleshooting-Playbook.md`
+- `C-Interview-and-Revision-Sheet.md`
+- `D-Official-References.md`
+
+Then move to Module 2.
