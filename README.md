@@ -16,6 +16,7 @@ If you are a complete beginner, do **not** jump directly into LangChain, MCP or 
 
 Then use these supporting guides:
 
+- [PRACTICALS-INDEX.md](PRACTICALS-INDEX.md) — **the hands-on Zero → Hero spine for every Module 0–12**
 - [PREREQUISITES.md](PREREQUISITES.md) — Python 3.10+, virtual environment, Ollama/OpenAI setup checklist
 - [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md) — Ollama local vs OpenAI hosted provider guide
 - [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md) — exactly where to run the same concepts on both providers
@@ -281,19 +282,43 @@ See [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md).
 
 ---
 
-# 🧪 Practical Philosophy
+# 🧪 Practical Philosophy — Zero to Hero
 
-Most modules include incremental practical versions instead of jumping directly to the final solution:
+**Practicals are the primary learning spine of this repository.** Use [PRACTICALS-INDEX.md](PRACTICALS-INDEX.md) and complete every module's `PRACTICAL-ROADMAP.md` sequentially.
 
 ```text
-V1 → one new concept
-V2 → next boundary
-V3 → validation
-...
-V10 → integrated module project
+ZERO
+Understand manually
+   ↓
+BASIC
+Run one isolated concept
+   ↓
+BUILD
+Combine concepts
+   ↓
+CONTROL
+Add validation/evidence/policy
+   ↓
+FAILURE DRILL
+Break it intentionally
+   ↓
+ADVANCED
+Add retrieval/tools/state/coordination
+   ↓
+PROVIDER PARITY
+Use Ollama and OpenAI where an LLM is actually required
+   ↓
+V10 / HERO
+Integrated module project
 ```
 
-This keeps the learning path debuggable and makes it clear **why** each production control was added.
+A practical is **not complete because the script ran**. The learner must be able to explain:
+- what changed from the previous version
+- what can fail
+- what is model-driven vs deterministic
+- what evidence is trusted
+- what control blocks unsafe behavior
+- why the next version exists
 
 Module 0 uses no-code experiments because the learner should understand the mental model before coding. Module 11 uses architecture simulations/checkers because identity, network, state, HA/DR and governance are provider-independent engineering concerns.
 
@@ -331,17 +356,21 @@ Follow the modules sequentially. Even if you already know Azure/DevOps, avoid sk
 For each module:
 
 ```text
-Read Lesson 1
+Read lesson
  ↓
-Understand mental model
+Open that module's PRACTICAL-ROADMAP.md
  ↓
-Run practical V1 / matching experiment
+Run/perform current practical stage
+ ↓
+Change one input
+ ↓
+Break it intentionally
+ ↓
+Explain expected vs actual behavior
  ↓
 Continue lesson-by-lesson
  ↓
-Run matching practicals
- ↓
-Complete mini project
+Complete V10 / module project
  ↓
 Revision + interview questions
 ```
@@ -356,4 +385,4 @@ After completing the course, the project can be described as:
 
 ---
 
-🚩 **Jai Bajrangbali — Learn • Build • Validate • Secure • Operate**
+🚩 **Jai Bajrangbali — Learn • Build • Break • Validate • Secure • Operate**
