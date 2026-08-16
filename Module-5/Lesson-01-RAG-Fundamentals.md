@@ -1,318 +1,631 @@
+# 🚩 Jai Bajrangbali!
+
 # Lesson 01 — RAG Fundamentals
 
-> **RAG ka simple goal: LLM ko answer dene se pehle relevant external knowledge dena.**
+> **RAG ka simple goal: LLM ko answer dene se pehle trusted external knowledge dhoondhkar dena.**
 
 ---
 
-## 🎯 Lesson Goal
+# 🎯 Lesson Goal
 
 Is lesson ke end tak aap clearly samjhoge:
 
-- RAG kya hai
-- RAG kyu chahiye
-- RAG vs normal LLM call
-- RAG vs fine-tuning
-- retrieval ka exact role
-- DevOps me RAG kaha useful hai
-- RAG kya solve karta hai aur kya solve nahi karta
+- RAG kya hai aur kyu bana
+- LLM ki internal knowledge aur external knowledge me difference
+- RAG model training se kaise different hai
+- Retrieval, Augmentation aur Generation teen alag stages kyu hain
+- DevOps me RAG ka real use kaha hota hai
+- RAG hallucination ko reduce kaise karta hai — aur completely eliminate kyu nahi karta
+- RAG vs fine-tuning vs normal prompting
+- RAG ke common failure modes
+- Module 4 se Module 5 ka exact connection
 
 ---
 
-## English Definition
+# PART 1 — Problem: LLM Sab Kuch Nahi Jaanta
 
-**Retrieval-Augmented Generation (RAG)** is an architecture in which an application retrieves relevant external information at query time and provides that information to a language model as context before generating an answer.
-
----
-
-# PART 1 — Problem First
-
-User asks:
+Suppose user asks:
 
 ```text
-What is the rollback procedure for our production AKS deployment?
+Yesterday production AKS deployment Terraform Apply ke baad kyu fail hua?
 ```
 
-Generic LLM ke paas aapke company ka private runbook nahi hai.
+General LLM ko ye nahi pata:
 
-Without RAG:
+```text
+- kal ka pipeline log
+- aapke Terraform plan ka exact diff
+- aapki company ka AKS runbook
+- aapka internal NSG naming standard
+- latest incident notes
+```
+
+Model ke paas mostly training se learned general patterns hote hain.
+
+### Mental Model
+
+```text
+LLM Internal Knowledge
+        ≠
+Your Live / Private / Latest Knowledge
+```
+
+Isi gap ko RAG address karta hai.
+
+---
+
+# PART 2 — English Definition
+
+**Retrieval-Augmented Generation (RAG)** is an AI architecture in which relevant external information is retrieved at query time and supplied to a language model as context so that the generated answer can be grounded in that information.
+
+Simple Hinglish:
 
 ```text
 Question
    ↓
-LLM internal knowledge
+Relevant knowledge search karo
    ↓
-Generic answer
-```
-
-Potential problem:
-
-- internal procedure unknown
-- wrong commands suggest ho sakte hain
-- old assumptions use ho sakti hain
-- organization-specific approval steps miss ho sakte hain
-
-With RAG:
-
-```text
-Question
+LLM ko context do
    ↓
-Search internal runbooks
-   ↓
-Retrieve rollback section
-   ↓
-Give section to LLM
-   ↓
-Generate grounded answer
+Context ke basis par answer generate karao
 ```
 
 ---
 
-# PART 2 — RAG Formula
+# PART 3 — RAG Naam Ko Break Karo
 
-```text
-R = Retrieval
-A = Augmented
-G = Generation
-```
+## R = Retrieval
 
-Meaning:
-
-1. **Retrieval** → relevant information find karo.
-2. **Augmentation** → retrieved information prompt me add karo.
-3. **Generation** → LLM us context ke basis par final response generate kare.
-
----
-
-# PART 3 — RAG vs Normal LLM
-
-## Normal LLM
-
-```text
-User Question
-     ↓
-LLM
-     ↓
-Answer
-```
-
-## RAG
-
-```text
-User Question
-     ↓
-Retriever
-     ↓
-Relevant Chunks
-     ↓
-Context Builder
-     ↓
-LLM
-     ↓
-Grounded Answer
-```
-
-Important difference:
-
-> RAG me model ke paas answer dene se pehle external evidence aata hai.
-
----
-
-# PART 4 — RAG vs Fine-Tuning
-
-Common confusion:
-
-```text
-RAG = model training?
-```
-
-No.
-
-### RAG
-
-- runtime retrieval
-- documents easily update ho sakte hain
-- sources traceable ho sakte hain
-- model weights unchanged
-
-### Fine-Tuning
-
-- model behavior/weights adapt hote hain
-- training dataset chahiye
-- knowledge freshness problem still exist kar sakti hai
-- exact document citation naturally guarantee nahi hota
-
-Mental model:
-
-```text
-RAG = Give the model a reference book before answering
-Fine-tuning = Teach the model a pattern/style through training
-```
-
----
-
-# PART 5 — DevOps Use Cases
-
-RAG can help with:
-
-```text
-Incident Question
-   → historical RCA retrieval
-
-AKS Error
-   → Kubernetes runbook retrieval
-
-Terraform Failure
-   → internal IaC troubleshooting docs
-
-Pipeline Problem
-   → deployment SOP + known issue docs
-
-On-call Question
-   → relevant operational procedure
-```
+Question ke liye useful information find karna.
 
 Example:
 
 ```text
+Query:
+AKS subnet connectivity failed after Terraform change
+
+Retrieved:
+- aks-networking.md
+- terraform-networking.md
+- pipeline-failure.md
+```
+
+## A = Augmented
+
+Retrieved information ko LLM ke prompt/context me attach karna.
+
+```text
+QUESTION
++ RELEVANT EVIDENCE
++ RULES
+```
+
+## G = Generation
+
+LLM supplied evidence ko use karke human-readable answer banata hai.
+
+```text
+Evidence → Explanation / RCA / Recommended checks
+```
+
+Important:
+
+> Retrieval khud answer generation nahi hai. Generation khud retrieval nahi hai.
+
+---
+
+# PART 4 — Module 4 vs Module 5
+
+Module 4 me humne banaya:
+
+```text
+Question
+   ↓
+Embedding
+   ↓
+Vector Search
+   ↓
+Relevant Chunks
+```
+
+Output:
+
+```text
+[S1] AKS networking runbook...
+[S2] Terraform NSG guidance...
+```
+
+Ye **retrieval system** hai.
+
+Module 5 me:
+
+```text
+Question
+   ↓
+Retrieve Chunks
+   ↓
+Build Context
+   ↓
+Grounded Prompt
+   ↓
+LLM
+   ↓
+Answer + Sources
+```
+
+Ye **RAG system** hai.
+
+---
+
+# PART 5 — Without RAG vs With RAG
+
+## Without RAG
+
+```text
+User → LLM → Answer
+```
+
 Question:
-"Pods lost DB connectivity after network change"
-
-Retriever finds:
-1. aks-networking.md
-2. sql-private-endpoint.md
-3. previous-incident-2026-04.md
-
-LLM receives those chunks and explains likely investigation steps.
-```
-
----
-
-# PART 6 — What RAG Does NOT Automatically Fix
-
-RAG does not guarantee truth.
-
-Bad retrieval can still cause bad answer.
 
 ```text
-Wrong Chunk
-   ↓
-Wrong Context
-   ↓
-Confident LLM
-   ↓
-Wrong Answer
+Why did our production deployment fail?
 ```
 
-Other failures:
-
-- stale documents
-- insecure retrieval
-- wrong tenant data
-- irrelevant top-k
-- missing source traceability
-- LLM ignores evidence
-- answer invents unsupported detail
-
-So production RAG needs:
+Model may say:
 
 ```text
-Good Retrieval
-+ Good Context
-+ Good Prompt
-+ Guardrails
-+ Evaluation
+Possible causes include CPU pressure, image pull failure,
+DNS issue, NSG rule, Terraform state conflict...
 ```
 
----
+Technically plausible, but current incident ke liye evidence nahi.
 
-# PART 7 — First DevOps Mental Model
+## With RAG
 
 ```text
 User
  ↓
-"Why does AKS deployment fail after NSG change?"
+Retriever
  ↓
-Embedding / Retrieval
- ↓
-Relevant chunks
- ↓
-Context:
-- NSG rule removed
-- subnet validation failed
-- Terraform Apply failed
+Current Pipeline Evidence
  ↓
 LLM
  ↓
-Evidence-grounded RCA explanation
+Grounded Answer
+```
+
+Retrieved evidence:
+
+```text
+[S1] Terraform apply changed AKS subnet NSG rules.
+[S2] Connectivity validation failed immediately after apply.
+```
+
+Then answer can say:
+
+```text
+The retrieved evidence points to the networking change as the first area to investigate [S1][S2].
+```
+
+Better because claim traceable hai.
+
+---
+
+# PART 6 — RAG Does NOT Retrain the LLM
+
+Common confusion:
+
+```text
+Documents Vector DB me daal diye
+→ model ne documents learn kar liye
+```
+
+Wrong.
+
+Actual flow:
+
+```text
+Documents remain outside model
+        ↓
+Relevant chunks retrieved at runtime
+        ↓
+Chunks temporary prompt context me jaate hain
+        ↓
+LLM generates answer
+```
+
+Next request me same information automatically yaad rahe, ye guaranteed nahi.
+
+### RAG vs Training
+
+```text
+Training/Fine-tuning
+Model parameters change
+
+RAG
+Model parameters same
+External context changes
 ```
 
 ---
 
-## Common Mistakes
+# PART 7 — RAG vs Fine-Tuning vs Prompting
 
-### Mistake 1
-"RAG removes hallucination completely."
+## Normal Prompting
 
-No. It reduces risk when retrieval/context/guardrails are good.
+Use when knowledge already user provides or model likely knows.
 
-### Mistake 2
-"RAG means vector database."
+```text
+Explain Kubernetes readiness probe.
+```
 
-Vector DB is one retrieval mechanism. RAG is the full retrieve + context + generation architecture.
+## RAG
 
-### Mistake 3
-"Retrieved chunk is automatically true."
+Use when answer depends on external, private, large, changing, or source-traceable knowledge.
 
-Retrieved content can be stale, wrong, malicious or unauthorized.
+```text
+According to our internal AKS runbook, what should we verify after an NSG change?
+```
+
+## Fine-Tuning
+
+Useful when you want model behavior/style/task specialization to change consistently.
+
+Example:
+
+```text
+Always classify support tickets into a controlled taxonomy.
+```
+
+Fine-tuning is not generally the best mechanism for frequently changing knowledge.
+
+### Quick Rule
+
+```text
+Need latest/private facts? → RAG
+Need consistent behavior/style? → fine-tuning may help
+Need simple instruction? → prompting
+```
 
 ---
 
-## Interview Corner
+# PART 8 — RAG Pipeline Big Picture
 
-**Q: What problem does RAG solve?**
+```text
+                INDEXING SIDE
 
-It allows an LLM application to use external, current or private knowledge at runtime without retraining the model.
+Documents
+   ↓
+Clean
+   ↓
+Chunk
+   ↓
+Metadata
+   ↓
+Embedding
+   ↓
+Vector Index
 
-**Q: Does RAG update model weights?**
 
-No. It augments the prompt context at runtime.
+                QUERY SIDE
 
-**Q: Is vector search mandatory for RAG?**
+User Question
+   ↓
+Query Embedding
+   ↓
+Retrieve Top Candidates
+   ↓
+Filter / Threshold / Rerank
+   ↓
+Build Context
+   ↓
+Grounded Prompt
+   ↓
+LLM
+   ↓
+Validate Answer / Citations
+```
 
-No. Retrieval can use vector, keyword, hybrid, database queries, APIs or other search mechanisms.
+RAG ek single API call nahi — ek **pipeline** hai.
 
 ---
 
-## Revision Cheat Sheet
+# PART 9 — Real DevOps Use Cases
+
+## Use Case 1 — Incident Investigation
+
+```text
+Alert / Error
+   ↓
+Search previous incidents + runbooks
+   ↓
+Relevant evidence
+   ↓
+Suggested investigation path
+```
+
+## Use Case 2 — Terraform Change Review
+
+```text
+Question:
+What risks exist when changing AKS subnet NSG rules?
+
+Retrieve:
+- networking standards
+- previous outage RCA
+- Terraform module docs
+```
+
+## Use Case 3 — CI/CD Troubleshooting
+
+```text
+Pipeline error
+   ↓
+Retrieve pipeline runbooks
+   ↓
+Find known error signature
+   ↓
+Explain likely checks
+```
+
+## Use Case 4 — Internal Knowledge Assistant
+
+Engineer asks:
+
+```text
+How do we perform production rollback for service X?
+```
+
+Assistant retrieves only approved production runbook and answers with sources.
+
+---
+
+# PART 10 — RAG Reduces Hallucination, Not Eliminates It
+
+Even with correct retrieved context, LLM can still:
+
+```text
+- overstate evidence
+- mix two sources incorrectly
+- invent an unstated impact
+- cite wrong source ID
+- ignore context
+- treat malicious document text as instruction
+```
+
+Therefore:
 
 ```text
 RAG
-= Retrieve relevant knowledge
-+ Add knowledge to prompt
-+ Generate answer from that context
++
+Prompt Guardrails
++
+Retrieval Quality
++
+Validation
++
+Evaluation
+=
+More Reliable System
 ```
 
----
-
-## Homework
-
-Explain in your own words:
-
-1. Why can a generic LLM not reliably answer an internal HCL/project runbook question?
-2. RAG vs fine-tuning kya difference hai?
-3. Wrong retrieval ka final answer par kya impact hoga?
-
----
-
-## Next Lesson Kyu?
-
-RAG ka idea samajh gaya. Ab hume exact architecture samajhna hai:
+Not:
 
 ```text
-Documents kab index hote hain?
-Query kab embed hoti hai?
-Retrieval kab hota hai?
-LLM call kis stage par hota hai?
+RAG = No Hallucinations
 ```
 
-That is Lesson 02 — **RAG Architecture & Data Flow**.
+---
+
+# PART 11 — Four Main RAG Failure Categories
+
+## 1. Knowledge Failure
+
+Correct information source me hai hi nahi.
+
+## 2. Retrieval Failure
+
+Correct source exists but retriever wrong chunks returns.
+
+## 3. Context Failure
+
+Correct chunks mile, but context badly assembled or truncated.
+
+## 4. Generation Failure
+
+Correct context mila but LLM unsupported statement generate kar deta hai.
+
+Mental model:
+
+```text
+Bad Answer
+   ↓
+Ask where failure occurred
+   ↓
+Knowledge?
+Retrieval?
+Context?
+Generation?
+```
+
+Ye debugging mindset bahut important hai.
+
+---
+
+# PART 12 — First Practical Thought Experiment
+
+Documents:
+
+```text
+Doc A: AKS subnet NSG must allow required cluster traffic.
+Doc B: Terraform apply can modify NSG rules.
+Doc C: Docker image build uses a multi-stage Dockerfile.
+```
+
+Question:
+
+```text
+Why should I review Terraform networking changes when AKS loses connectivity?
+```
+
+Expected retrieval:
+
+```text
+Doc A + Doc B
+```
+
+Not:
+
+```text
+Doc C
+```
+
+Then LLM should only reason from retrieved facts.
+
+---
+
+# PART 13 — What RAG Should Return in DevOps
+
+Weak answer:
+
+```text
+It looks like a network issue.
+```
+
+Better RAG answer:
+
+```text
+Confirmed evidence:
+- The runbook states AKS subnet connectivity depends on required NSG rules [S1].
+- Terraform networking changes can modify those rules [S2].
+
+Inference:
+- Therefore the Terraform networking change is a reasonable first investigation area.
+
+Evidence gap:
+- Current live NSG configuration has not yet been inspected.
+
+Next checks:
+- Compare Terraform plan/apply diff with current NSG rules.
+```
+
+Notice:
+
+```text
+Fact
+≠
+Inference
+≠
+Recommendation
+```
+
+---
+
+# PART 14 — Common Mistakes
+
+### Mistake 1
+
+```text
+Vector search bana diya = RAG complete
+```
+
+No. LLM generation + grounding contract needed.
+
+### Mistake 2
+
+```text
+Top 5 results aaye = all relevant
+```
+
+No. Top-k ranking relative hoti hai; irrelevant result bhi top result ho sakta hai.
+
+### Mistake 3
+
+```text
+Source cited = claim definitely supported
+```
+
+No. Citation presence and citation correctness different things hain.
+
+### Mistake 4
+
+```text
+RAG knowledge always latest
+```
+
+No. Stale index stale answers de sakta hai.
+
+### Mistake 5
+
+```text
+Retrieved docs are trusted instructions
+```
+
+Dangerous. Retrieved content ko **data/evidence** treat karo, instruction authority nahi.
+
+---
+
+# PART 15 — Interview Corner
+
+### Q1. What problem does RAG solve?
+
+RAG gives an LLM query-time access to relevant external knowledge so answers can be grounded in private, current, or domain-specific information.
+
+### Q2. Does RAG train the model?
+
+No. Standard RAG retrieves external content and places it into runtime context; model parameters remain unchanged.
+
+### Q3. Why is retrieval quality important?
+
+Because generation cannot reliably answer from evidence that was never retrieved.
+
+### Q4. Can RAG hallucinate?
+
+Yes. Retrieval reduces knowledge gaps, but the model can still misinterpret, overclaim, or fabricate. Guardrails and validation are still required.
+
+### Q5. RAG vs semantic search?
+
+Semantic search returns relevant information. RAG adds a generation stage that uses retrieved information to construct an answer.
+
+---
+
+# PART 16 — Revision Cheat Sheet
+
+```text
+RAG = Retrieval + Augmentation + Generation
+
+Retrieval → Find knowledge
+Augmentation → Put knowledge into context
+Generation → Produce grounded answer
+
+RAG does not retrain model.
+RAG does not guarantee truth.
+RAG needs retrieval quality + context quality + generation controls.
+```
+
+---
+
+# PART 17 — Homework
+
+1. Explain in your own words why a general LLM cannot know yesterday's private pipeline failure.
+2. Write one example where normal prompting is enough.
+3. Write one example where RAG is required.
+4. Explain RAG vs fine-tuning in 3 lines.
+5. List four places where a RAG pipeline can fail.
+6. DevOps scenario: create one question and identify which internal documents should ideally be retrieved.
+
+---
+
+# 🔗 Why Lesson 2 Next?
+
+Ab hume RAG ka concept clear hai. Lekin production me RAG ek single arrow nahi hota.
+
+Next lesson me hum complete architecture ko do independent flows me break karenge:
+
+```text
+INDEXING PIPELINE
+        +
+QUERY PIPELINE
+```
+
+Aur samjhenge ki exactly data kaha store hota hai, embeddings kab bante hain, query kab embed hoti hai, aur LLM call kis stage par aata hai.
