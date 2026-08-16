@@ -1,277 +1,400 @@
+# 🚩 Jai Bajrangbali!
+
 # Lesson 06 — Citations & Source Traceability
 
-> **Grounded answer tab zyada trustworthy hota hai jab user dekh sake ki claim kis source se aaya.**
+> **RAG answer tab zyada useful hota hai jab engineer dekh sake: ye claim kis source se aaya?**
 
 ---
 
-## 🎯 Lesson Goal
+# 🎯 Lesson Goal
 
-Is lesson ke end tak aap samjhoge:
+Is lesson me hum cover karenge:
 
-- source traceability kyu important hai
-- source IDs ka role
-- answer-level vs claim-level citations
-- source metadata
-- generated citation validation
-- stale/missing source handling
-- DevOps auditability
-
----
-
-## English Definition
-
-**Source traceability** is the ability to connect an answer or claim back to the retrieved evidence that supports it.
+- citation aur source traceability ka difference
+- application-controlled source IDs
+- source map architecture
+- claim-level citations
+- citation hallucination
+- citation validation
+- source version/freshness metadata
+- current incident evidence vs reference source
+- UI/display considerations
+- audit/debugging value
 
 ---
 
-# PART 1 — Why Sources Matter
+# PART 1 — Why Citations Matter
 
-Answer:
-
-```text
-The AKS deployment failed because a required NSG rule was removed.
-```
-
-User naturally puch sakta hai:
+Without citations:
 
 ```text
-How do you know?
+The Terraform networking change likely caused the AKS connectivity issue.
 ```
 
-Better answer:
+User asks:
 
 ```text
-The deployment likely failed after the required NSG rule was removed [S1, S2].
+Based on what?
 ```
 
-Where:
+With citations:
 
 ```text
-S1 = terraform-change.md / chunk 4
-S2 = pipeline.log / chunk 7
+Terraform networking changes can modify NSG rules [S1], and AKS subnet communication depends on required network rules [S2].
 ```
+
+Now user can inspect S1/S2.
 
 ---
 
-# PART 2 — Source Record
+# PART 2 — English Definition
 
-Retriever record:
+**Citation** is a reference in the generated answer to a supplied evidence identifier.
 
-```python
-{
-    "source_id": "S1",
-    "source": "aks-networking.md",
-    "chunk_id": "aks-networking-004",
-    "version": "2026-08",
-    "text": "Validate the AKS subnet NSG rules...",
-    "score": 0.84
-}
-```
-
-Useful traceability fields:
-
-- source name
-- chunk ID
-- document version
-- last updated
-- repository/path/URL if allowed
-- retrieval score
-
----
-
-# PART 3 — Answer-Level vs Claim-Level Citations
-
-### Answer-level
+**Source traceability** is the system capability to map that identifier back to the exact source document, chunk, version, and relevant metadata.
 
 ```text
-Sources: S1, S2, S3
-```
-
-Simple but coarse.
-
-### Claim-level
-
-```text
-The NSG rule was removed [S1].
-AKS subnet validation then failed [S2].
-The deployment failed during Terraform Apply [S3].
-```
-
-More precise and easier to audit.
-
----
-
-# PART 4 — Do Not Trust Model-Generated Citations Blindly
-
-Model may output:
-
-```text
-[S7]
-```
-
-even if only S1–S3 were supplied.
-
-Application validation:
-
-```python
-allowed_sources = {"S1", "S2", "S3"}
-
-for cited_source in model_citations:
-    if cited_source not in allowed_sources:
-        raise ValueError("Unknown citation returned by model")
-```
-
-This mirrors Module 1 principle:
-
-```text
-LLM output = untrusted until validated
+Citation = [S2]
+Traceability = S2 → document → chunk → version → metadata
 ```
 
 ---
 
-# PART 5 — Source Mapping Outside Model Memory
-
-Do not rely on model remembering exact file mapping.
-
-Host application should preserve:
+# PART 3 — Application-Controlled Source Map
 
 ```python
 source_map = {
-    "S1": {...},
-    "S2": {...},
-    "S3": {...}
+    "S1": {
+        "source": "terraform-networking.md",
+        "chunk_id": "tf-net-004",
+        "version": "2026-08",
+        "status": "approved",
+    },
+    "S2": {
+        "source": "aks-networking.md",
+        "chunk_id": "aks-net-002",
+        "version": "2026-07",
+        "status": "approved",
+    },
 }
 ```
 
-Then final UI/report can resolve citations deterministically.
+LLM receives labels; application owns mapping.
+
+Why?
+
+```text
+LLM output is probabilistic
+source identity should be deterministic
+```
 
 ---
 
-# PART 6 — DevOps Audit Example
+# PART 4 — Citation Hallucination
 
-Question:
+Allowed:
 
 ```text
-What changed before the deployment failure?
+S1, S2, S3
 ```
+
+Model outputs:
+
+```text
+This is confirmed by [S7].
+```
+
+Problem:
+
+```text
+S7 does not exist
+```
+
+Validator should catch this.
+
+Example:
+
+```python
+import re
+
+used = set(re.findall(r"\[(S\d+)\]", answer))
+allowed = set(source_map)
+invalid = used - allowed
+
+if invalid:
+    print("Invalid citations:", invalid)
+```
+
+---
+
+# PART 5 — Citation Presence Is Not Citation Correctness
 
 Answer:
 
 ```text
-A Terraform change removed the `aks-subnet-allow` NSG rule [S1].
-The pipeline then reported AKS subnet connectivity validation failure [S2].
+The outage lasted 2 hours [S1].
 ```
 
-Audit trail:
+S1 says only:
 
 ```text
-S1 → terraform-change.md → change record
-S2 → pipeline.log → observed failure
+AKS subnet connectivity validation failed.
 ```
 
-Now reviewer can verify each claim.
+Citation ID valid hai, but claim unsupported.
+
+So two checks:
+
+```text
+1. Citation validity
+2. Citation entailment/support
+```
+
+Second one harder hai and evaluation/claim validation may be required.
 
 ---
 
-# PART 7 — Stale Sources
+# PART 6 — Claim-Level vs Paragraph-Level Citations
 
-If retrieved source metadata says:
+Weak:
 
 ```text
-version=2024-01
-status=deprecated
+Several things happened during the incident. [S1][S2][S3]
 ```
 
-and another says:
+Better:
 
 ```text
-version=2026-08
-status=active
+Terraform Apply removed the subnet allow rule [S1].
+Connectivity validation then failed [S2].
+The deployment failed during Terraform Apply [S3].
 ```
 
-system should not present both as equal authority.
+Claim-level citations improve reviewability.
 
-Possible policies:
+---
+
+# PART 7 — Source Metadata to Preserve
+
+Useful fields:
 
 ```text
-filter deprecated sources before retrieval
+source
+chunk_id
+section
+version
+updated_at
+status
+owner
+environment
+content_type
+```
+
+For incident evidence:
+
+```text
+timestamp
+pipeline_run_id
+cluster
+subscription
+```
+
+Traceability means source is not just a filename.
+
+---
+
+# PART 8 — Current Evidence vs Reference Documentation
+
+Source map can include:
+
+```python
+"evidence_type": "current_incident"
+```
+
+or:
+
+```python
+"evidence_type": "reference_runbook"
+```
+
+This allows answer to say:
+
+```text
+Current evidence confirms X [S1].
+The runbook states Y is a known failure mode [S2].
+```
+
+instead of pretending Y happened now.
+
+---
+
+# PART 9 — Source Display
+
+Useful final output:
+
+```text
+Sources:
+[S1] terraform-networking.md — NSG Changes — version 2026-08
+[S2] aks-networking.md — Network Requirements — version 2026-07
+```
+
+For production UI, source link may point to authorized internal document location.
+
+Never expose a source user is not authorized to access.
+
+---
+
+# PART 10 — Traceability for Debugging
+
+Wrong answer investigation:
+
+```text
+Answer claim
+   ↓
+Citation [S2]
+   ↓
+Chunk ID
+   ↓
+Original document section
+   ↓
+Was retrieval wrong or generation wrong?
+```
+
+Without traceability, debugging becomes guesswork.
+
+---
+
+# PART 11 — Citation Validation Flow
+
+```text
+LLM Answer
+   ↓
+Extract citation IDs
+   ↓
+Compare against allowed source map
+   ↓
+Invalid ID?
+   ├── yes → reject/retry/flag
+   └── no  → continue
+   ↓
+Optional claim-support validation
+```
+
+---
+
+# PART 12 — Missing Citations
+
+If prompt requires citations but answer contains none:
+
+```text
+status = CITATION_MISSING
+```
+
+Possible handling:
+
+```text
+retry once with strict prompt
 or
-surface conflict explicitly
+return answer with validation warning
 ```
+
+Do not silently claim fully grounded output.
 
 ---
 
-# PART 8 — Citation ≠ Truth
+# PART 13 — DevOps Example
 
-Citation only proves:
+Evidence:
 
 ```text
-This claim points to this source.
+[S1] Current pipeline log: Terraform Apply failed.
+[S2] Terraform diff: aks-subnet-allow removed.
+[S3] Runbook: removing required AKS subnet rules can break connectivity.
 ```
 
-It does NOT prove source itself is correct.
-
-Trust chain:
+Good answer:
 
 ```text
-Source Quality
-   ↓
-Retrieval Quality
-   ↓
-Citation Accuracy
-   ↓
-Answer Quality
+Confirmed facts:
+- The pipeline failed during Terraform Apply [S1].
+- The Terraform change removed `aks-subnet-allow` [S2].
+
+Inference:
+- The removed rule is a strong candidate for the connectivity issue because the runbook identifies required subnet rules as necessary for AKS communication [S3].
 ```
 
----
-
-## Common Mistakes
-
-- no source IDs in context
-- model invents source names
-- citations not validated
-- source exists but does not actually support claim
-- deprecated docs cited as current procedure
+This clearly separates current evidence and reference knowledge.
 
 ---
 
-## Interview Corner
+# PART 14 — Common Mistakes
 
-**Q: Why are citations important in enterprise RAG?**
-
-They provide traceability, auditability and a way for users or automated validators to verify important claims against retrieved evidence.
-
-**Q: Should the application trust citations generated by the model?**
-
-No. Citation IDs and, ideally, claim support should be validated against retrieved evidence.
+1. Letting model invent source labels.
+2. Showing filename only, no chunk/section/version.
+3. Assuming valid citation means supported claim.
+4. Returning inaccessible source links.
+5. Losing source IDs during context truncation.
+6. Using stale document without version metadata.
+7. One citation at end of huge paragraph with many unrelated claims.
 
 ---
 
-## Revision
+# PART 15 — Interview Corner
+
+### Q1. Why are citations useful in RAG?
+
+They make answers reviewable and connect generated claims to retrieved evidence.
+
+### Q2. What is citation hallucination?
+
+The model references a source identifier that was never supplied.
+
+### Q3. How do you prevent it?
+
+Create source IDs in application code, keep an allowed source map, and validate generated citation IDs.
+
+### Q4. Does a valid source ID prove the claim is supported?
+
+No. Citation validity and semantic claim support are separate checks.
+
+### Q5. Why preserve version metadata?
+
+To detect and avoid stale or superseded knowledge.
+
+---
+
+# PART 16 — Revision
 
 ```text
-Good RAG Answer
-= Answer
-+ Evidence Support
-+ Valid Source IDs
-+ Traceable Metadata
+Context block → application creates S1/S2
+LLM → cites S1/S2
+Validator → checks allowed IDs
+Source map → resolves exact chunk/version
+
+Citation = reference
+Traceability = full mapping
 ```
 
 ---
 
-## Homework
+# PART 17 — Homework
 
-Design an answer format for incident RCA where every one of these fields can carry sources:
-
-- Root Cause
-- Confirmed Impact
-- Recommended Fix
-- Confidence
+1. Build a `source_map` for 3 DevOps chunks.
+2. Write regex validation for `[S99]`.
+3. Create one valid citation but unsupported claim example.
+4. Add `version`, `status`, and `evidence_type` to source metadata.
+5. Design final Sources section for an incident assistant.
 
 ---
 
-## Next Lesson Kyu?
+# 🔗 Why Lesson 7 Next?
 
-Traceability solve ho gayi. But what if user ka question vague ho aur retriever correct documents find hi na kare?
+Traceable output ready hai. But users often ask vague questions:
 
-Next: **Query Rewriting & Multi-Query Retrieval**.
+```text
+prod broken after change
+```
+
+Retriever may perform better if query is normalized or expanded safely.
+
+Next lesson me hum **query rewriting aur multi-query retrieval** samjhenge.
