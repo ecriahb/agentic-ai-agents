@@ -2,234 +2,429 @@
 
 # Lesson 11 — Production Observability, Metrics & Release Gates
 
-> **Agent production-ready tab hota hai jab behavior measurable ho, failures traceable hon aur release policy objective gates par based ho.**
+> **Security controls become operational only when their decisions are observable and unsafe regressions can block deployment.**
 
 ---
 
 # 🎯 Lesson Goal
 
-Aap samjhoge:
-- security/quality observability
-- per-stage traces
-- agent-specific production metrics
-- release gates
-- canary/shadow evaluation
-- alerting and incident response for agents
+You will understand:
+
+- production security telemetry
+- quality vs trust metrics
+- SLOs and invariants
+- release scorecards
+- canary monitoring
+- model/prompt/tool drift
+- policy observability
+- incident triggers
+- kill switches and rollback
+- cost/unbounded-consumption metrics
 
 ---
 
-# PART 1 — Observe the Whole Trajectory
+# PART 1 — Three Metric Families
 
-Capture:
 ```text
-request_id / incident_id
-user/identity class
-model/version
-prompt/version
-route decisions
-agent/subagent selected
-tool calls + normalized args
-tool statuses
-retrieved source IDs
-policy decisions
-approval decisions
-iterations/retries
-validation results
-latency/token/cost
-final status
+Reliability
+Quality
+Security/Trust
 ```
 
-Redact secrets before telemetry.
-
----
-
-# PART 2 — Security Metrics
+Reliability:
 
 ```text
-policy_violation_rate
-unauthorized_tool_attempt_rate
-prompt_injection_block/escalation_rate
-secret_leak_rate
-unknown_citation_rate
-approval_bypass_rate
-cross-scope_access_attempts
-malformed_tool_result_rate
+latency
+availability
+queue age
+errors
 ```
 
-Target for serious safety violations is usually zero or near-zero with immediate investigation.
-
----
-
-# PART 3 — Quality Metrics
+Quality:
 
 ```text
-task_success_rate
-grounded_claim_rate
-citation_validity
-abstention_accuracy
-routing_accuracy
-useful_evidence_rate
-conflict_resolution_rate
-human_escalation_rate
+groundedness
+retrieval hit rate
+routing accuracy
+abstention correctness
 ```
 
-Do not optimize quality metrics by weakening safety controls.
+Security:
+
+```text
+policy violations
+secret leaks
+unauthorized retrieval
+approval bypass
+unknown tools
+```
+
+Do not merge everything into one score.
 
 ---
 
-# PART 4 — Efficiency Metrics
+# PART 2 — Security Invariants
+
+Some metrics should be absolute:
 
 ```text
-p50/p95 latency
+prod write without authorization = 0
+prod write without approval = 0
+cross-tenant retrieval = 0
+secret exposure = 0
+unknown tool execution = 0
+```
+
+One violation can block/rollback release.
+
+---
+
+# PART 3 — Agent Behavioral Metrics
+
+```text
+average tools/run
+unexpected tool rate
+loop-limit rate
+no-progress rate
+handoffs/run
+conflict rate
+abstention rate
+validation failure rate
+```
+
+Large changes can reveal regression or attack.
+
+---
+
+# PART 4 — Prompt Injection Metrics
+
+Possible signals:
+
+```text
+injection detector score distribution
+policy-denied actions following untrusted content
+unknown tool proposals
+external-destination proposals
+system-prompt extraction attempts
+```
+
+Avoid assuming detector score itself proves attack.
+
+---
+
+# PART 5 — RAG Security Metrics
+
+```text
+unauthorized candidate blocked
+stale source retrieved
+no-context rate
+source version mismatch
+secret-scan ingestion rejects
+retrieval ACL denial
+```
+
+Correlate with user/team identity.
+
+---
+
+# PART 6 — MCP Metrics
+
+```text
+server connection attempts
+unknown server denials
+auth failures
+tool discovery changes
+malformed responses
+write-tool requests
+latency/rate-limit
+server version
+```
+
+Sudden capability drift should trigger review.
+
+---
+
+# PART 7 — Multi-Agent Metrics
+
+```text
+agent routing accuracy
+handoff loops
+private-to-shared state promotion
+conflicts
+agent capability denials
+specialist failure rate
+```
+
+Observe shared-state contamination indicators.
+
+---
+
+# PART 8 — Cost / Unbounded Consumption
+
+Monitor:
+
+```text
 tokens/request
-tool calls/request
-agent hops/request
-parallel workers
-cost/request
-retry rate
-no-progress termination rate
+model calls/run
+tool calls/run
+retrieved chunks
+workflow duration
+parallelism
+cost/team
 ```
 
-Unbounded consumption is both availability and cost risk.
+Security controls:
+
+```text
+budgets
+rate limits
+max iterations
+max context
+queue/backpressure
+```
 
 ---
 
-# PART 5 — Release Gate Example
+# PART 9 — Release Scorecard
 
-Before releasing model/prompt/tool change:
+Example:
+
 ```text
-Security suite pass = 100%
-Forbidden tool violations = 0
-Secret leakage = 0
-Citation validity >= 99%
-Normal task success >= baseline - tolerance
-p95 latency <= threshold
-Cost <= threshold
-No critical red-team finding open
+Functional suite        PASS
+RAG Hit@3               96%
+Citation validity       100%
+Trajectory subset       99%
+Prompt injection suite  100% critical controls
+Unknown tool execution  0
+Secret leak             0
+P95 latency             18s
+Cost/request             within budget
 ```
-
-Exact thresholds depend on environment and risk.
 
 ---
 
-# PART 6 — Version Everything
+# PART 10 — Critical vs Non-Critical Thresholds
 
-Record:
+Critical:
+
 ```text
-model version
-prompt hash/version
+security invariant violation
+```
+
+→ release blocked.
+
+Non-critical quality metric:
+
+```text
+routing accuracy drops 0.5%
+```
+
+May trigger investigation depending threshold.
+
+Define in advance.
+
+---
+
+# PART 11 — CI/CD Gate
+
+```text
+PR
+ ↓
+unit/contract
+ ↓
+eval suite
+ ↓
+security/red-team regression
+ ↓
+release scorecard
+ ↓
+critical failure?
+ ├─ yes → BLOCK
+ └─ no  → stage/canary
+```
+
+Manual approval should not override hidden security test failure without formal exception process.
+
+---
+
+# PART 12 — Canary Monitoring
+
+New model/prompt/version gets limited traffic.
+
+Watch:
+
+```text
+validation failures
+unexpected tools
+policy denials
+latency
+cost
+RAG source mix
+abstention
+security signals
+```
+
+Compare candidate vs baseline.
+
+---
+
+# PART 13 — Drift Detection
+
+Behavior can change because:
+
+```text
+model version changed
+prompt changed
+MCP server changed
+RAG corpus/index changed
+policy changed
+tool schema changed
+```
+
+Record configuration versions in every trace/eval.
+
+---
+
+# PART 14 — Kill Switches
+
+Plan how to quickly disable:
+
+```text
+write capabilities
+specific MCP server
+specific model deployment
+specific agent
+RAG source collection
+high-risk workflow
+```
+
+Kill switch should not require editing prompt and waiting for model obedience.
+
+---
+
+# PART 15 — Security Incident Triggers
+
+Examples:
+
+```text
+secret leak detected
+unauthorized data access confirmed
+unknown tool execution
+approval bypass
+sudden suspicious MCP traffic
+repeated prompt-injection success
+```
+
+Response may include:
+
+```text
+disable capability
+revoke identity
+preserve traces
+rollback release
+rotate credentials
+```
+
+---
+
+# PART 16 — Audit Record
+
+For high-risk decisions store:
+
+```text
+request/incident ID
+agent/model/prompt version
 policy version
-tool schema version
-MCP server version
-retriever/index version
-eval dataset version
-code commit SHA
+source IDs
+tool calls
+authorization result
+approval result
+final action/status
 ```
 
-Otherwise regressions cannot be reproduced.
+This supports investigation and compliance.
 
 ---
 
-# PART 7 — Shadow / Canary
+# PART 17 — Privacy-Aware Telemetry
 
-Safer rollout:
-```text
-new agent version
- ↓
-shadow traffic / offline replay
- ↓
-eval comparison
- ↓
-small canary
- ↓
-monitor safety + quality
- ↓
-gradual rollout
-```
+Do not turn observability into data leak.
 
-For write-capable systems, start read-only/shadow where possible.
-
----
-
-# PART 8 — Alerts
-
-Alert on:
-```text
-forbidden tool request spike
-unexpected MCP server/tool
-policy service failures
-secret detector hits
-loop-budget exhaustion
-approval anomalies
-citation-validation failures
-cross-tenant access attempts
-```
-
-Alert should include trace ID, not raw secret payload.
-
----
-
-# PART 9 — Rollback
-
-Rollback target may be:
-```text
-model
-prompt
-policy
-tool exposure
-MCP server
-index version
-agent graph
-```
-
-Keep known-good configuration available.
-
----
-
-# PART 10 — Common Mistakes
-
-- logging only final answer
-- no prompt/model version
-- no security KPIs
-- release based on demo screenshots
-- averages hide critical failures
-- production experiments with write permissions
-- no rollback of vector index/policy
-
----
-
-# PART 11 — Interview Q&A
-
-### Q1. What should you trace in an agent?
-Routing, tool calls, retrieval sources, policy/approval decisions, state transitions, validation and final outcome, with sensitive data redacted.
-
-### Q2. What is a release gate?
-An objective set of quality/security thresholds that must pass before a new agent version is promoted.
-
-### Q3. Why version eval dataset?
-So score changes can be attributed to system changes rather than moving test criteria.
-
----
-
-# PART 12 — Revision
+Use:
 
 ```text
-Trace = what happened
-Metric = how often/how well
-Alert = when behavior crosses risk threshold
-Eval = controlled test
-Release gate = promotion decision
-Rollback = recovery path
+redaction
+sampling
+access-controlled traces
+shorter retention for sensitive payloads
+IDs/hashes instead of full content
 ```
 
 ---
 
-# PART 13 — Homework
+# PART 18 — Release Rollback
 
-Define a release scorecard for your DevOps AI Assistant with 5 security, 5 quality and 5 efficiency metrics plus pass/fail thresholds.
+If canary shows unsafe behavior:
+
+```text
+stop candidate traffic
+rollback code/prompt/model/policy bundle
+block affected capability
+rerun stable version
+capture failing cases
+add regression tests
+```
+
+---
+
+# PART 19 — Common Mistakes
+
+- uptime green = agent considered safe
+- no security metrics
+- one average score hides critical failure
+- no configuration version in traces
+- no kill switch
+- canary observes only HTTP errors
+- traces log secrets
+- release exception process undefined
+
+---
+
+# PART 20 — Interview Q&A
+
+### Q1. What security metrics should be zero-tolerance?
+Unauthorized production writes, secret exposure, cross-tenant retrieval and unknown tool execution are common examples.
+
+### Q2. Why track configuration versions in telemetry?
+Agent behavior can change with model, prompt, tool, RAG or policy versions even when application code is unchanged.
+
+### Q3. What is a release gate?
+A rule that blocks promotion when required tests/metrics do not meet defined thresholds.
+
+### Q4. Why need kill switches?
+To disable risky capabilities immediately without depending on model behavior or full redeployment.
+
+---
+
+# 🧠 Revision
+
+```text
+Operate Trust =
+Observe Controls
++ Measure Behavior
++ Block Unsafe Releases
++ Detect Drift
++ Roll Back Quickly
+```
+
+---
+
+# 📝 Homework
+
+Create a production dashboard with 15 metrics and identify 5 alerts plus 5 release-blocking invariants.
 
 ---
 
 # 🔁 Next Lesson Kyu?
 
-Ab threat model, controls, evals, red-team aur metrics sab ready hain. Final lesson me inko ek executable **Secure DevOps Agent Evaluation Harness** me combine karenge.
+All security and evaluation components are ready. Final lesson combines them into the **Secure DevOps Agent Evaluation Harness**.
