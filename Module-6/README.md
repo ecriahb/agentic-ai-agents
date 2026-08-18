@@ -1,156 +1,111 @@
-# 🚩 Jai Bajrangbali!
-
-# Module 6 — LangChain & AI Application Orchestration for DevOps
+# 🚩 Module 6 — LangChain & AI Application Orchestration for DevOps
 
 > **From manually connected AI components → reusable, testable and observable AI workflows.**
 
-Module 5 me humne RAG ko manually build kiya: load → chunk → embed → retrieve → build context → prompt → LLM → validate. Module 6 me hum dekhenge ki jab application complex hoti hai to har component ko manually wire karna difficult ho jata hai. Yahin orchestration frameworks useful hote hain.
+M5 proved that manual RAG works. M6 introduces orchestration abstractions to compose models, prompts, retrievers, parsers and tools without hiding the underlying architecture.
 
----
-
-## 🎯 Module 6 Learning Promise
-
-Module ke end tak aap samjhoge:
-
-- orchestration framework kyu chahiye
-- direct SDK vs framework trade-off
-- LangChain ka component model
-- prompts, models and output parsers
-- Runnable / chain composition
-- document loaders and splitters
-- embeddings, vector stores and retrievers
-- RAG chains
-- memory vs application state vs evidence store
-- tools and tool contracts
-- retry, timeout, fallback and observability
-- DevOps workflow orchestration
-- final Orchestrated DevOps RAG Assistant
-
----
-
-## 🧠 Core Mental Model
+## 🔗 Dependency
 
 ```text
-Without Orchestration
+M3 API/Python → M4 Retrieval → M5 Manual RAG → M6 Orchestration
+```
 
+## 🎯 Learning Promise
+
+- why orchestration frameworks exist
+- direct SDK vs framework trade-offs
+- LangChain component model
+- prompts/models/output parsers
+- Runnable/chain composition
+- loaders/splitters/retrievers
+- RAG chains
+- memory vs state vs evidence
+- tools and contracts
+- retries, fallbacks and observability
+- DevOps orchestration
+
+## 📚 Canonical Sequence
+
+| # | Topic | Deep Outcome |
+|---|---|---|
+| 01 | Why Orchestration Frameworks? | identify glue-code problems |
+| 02 | LangChain Fundamentals | understand abstractions |
+| 03 | Models, Prompts & Output Parsers | typed pipelines |
+| 04 | Runnable & Chain Concepts | compose execution |
+| 05 | Document Loaders & Splitters | reusable ingestion |
+| 06 | Embeddings & Vector Stores | connect M4 components |
+| 07 | Retrievers & RAG Chains | connect M5 components |
+| 08 | Memory vs Application State | separate chat state/evidence |
+| 09 | Tools & Tool Integration | connect DevOps capabilities |
+| 10 | Errors, Retry & Observability | production-aware workflows |
+| 11 | LangChain for DevOps | incident orchestration |
+| 12 | Orchestrated DevOps RAG Assistant | complete integration |
+
+## 🛠️ Setup
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate       # Windows
+# source .venv/bin/activate   # Linux/macOS
+pip install -r examples/requirements.txt
+```
+
+Use the provider/local model configured by the individual lab. Do not install every framework globally.
+
+## 🧠 Deep Architecture
+
+```text
 Input
- ↓
-Custom Python glue
- ↓
-Prompt code
- ↓
-Retriever code
- ↓
-Model call
- ↓
-Parser code
- ↓
-Validation code
- ↓
-Error handling
- ↓
-Output
-
-
-With Orchestration
-
-Input
- ↓
-Reusable Components
- ↓
-Prompt
- ↓
-Retriever / Tools
- ↓
-LLM
- ↓
-Parser
  ↓
 Validation
  ↓
-Observable Workflow
-```
-
-> Important: orchestration framework intelligence create nahi karta. Framework components ko compose, reuse, test aur observe karne me help karta hai.
-
----
-
-# 📚 Detailed Lesson Sequence
-
-| Lesson | Topic | Main Outcome |
-|---|---|---|
-| 01 | [Why Orchestration Frameworks?](Lesson-01-Why-Orchestration-Frameworks.md) | Understand the problem frameworks solve |
-| 02 | [LangChain Fundamentals](Lesson-02-LangChain-Fundamentals.md) | Understand components and abstractions |
-| 03 | [Models, Prompts & Output Parsers](Lesson-03-Models-Prompts-Output-Parsers.md) | Build typed model pipelines |
-| 04 | [Runnable & Chain Concepts](Lesson-04-Runnable-and-Chain-Concepts.md) | Compose reusable execution flows |
-| 05 | [Document Loaders & Text Splitters](Lesson-05-Document-Loaders-and-Text-Splitters.md) | Build ingestion components |
-| 06 | [Embeddings & Vector Stores](Lesson-06-Embeddings-and-Vector-Stores.md) | Rebuild Module 4 using orchestration components |
-| 07 | [Retrievers & RAG Chains](Lesson-07-Retrievers-and-RAG-Chains.md) | Rebuild Module 5 using reusable chains |
-| 08 | [Memory vs Application State](Lesson-08-Memory-vs-Application-State.md) | Separate chat memory, evidence and trusted state |
-| 09 | [Tools & Tool Integration](Lesson-09-Tools-and-Tool-Integration.md) | Connect DevOps tools safely |
-| 10 | [Errors, Retry & Observability](Lesson-10-Errors-Retry-and-Observability.md) | Make workflows production-aware |
-| 11 | [LangChain for DevOps Workflows](Lesson-11-LangChain-for-DevOps-Workflows.md) | Orchestrate real incident flows |
-| 12 | [Mini Project — Orchestrated DevOps RAG Assistant](Lesson-12-Mini-Project-Orchestrated-DevOps-RAG-Assistant.md) | Combine retrieval, tools, validation and observability |
-
----
-
-# 🧪 Practical Progression
-
-All runnable labs live in [`examples/`](examples/README.md).
-
-```text
-V1  → First LangChain model call
-V2  → PromptTemplate
-V3  → Structured output parser
-V4  → Runnable chain
-V5  → Document loader + splitter
-V6  → Vector store + retriever
-V7  → RAG chain
-V8  → Memory/state separation demo
-V9  → Tool-enabled DevOps workflow
-V10 → Final Orchestrated DevOps Assistant
-```
-
----
-
-# 🔁 Why Module 6 Comes After Module 5
-
-```text
-Module 5
-Manual RAG works
-       ↓
-Problem:
-More components = more glue code, more coupling,
-more retries, more state, more debugging difficulty
-       ↓
-Module 6
-Orchestration + reusable components + tracing
-```
-
----
-
-# ✅ Final Outcome
-
-```text
-Incident / Question
-      ↓
-Input Validation
-      ↓
-Retriever / Tool Layer
-      ↓
-Source-Labeled Context
-      ↓
-Prompt Template
-      ↓
+Prompt / Retriever / Tool components
+ ↓
 LLM
-      ↓
-Structured Parser
-      ↓
-Claim / Citation Validation
-      ↓
-Observability
-      ↓
-Final DevOps Answer
+ ↓
+Structured parser
+ ↓
+Validation
+ ↓
+Observable result
 ```
 
-Module 6 ke baad hum framework use karna hi nahi, **framework ke abstraction ke peeche actual application architecture** samjhenge — so that future me LangChain ho, LangGraph ho ya custom Python, mental model same rahe.
+### Example
+
+```python
+chain = prompt | model | structured_parser
+result = chain.invoke(context)
+```
+
+The operator is not the learning goal. Understand what each component does, what data crosses the boundary and what happens on failure.
+
+## 🧪 Practical Progression
+
+```text
+V1 model call
+V2 prompt template
+V3 structured output
+V4 runnable chain
+V5 loader + splitter
+V6 vector store + retriever
+V7 RAG chain
+V8 state separation
+V9 tool-enabled DevOps workflow
+V10 final assistant
+```
+
+## 🚫 Canonical Ownership
+
+M4 owns vector mechanics. M5 owns RAG/grounding. M6 **uses** them through reusable components. Do not duplicate their fundamentals here.
+
+## ✅ Exit Gate
+
+You should be able to rebuild the M5 RAG flow with orchestration components, explain each abstraction, validate output, handle a transient failure and trace the workflow.
+
+## 🔗 Continue
+
+➡️ [Module 7 — MCP](../Module-7/README.md)
+
+⬅️ [Module 5 — RAG](../Module-5/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
