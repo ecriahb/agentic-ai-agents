@@ -1,194 +1,152 @@
-# 🚩 Module 1 — LLM APIs, Local Models, Tools & First DevOps Agent
+# 🚩 Module 1 — LLM APIs, Tools & First DevOps Agent
 
-> **Canonical live-class sequence restored exactly:** Roadmap → UI/API → environment → OpenAI → Ollama → first call → tokens/context → structured output → tools → basic agent → complete lab → troubleshooting → interview/revision → official references.
+> **Move from understanding LLMs to building a controlled AI application.**
 
-Module 0 me LLM fundamentals samjhe. Module 1 me existing LLM ko Python application ke andar use karke cloud/local model calls, validation, tools, evidence aur first controlled DevOps agent build karte hain.
+Module 0 explained the model. Module 1 now builds the first real application around it: provider call → structured output → tools → evidence → bounded agent loop → trusted RCA.
 
----
+## 🎯 Learning Promise
 
-# 🎯 Learning Promise
+By the end you can explain and build:
 
-Module ke end tak learner samjhega:
-
-- ChatGPT UI vs API
-- Python/venv/secrets
-- OpenAI hosted API setup
-- Ollama local zero-cost learning path
-- first request and response object
-- tokens, cost and context engineering
+- hosted vs local LLM calls
+- Python application setup and secret hygiene
 - structured output + Pydantic
 - tool/function calling
-- host-controlled execution
-- agent loop + state
-- evidence grounding
-- no-evidence/no-RCA guardrail
-- tool allowlists and argument validation
-- trusted DevOps RCA architecture
+- host-controlled tool execution
+- agent loop and state
+- evidence preservation and provenance
+- deterministic guardrails
+- trusted DevOps RCA
 
----
-
-# 🧠 Core Mental Model
+## 🧠 Core Mental Model
 
 ```text
-User / Incident
-      ↓
-Python Host Application
-      ↓
+Incident
+   ↓
+Python Host
+   ↓
 Prompt + Context
-      ↓
-LLM (OpenAI or Ollama)
-      ↓
-Response / Tool Request
-      ↓
+   ↓
+LLM
+   ↓
+Response / Tool Proposal
+   ↓
 Host Validation
-      ↓
-Known Tool Execution
-      ↓
+   ↓
+Known Tool
+   ↓
 Evidence
-      ↓
-Grounded RCA
-      ↓
-Validation / Policy
+   ↓
+Validated RCA
 ```
-
-Remember:
 
 ```text
 LLM = reasoner
-Host = controller/executor
+Host = controller
 Tool = capability
 Tool output = evidence
 Schema = data contract
 Policy = deterministic boundary
 ```
 
----
+## 🧭 Lean Canonical Learning Path
 
-# 📚 Canonical Module 1 Lesson Sequence
+| Unit | Canonical topic | Existing material used |
+|---|---|---|
+| 00 | [Roadmap & Mental Model](Lesson-00-Module-1-Roadmap-and-Mental-Model.md) | Roadmap |
+| 01 | [UI vs API + application architecture](Lesson-01-ChatGPT-UI-vs-API.md) | Lesson 01 |
+| 02 | [Environment + Secrets](Lesson-02-Development-Environment-and-Secrets.md) | Lesson 02 |
+| 03 | [Hosted + Local LLM Setup](Lesson-03-OpenAI-Cloud-API-Setup.md) | Lessons 03–04 |
+| 04 | [First Call + Tokens/Context](Lesson-05-First-API-Call-and-Response-Object.md) | Lessons 05–06 |
+| 05 | [Structured Output + Validation](Lesson-07-Structured-Output-and-Validation.md) | Lesson 07 |
+| 06 | [Tool Calling + Contracts](Lesson-08-Tool-Calling-Function-Calling.md) | Lesson 08 |
+| 07 | [Bounded DevOps Agent + Evidence](Lesson-09-From-Tool-Calling-to-Basic-DevOps-Agent.md) | Lesson 09 + V1–V4 lab |
+| 08 | [Complete Trusted-RCA Lab](A-Complete-Lab-Code.md) | Complete lab |
 
-## 0 — [Module 1 Roadmap & Mental Model](Lesson-00-Module-1-Roadmap-and-Mental-Model.md)
-Why this module exists, full architecture, two provider tracks, recurring DevOps incident and learning order.
+### Reference, not mandatory repeats
 
-## 1 — [ChatGPT UI vs API](Lesson-01-ChatGPT-UI-vs-API.md)
-Human-facing product interaction vs software integration.
+The detailed troubleshooting, interview and official-reference documents remain available:
 
-## 2 — [Development Environment & Secret Management](Lesson-02-Development-Environment-and-Secrets.md)
-Python, venv, pip, `.env`, secret hygiene and local setup.
+- `B-Troubleshooting-Playbook.md`
+- `C-Interview-and-Revision-Sheet.md`
+- `D-Official-References.md`
 
-## 3 — [OpenAI Cloud API Setup](Lesson-03-OpenAI-Cloud-API-Setup.md)
-Hosted provider setup, API key handling, account/billing/model-access concepts and common failures.
+Module 3 owns the deeper HTTP/REST/JSON/auth/error-plumbing explanations. Module 1 only teaches enough of those concepts to build the first agent.
 
-## 4 — [Zero-Cost Local AI with Ollama](Lesson-04-Zero-Cost-Local-AI-with-Ollama.md)
-Local models, `localhost:11434`, provider comparison and hardware trade-offs.
-
-## 5 — [First API Call & Response Object](Lesson-05-First-API-Call-and-Response-Object.md)
-`client.responses.create()`, request anatomy, response object, metadata and first provider failure drills.
-
-## 6 — [Tokens, Cost & Context Engineering](Lesson-06-Tokens-Cost-and-Context-Engineering.md)
-Tokens, context window, hosted usage/cost thinking, log trimming and evidence density.
-
-## 7 — [Structured Output & Validation](Lesson-07-Structured-Output-and-Validation.md)
-JSON/schema/Pydantic, layered validation and the crucial rule `schema-valid != factually true`.
-
-## 8 — [Tool Calling / Function Calling](Lesson-08-Tool-Calling-Function-Calling.md)
-Model requests tools; host validates and executes. All tool names/arguments/targets are treated as untrusted proposals.
-
-## 9 — [From Tool Calling to a Basic DevOps Agent](Lesson-09-From-Tool-Calling-to-Basic-DevOps-Agent.md)
-Bounded decide→act→observe loop, state, evidence, stop conditions and V1→V4 evolution.
-
-## A — [Complete Lab Code](A-Complete-Lab-Code.md)
-Cloud + local calls → structured output → tools → V1–V4 → real `pipeline.log` → final trusted RCA.
-
-## B — [Troubleshooting Playbook](B-Troubleshooting-Playbook.md)
-Environment, credentials, provider, Ollama, response, schema, tool, evidence and validation failures.
-
-## C — [Interview & Revision Sheet](C-Interview-and-Revision-Sheet.md)
-Definitions, core distinctions, architecture answer, Q&A, viva and rapid revision.
-
-## D — [Official References](D-Official-References.md)
-Where to verify current OpenAI/Ollama/Python/Pydantic behavior and version-sensitive details.
-
----
-
-# 🧪 Zero-to-Hero Practical Track
-
-Follow [`PRACTICAL-ROADMAP.md`](PRACTICAL-ROADMAP.md) in parallel with the lessons.
+## 🧪 Practical Spine
 
 ```text
-V1  First Hosted/OpenAI Call
+V1 Hosted LLM Call
  ↓
-V2  First Local/Ollama Call
+V2 Local/Ollama Call
  ↓
-V3  Token / Context Experiment
+V3 Context Experiment
  ↓
-V4  Structured Output
+V4 Structured Output
  ↓
-V5  Basic Tool Request
+V5 Tool Request
  ↓
-V6  DevOps Agent V1
+V6 Agent V1
  ↓
-V7  DevOps Agent V2
+V7 Agent V2
  ↓
-V8  DevOps Agent V3
+V8 Agent V3
  ↓
-V9  DevOps Agent V4
+V9 Agent V4
  ↓
-V10 Real Tool + Trusted RCA / Provider Comparison
+V10 Real Evidence + Trusted RCA
 ```
 
-All runnable files: [`examples/`](examples/README.md)
-
----
-
-# 🔥 Recurring DevOps Evidence
+## 🔥 Recurring DevOps Evidence
 
 ```text
 Terraform Apply started
       ↓
 NSG rule aks-subnet-allow removed
       ↓
-AKS subnet connectivity validation failed
+AKS connectivity validation failed
       ↓
-Deployment failed during Terraform Apply
+Deployment failed
 ```
 
-Safe conclusion should be based on evidence, not model confidence.
+The model must never be allowed to turn its own confidence into authority.
 
----
-
-# 🔐 Most Important Module 1 Rules
+## 🔐 Non-Negotiable Rules
 
 ```text
-1. We use an existing LLM; we are not training a model.
-2. Cloud/local model output is untrusted analysis.
-3. Tool call is a proposal, not execution authority.
+1. We use an existing LLM; we are not training one.
+2. Model output is untrusted analysis.
+3. Tool calls are untrusted proposals.
 4. Host validates tool name, arguments and target.
-5. Tool output becomes evidence only with provenance.
-6. Structured output validates shape, not factual truth.
+5. Tool output needs provenance before becoming evidence.
+6. Structured output validates shape, not truth.
 7. No evidence → no forced RCA.
-8. Agent loops need stop conditions and budgets.
-9. Read-only tools first; risky writes need authorization + approval.
-10. Provider can change; evidence/validation/policy rules must not.
+8. Agent loops need budgets and stop conditions.
+9. Read-only first; risky writes require policy + authorization + approval.
 ```
 
----
-
-# ✅ Module Completion Test
-
-Before Module 2, learner should explain without notes:
+## 🔗 Boundary with Module 2
 
 ```text
-Why API instead of only UI?
-How are secrets stored safely in development?
-How do OpenAI and Ollama differ?
-What does client.responses.create() do?
-What is a response object?
-Why do tokens/context matter?
-Why is structured output not truth?
-Who actually executes tools?
-What makes tool arguments untrusted?
-What turns tool calling into an agent?
-Why does no evidence mean no forced RCA?
+Module 1
+Build the controlled application
+        ↓
+Module 2
+Engineer the instructions/context that drive its reasoning
 ```
 
-> **Module 1 outcome:** Beginner can move from a simple model call to a controlled, evidence-grounded first DevOps AI agent and can explain every layer instead of only running final code.
+Module 1 introduces prompts only as needed for the application. **Module 2 owns deep prompt engineering.**
+
+## ✅ Completion Test
+
+Explain without notes:
+
+- hosted vs local LLM
+- structured output vs free text
+- tool request vs tool execution
+- why tool arguments are untrusted
+- evidence vs model inference
+- why no evidence should block forced RCA
+- where deterministic policy belongs
+
+> **Outcome:** a learner can move from an LLM call to a controlled, evidence-grounded DevOps agent.
