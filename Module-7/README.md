@@ -1,188 +1,110 @@
-# 🚩 Jai Bajrangbali!
+# 🚩 Module 7 — Model Context Protocol (MCP) for DevOps AI
 
-# Module 7 — Model Context Protocol (MCP) for DevOps AI
+> **From custom integrations → standardized AI-to-system connectivity.**
 
-> **From custom tool integrations → standardized AI-to-system connectivity using MCP.**
+M1 taught tool contracts; M3 taught APIs; M5 taught grounded knowledge; M6 taught orchestration. M7 standardizes how capabilities are exposed and discovered.
 
-Module 1 me humne tool contracts, evidence, validation aur read-only execution seekha. Module 2 me prompts/context boundaries, Module 3 me APIs, Module 4–5 me retrieval/RAG, aur Module 6 me orchestration. Module 7 in sab ko ek standardized protocol layer ke through connect karta hai.
-
----
-
-## 🎯 Module 7 Learning Promise
-
-Module ke end tak aap samjhoge:
-
-- MCP kya hai aur kis problem ko solve karta hai
-- Host, Client aur Server architecture
-- protocol lifecycle, capability negotiation and discovery
-- Tools, Resources and Prompts primitives
-- sampling, elicitation and human-in-the-loop concepts
-- stdio, Streamable HTTP and SSE transport mental models
-- Python MCP SDK v2 ke through server/client banana
-- tool schemas and structured outputs
-- MCP security boundaries, authorization and prompt-injection risks
-- MCP ko LangChain/RAG/DevOps workflows se integrate karna
-- final DevOps MCP Server + Client + grounded assistant mini project
-
-> Current course baseline: Python MCP SDK v2 / current MCP specification concepts. API syntax can evolve, but architectural contracts should remain the primary learning target.
-
----
-
-## 🧠 Core Mental Model
+## 🔗 Dependency
 
 ```text
-AI Application / Host
-        ↓
-     MCP Client
-        ↓
-   MCP Protocol
-        ↓
-     MCP Server
-   ┌────┼─────┐
-   │    │     │
- Tools Resources Prompts
-   │    │     │
-   ↓    ↓     ↓
-DevOps systems / knowledge / reusable workflows
+M1 Tools → M3 APIs → M5 RAG → M6 Orchestration → M7 MCP
 ```
 
-### One-line definition
+## 🎯 Learning Promise
 
-**MCP is a standard protocol that lets AI applications discover and use external tools, resources and reusable prompt interfaces without hard-coding every integration into the model-facing application.**
+- MCP purpose and architecture
+- Host, Client, Server
+- lifecycle, capabilities and discovery
+- Tools, Resources and Prompts
+- sampling/elicitation concepts
+- stdio, Streamable HTTP and SSE mental models
+- Python MCP server/client
+- schemas and structured outputs
+- auth, authorization and trust boundaries
+- MCP + RAG + orchestration + DevOps
 
----
+> MCP standardizes connectivity. It does **not** automatically make a tool safe.
 
-# 🔗 How Module 7 Connects to Modules 1–6
+## 📚 Canonical Sequence
 
-```text
-Module 1 → Tool contracts, validation, evidence
-Module 2 → Prompt/context boundaries
-Module 3 → API/client-server mental model
-Module 4 → External knowledge representation/retrieval
-Module 5 → Grounded RAG + citations
-Module 6 → Orchestration + state + tools
-                    ↓
-Module 7 → Standard protocol boundary for exposing those capabilities
-```
-
-Critical principle:
-
-```text
-MCP does not make a tool safe.
-MCP standardizes how capabilities are exposed/discovered/called.
-Safety, auth, validation and business policy still belong to the application/server.
-```
-
----
-
-# 📚 Detailed Lesson Sequence
-
-| Lesson | Topic | Main Outcome |
+| # | Topic | Deep Outcome |
 |---|---|---|
-| 01 | [MCP Fundamentals — Why MCP?](Lesson-01-MCP-Fundamentals-and-Why-MCP.md) | Understand the integration problem MCP solves |
-| 02 | [Host, Client & Server Architecture](Lesson-02-Host-Client-Server-Architecture.md) | Understand MCP boundaries and responsibilities |
-| 03 | [Protocol Lifecycle, Capabilities & Discovery](Lesson-03-Lifecycle-Capabilities-and-Discovery.md) | Understand initialization and capability negotiation |
-| 04 | [MCP Tools — Contracts, Schemas & Safety](Lesson-04-MCP-Tools-Contracts-Schemas-and-Safety.md) | Expose DevOps actions safely |
-| 05 | [MCP Resources & Resource Templates](Lesson-05-MCP-Resources-and-Resource-Templates.md) | Expose read-only context/data |
-| 06 | [Prompts, Sampling & Elicitation](Lesson-06-Prompts-Sampling-and-Elicitation.md) | Understand reusable prompt patterns and host-assisted interactions |
-| 07 | [MCP Transports](Lesson-07-MCP-Transports.md) | Compare stdio, Streamable HTTP and SSE |
-| 08 | [Build Your First Python MCP Server](Lesson-08-Build-First-Python-MCP-Server.md) | Create a working server using current SDK style |
-| 09 | [Build an MCP Client](Lesson-09-Build-an-MCP-Client.md) | Discover and call server capabilities |
-| 10 | [Security, Auth & Trust Boundaries](Lesson-10-Security-Auth-and-Trust-Boundaries.md) | Design least-privilege MCP integrations |
-| 11 | [MCP with RAG, LangChain & DevOps](Lesson-11-MCP-with-RAG-LangChain-and-DevOps.md) | Integrate MCP into prior modules |
-| 12 | [Mini Project — DevOps MCP Investigation Assistant](Lesson-12-Mini-Project-DevOps-MCP-Investigation-Assistant.md) | Build end-to-end standardized DevOps assistant |
+| 01 | MCP Fundamentals | integration problem |
+| 02 | Host, Client & Server | boundaries |
+| 03 | Lifecycle, Capabilities & Discovery | initialization |
+| 04 | Tools, Contracts & Safety | typed capability calls |
+| 05 | Resources & Templates | read-only context |
+| 06 | Prompts, Sampling & Elicitation | reusable interactions |
+| 07 | Transports | local vs remote connectivity |
+| 08 | Build Python MCP Server | working server |
+| 09 | Build MCP Client | discovery/calls |
+| 10 | Security, Auth & Trust | least privilege |
+| 11 | MCP + RAG + LangChain + DevOps | integration |
+| 12 | DevOps MCP Investigation Assistant | capstone |
 
----
+## 🛠️ Setup
 
-# 🧪 Practical Progression
-
-All labs live in [`examples/`](examples/README.md).
+Use a Python venv and the current MCP SDK specified by the lab's requirements. Start with **stdio** locally. Add remote transport only after understanding the protocol boundary.
 
 ```text
-V1  → First MCP server
-V2  → Typed DevOps tool
-V3  → Resource endpoint
-V4  → Prompt primitive
-V5  → First MCP client
-V6  → Multi-tool DevOps MCP server
-V7  → Streamable HTTP server
-V8  → Tool allowlist + argument validation
-V9  → DevOps MCP investigation client
-V10 → Final MCP-powered DevOps assistant
-```
-
----
-
-# 🏗️ Final Project Architecture
-
-```text
-User Incident
-      ↓
-AI Host / DevOps Assistant
-      ↓
+Host
+ ↓
 MCP Client
-      ↓
-Capability Discovery
-      ↓
-┌─────────────────────────────┐
-│ DevOps MCP Server           │
-│                             │
-│ Tools:                      │
-│ - get_pipeline_status       │
-│ - get_terraform_changes     │
-│ - get_aks_status            │
-│                             │
-│ Resources:                  │
-│ - runbook://aks/networking  │
-│ - incident://{id}/evidence  │
-│                             │
-│ Prompts:                    │
-│ - incident_rca              │
-└─────────────────────────────┘
-      ↓
-Validated Evidence + Reference Context
-      ↓
-Grounded Analysis Chain
-      ↓
-Claim / Citation Validation
-      ↓
-Read-Only RCA
+ ↓
+MCP protocol
+ ↓
+MCP Server
+ ↓
+DevOps APIs / knowledge
 ```
 
----
-
-# ✅ Module 7 Success Criteria
-
-You should be able to explain and demonstrate:
+## 🧪 Practical Progression
 
 ```text
-1. Why MCP exists.
-2. Host/client/server responsibilities.
-3. Tools vs Resources vs Prompts.
-4. Discovery and capability negotiation.
-5. stdio vs remote transports.
-6. Python MCP server/client basics.
-7. Why MCP tool requests are still untrusted.
-8. Why authorization cannot be delegated to the LLM.
-9. How MCP fits with RAG and orchestration.
-10. How to expose DevOps read-only evidence safely.
-11. How to validate tool arguments and outputs.
-12. How to design an MCP-powered incident assistant without auto-remediation.
+V1 server
+V2 typed read-only tool
+V3 resource
+V4 prompt primitive
+V5 client
+V6 multi-tool server
+V7 remote transport
+V8 allowlist + argument validation
+V9 investigation client
+V10 final assistant
 ```
 
----
-
-# 🔁 Why Module 7 Comes After Module 6
+Example capabilities:
 
 ```text
-Module 6
-We know how to orchestrate tools/retrievers/models
-      ↓
-Problem:
-Every external integration still has custom wiring/contracts
-      ↓
-Module 7
-Standardized protocol for discovering and invoking external AI capabilities
+get_pipeline_status
+get_terraform_changes
+get_aks_status
+runbook://aks/networking
+incident://{id}/evidence
 ```
 
-Module 7 ke baad hum more advanced agent architecture me ja sakte hain, where agents can reason over multiple MCP-exposed systems while application-controlled state, policy and approval remain outside model autonomy.
+## 🔐 Security Boundary
+
+```text
+MCP discovery ≠ authorization
+Tool schema ≠ permission
+LLM request ≠ trusted instruction
+```
+
+Authorization, validation, identity and business policy remain outside model autonomy.
+
+## 🚫 Do Not Repeat
+
+M1 owns generic tool contracts. M7 teaches the MCP protocol boundary and its implementation. M8 will consume MCP capabilities inside a stateful graph rather than reteaching MCP.
+
+## ✅ Exit Gate
+
+You can explain Tools vs Resources vs Prompts, draw Host/Client/Server, build a read-only server/client, validate arguments and explain why MCP does not replace authorization.
+
+## 🔗 Continue
+
+➡️ [Module 8 — Stateful Agents & LangGraph](../Module-8/README.md)
+
+⬅️ [Module 6 — LangChain](../Module-6/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
