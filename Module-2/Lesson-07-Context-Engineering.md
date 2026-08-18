@@ -368,7 +368,55 @@ This becomes the bridge to Module 4/5 retrieval systems.
 
 ---
 
-# 17. Interview Q&A
+# 17. End-to-End Context Engineering Flow
+
+The complete DevOps context flow can be visualized as:
+
+```text
+             LOGS
+               │
+             TERRAFORM
+               │
+              AKS
+               │
+               ▼
+        ┌────────────────┐
+        │ Context Builder│
+        └───────┬────────┘
+                │
+        Normalize
+        Redact
+        Deduplicate
+        Classify
+        Prioritize
+        Budget
+                │
+                ▼
+        ┌────────────────┐
+        │ Source-Labeled │
+        │    Context     │
+        └───────┬────────┘
+                │
+                ▼
+              LLM
+                │
+                ▼
+          Trusted RCA
+```
+
+### What is happening here?
+
+- **Logs, Terraform and AKS** are the main evidence sources for the current DevOps incident.
+- The **Context Builder** prepares this raw information before it reaches the model.
+- It normalizes the evidence, redacts sensitive data, removes unnecessary duplication, classifies trust/source type, prioritizes relevant evidence and respects the context budget.
+- The result is **source-labeled context**, which gives the LLM traceable and relevant information for reasoning.
+- The LLM then uses that engineered context to produce a **trusted RCA**, subject to the application's validation and evidence policies.
+
+This is the practical bridge between raw DevOps data and an evidence-grounded AI response.
+
+---
+
+# 18. Interview Q&A
 
 ### Q1. What is context engineering?
 Selecting and structuring relevant, trustworthy information for the model while respecting context, privacy and task requirements.
@@ -387,7 +435,7 @@ No. It may contain prior model assumptions and should not automatically be trust
 
 ---
 
-# 18. Quick Revision
+# 19. Quick Revision
 
 ```text
 More Context != Better Context
