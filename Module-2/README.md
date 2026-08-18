@@ -63,33 +63,87 @@ Policy controls.
 | 11 | [Reusable / Versioned Prompt Templates](Lesson-11-Reusable-Prompt-Templates.md) | Prompt assets as versioned software |
 | 12 | [Mini Project — Incident Analysis Prompt System](Lesson-12-Mini-Project-DevOps-Incident-Prompt-System.md) | Full prompt/context/eval system |
 
-These 12 lessons remain because they each introduce a distinct prompt-engineering capability. The repetition is removed by making this the **only module that teaches these concepts deeply**.
+## 🛠️ Setup
+
+Recommended shared Python environment:
+
+```bash
+python -m venv .venv
+```
+
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Use Ollama for local prompt experiments where supported. Hosted provider testing is optional and must use environment-based credentials.
 
 ## 🧪 Practical Examples
 
 Open: [`examples/README.md`](examples/README.md)
 
+Core labs:
+
 ```text
-incident RCA prompt
-Terraform change-review prompt
-AKS troubleshooting prompt
-local prompt playground
-dual-provider prompt playground
+01 vague → structured RCA prompt
+02 Terraform change-review prompt
+03 AKS troubleshooting prompt
+04 evidence-only RCA
+05 hallucination/abstention test
+06 context builder
+07 prompt chain
+08 reusable/versioned template
+09 prompt regression evaluation
+10 final incident-analysis prompt system
+```
+
+### Canonical Context Builder
+
+This is a key Module 2 practical and should not be repeated as a generic concept later:
+
+```text
+LOGS
+  +
+TERRAFORM
+  +
+AKS
+  ↓
+Context Builder
+  ↓
+Normalize
+Redact
+Deduplicate
+Classify
+Prioritize
+Budget
+  ↓
+Source-Labeled Context
+  ↓
+LLM
+  ↓
+Trusted RCA
 ```
 
 ## 🔗 Module Boundaries
 
-### Module 0 → Module 2
+### M0 → M2
+M0 introduces prompting. M2 owns the deep engineering.
 
-Module 0 gives only the beginner mental model of prompting. It no longer treats Role Prompting, Temperature and Few-shot as separate mandatory chapters.
+### M1 → M2
+M1 builds the agent. M2 improves the instructions/context driving it.
 
-### Module 1 → Module 2
+### M2 → M3
+M2 produces reliable prompts/context. M3 teaches how the application transports those requests and responses.
 
-Module 1 uses prompts to build the first agent. Module 2 now owns the **deep engineering** of those prompts.
-
-### Module 3 → Module 2
-
-Module 3 teaches API plumbing. It should not reteach prompt engineering.
+### M2 → M4/M5
+Later retrieval modules supply external context; they should reuse this module's grounding, abstention and context-budget principles rather than reteach them.
 
 ## 🛡️ Trust Rules
 
@@ -116,5 +170,11 @@ No evidence → no forced RCA
 - [ ] build a prompt regression dataset
 - [ ] version prompt templates
 - [ ] compare the same prompt across providers
+
+## 🔗 Continue
+
+➡️ [Module 3 — APIs & Minimal Python for AI](../Module-3/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
 
 > **Outcome:** prompt writing becomes prompt-system engineering.
