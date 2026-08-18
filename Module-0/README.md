@@ -26,28 +26,30 @@ Safety / Verification
 
 ## 🧭 Lean Canonical Learning Path
 
-To remove repetition, the mandatory path is now **8 learning units**. Some older standalone lesson files remain in the repository temporarily so existing links do not break; their concepts are consolidated into the units below.
+To remove repetition, the mandatory path is now **8 learning units**. Follow this table rather than raw filename numbering.
 
-| Unit | Canonical topic | Existing material used |
+| Unit | Canonical topic | Canonical lesson |
 |---|---|---|
-| 00 | [Orientation](Lesson-00-Orientation.md) | Lesson 00 |
-| 01 | [AI → ML → DL → LLM](Lesson-02-AI-ML-DL-LLM.md) | Lessons 01–02 |
-| 02 | [Tokens + Transformer + Attention](Lesson-03-Next-Token-Prediction.md) | Lessons 03–04 |
-| 03 | [Context Window](Lesson-05-Context-Window.md) | Lesson 05 |
-| 04 | [Hallucination + LLM Limitations](Lesson-06-Hallucination.md) | Lessons 06 + relevant parts of 13 |
-| 05 | [Prompting Fundamentals](Lesson-07-Prompt-Engineering.md) | Lesson 07 |
-| 06 | [Prompt Structure + System/User + Role + Zero/One/Few-shot](Lesson-08-System-vs-User-Prompt.md) | Lessons 08–11 |
-| 07 | [Structured Reasoning + Safety](Lesson-12-Structured-Reasoning.md) | Lessons 12–13 |
-| 08 | [Revision + Mini Project](Lesson-14-Grand-Revision-Mini-Project.md) | Lesson 14 |
+| 00 | Orientation | [Lesson 00](Lesson-00-Orientation.md) |
+| 01 | AI → ML → DL → LLM | [Lesson 02](Lesson-02-AI-ML-DL-LLM.md) |
+| 02 | Tokens + Transformer + Attention | [Lesson 03](Lesson-03-Next-Token-Prediction.md) + [Transformer/Attention](Lesson-04-Transformer-Attention.md) |
+| 03 | Context Window | [Lesson 05](Lesson-05-Context-Window.md) |
+| 04 | Hallucination + LLM Limitations | [Lesson 06](Lesson-06-Hallucination.md) |
+| 05 | Prompting Fundamentals | [Lesson 07](Lesson-07-Prompt-Engineering.md) |
+| 06 | Prompt Structure + System/User + Role + Zero/One/Few-shot | [Lesson 08](Lesson-08-System-vs-User-Prompt.md) |
+| 07 | Structured Reasoning + Safety | [Lesson 12](Lesson-12-Structured-Reasoning.md) |
+| 08 | Revision + Mini Project | [Lesson 14](Lesson-14-Grand-Revision-Mini-Project.md) |
 
-### De-emphasized standalone lessons
+### Consolidation rule
 
-These remain available as reference, but **are not separate mandatory chapters**:
+The deleted standalone chapters were redundant with the canonical units:
 
-- `Lesson-01-AI-Revolution.md`
-- `Lesson-09-Temperature.md`
-- `Lesson-10-Role-Prompting.md`
-- `Lesson-11-Zero-One-Few-Shot.md`
+- AI Revolution → covered by Orientation + AI/ML/DL/LLM
+- Temperature → covered as a variability/parameter concept where relevant
+- Role Prompting → covered inside Prompt Structure
+- Zero/One/Few-shot → covered inside Prompt Structure
+
+They are **not separate mandatory chapters** anymore.
 
 ## 🛠️ Setup
 
@@ -116,6 +118,12 @@ Before M1, explain without notes:
 - What makes a prompt useful?
 - Why is model output not automatically truth?
 - Why are verification and host controls required?
+
+## 📚 Lesson Contract
+
+Canonical lessons should follow the repository lesson contract:
+
+[`LESSON-QUALITY-CONTRACT.md`](../LESSON-QUALITY-CONTRACT.md)
 
 ## 🔗 Continue
 
