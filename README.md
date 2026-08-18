@@ -10,38 +10,52 @@ The course deliberately does not jump from “LLM” directly to “autonomous a
 
 # 👶 Completely New to AI? Start Here
 
-If you are a complete beginner, do **not** jump directly into LangChain, MCP or agents.
+If you are a complete beginner, start with [`START-HERE.md`](START-HERE.md).
 
-## 👉 [START-HERE.md](START-HERE.md)
+Supporting guides:
 
-Then use these supporting guides:
+- [`PRACTICALS-INDEX.md`](PRACTICALS-INDEX.md) — hands-on spine
+- [`PREREQUISITES.md`](PREREQUISITES.md) — setup checklist
+- [`MODEL-PROVIDERS.md`](MODEL-PROVIDERS.md) — local vs hosted provider guide
+- [`DUAL-PROVIDER-LABS.md`](DUAL-PROVIDER-LABS.md) — provider-parity labs
+- [`COURSE-AUDIT.md`](COURSE-AUDIT.md) — repository/content audit
+- [`COURSE-SIMPLIFICATION-PLAN.md`](COURSE-SIMPLIFICATION-PLAN.md) — current deduplication plan
 
-- [PRACTICALS-INDEX.md](PRACTICALS-INDEX.md) — **the hands-on Zero → Hero spine for every Module 0–12**
-- [PREREQUISITES.md](PREREQUISITES.md) — Python 3.10+, virtual environment, Ollama/OpenAI setup checklist
-- [MODEL-PROVIDERS.md](MODEL-PROVIDERS.md) — Ollama local vs OpenAI hosted provider guide
-- [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md) — exactly where to run the same concepts on both providers
-- [COURSE-AUDIT.md](COURSE-AUDIT.md) — detailed Module 0–12 content/practical/provider audit and limitations
+## 🧹 New: Lean Learning Spine
 
-Beginner preflight:
-
-```powershell
-pip install -r shared/requirements.txt
-python shared/preflight.py
-python shared/provider_smoke_test.py
-```
-
-The repository supports two learning paths:
+The repository has grown substantially. To prevent repeated teaching, the current feature branch establishes **canonical ownership** for each concept.
 
 ```text
-Track A → Ollama / Local LLM
-Track B → OpenAI API
+M0  AI / LLM Foundation
+ ↓
+M1  LLM Application + Tools + First DevOps Agent
+ ↓
+M2  Prompt + Context Engineering
+ ↓
+M3  API + Minimal Python + Reliable LLM Integration
+ ↓
+M4  Embeddings + Vector Search
+ ↓
+M5  RAG + Grounding
+ ↓
+M6  LangChain / Orchestration
+ ↓
+M7  MCP / Standardized Capabilities
+ ↓
+M8  Stateful Agents / LangGraph
+ ↓
+M9  Multi-Agent Systems
+ ↓
+M10 Security + Evaluation + Red Teaming
+ ↓
+M11 Enterprise Architecture + Production
+ ↓
+M12 Final Capstone
 ```
 
-The model provider may change, but the engineering contract does not:
+**Important:** later modules should apply earlier concepts rather than reteach their fundamentals.
 
-```text
-Evidence → Context → Model → Validation → Policy
-```
+The first four modules now explicitly define the canonical learning path in their READMEs. Older standalone lesson files are being retained during migration so existing links do not break; they are not automatically additional mandatory chapters.
 
 ---
 
@@ -79,68 +93,21 @@ Core principle:
 
 # 📚 Complete Course Roadmap — Module 0 to Module 12
 
-> **Status below means repository content is available. It does not imply every module has already been personally studied/completed.**
-
-| Module | Focus | Repository Content |
-|---|---|---|
-| [Module 0](Module-0/README.md) | AI & LLM Foundation | ✅ Available |
-| [Module 1](Module-1/README.md) | APIs, Local Models, Tools & First DevOps Agent | ✅ Available |
-| [Module 2](Module-2/README.md) | Prompt & Context Engineering for DevOps AI | ✅ Available |
-| [Module 3](Module-3/README.md) | APIs & Python for AI Applications | ✅ Available |
-| [Module 4](Module-4/README.md) | Embeddings & Vector Databases | ✅ Available |
-| [Module 5](Module-5/README.md) | Retrieval-Augmented Generation (RAG) for DevOps | ✅ Available |
-| [Module 6](Module-6/README.md) | LangChain & AI Application Orchestration | ✅ Available |
-| [Module 7](Module-7/README.md) | Model Context Protocol (MCP) for DevOps AI | ✅ Available |
-| [Module 8](Module-8/README.md) | Stateful Agents & LangGraph Workflows | ✅ Available |
-| [Module 9](Module-9/README.md) | Multi-Agent Systems for DevOps AI | ✅ Available |
-| [Module 10](Module-10/README.md) | Agent Security, Evaluation & Red Teaming | ✅ Available |
-| [Module 11](Module-11/README.md) | Enterprise DevOps AI Architecture & Production Deployment | ✅ Available |
-| [Module 12](Module-12/README.md) | Final Enterprise Project — Production DevOps AI Assistant | ✅ Available |
-
----
-
-# 🧠 Full Learning Progression
-
-```text
-Module 0
-AI / LLM Fundamentals
-        ↓
-Module 1
-Tools + Evidence + First DevOps Agent
-        ↓
-Module 2
-Prompt + Context Engineering
-        ↓
-Module 3
-APIs + Minimal Python
-        ↓
-Module 4
-Embeddings + Vector Search
-        ↓
-Module 5
-RAG + Grounding + Citations
-        ↓
-Module 6
-LangChain / Orchestration
-        ↓
-Module 7
-MCP / Standardized Capabilities
-        ↓
-Module 8
-Stateful Agents / LangGraph
-        ↓
-Module 9
-Multi-Agent Systems
-        ↓
-Module 10
-Security + Evaluation + Red Teaming
-        ↓
-Module 11
-Enterprise Azure Architecture / Operations
-        ↓
-Module 12
-Production DevOps AI Assistant Capstone
-```
+| Module | Focus |
+|---|---|
+| [Module 0](Module-0/README.md) | AI & LLM Foundation |
+| [Module 1](Module-1/README.md) | LLM APIs, Tools & First DevOps Agent |
+| [Module 2](Module-2/README.md) | Prompt & Context Engineering |
+| [Module 3](Module-3/README.md) | APIs & Minimal Python for AI |
+| [Module 4](Module-4/README.md) | Embeddings & Vector Databases |
+| [Module 5](Module-5/README.md) | Retrieval-Augmented Generation (RAG) |
+| [Module 6](Module-6/README.md) | LangChain & AI Application Orchestration |
+| [Module 7](Module-7/README.md) | Model Context Protocol (MCP) |
+| [Module 8](Module-8/README.md) | Stateful Agents & LangGraph |
+| [Module 9](Module-9/README.md) | Multi-Agent Systems |
+| [Module 10](Module-10/README.md) | Agent Security, Evaluation & Red Teaming |
+| [Module 11](Module-11/README.md) | Enterprise Architecture & Production |
+| [Module 12](Module-12/README.md) | Final Enterprise Project |
 
 ---
 
@@ -160,12 +127,11 @@ AKS network connectivity validation degraded/failed
 Deployment failed
 ```
 
-Early modules teach how to read and reason about this evidence. Later modules progressively add:
+Early modules teach how to understand and control this evidence. Later modules add:
 
 ```text
 Tool Contracts
 → Evidence Preservation
-→ Structured RCA
 → Prompt/Context Controls
 → RAG
 → Orchestration
@@ -252,7 +218,7 @@ LangGraph      → explicit state, routing, loops and pause/resume
 Multi-Agent    → specialist decomposition and coordination
 Security/Evals → prove boundaries and prevent regression
 Enterprise Arch→ identity, network, state, scale, HA/DR, operations
-Capstone       → integrate everything into one system
+Capstone       → integrate everything
 ```
 
 ---
@@ -261,30 +227,22 @@ Capstone       → integrate everything into one system
 
 Provider-specific code should never replace application safety.
 
-The course therefore treats providers as swappable components:
-
 ```text
 Local learning route  → Ollama
 Hosted API route      → OpenAI
 ```
 
-Provider-parity examples are added to the relevant modules so the learner can run the same concept on both paths.
-
-Important:
+The provider can change, but the engineering contract remains:
 
 ```text
-OpenAI/Ollama = generation provider
-Evidence      = source of current facts
-Host code     = policy/execution owner
+Evidence → Context → Model → Validation → Policy
 ```
-
-See [DUAL-PROVIDER-LABS.md](DUAL-PROVIDER-LABS.md).
 
 ---
 
 # 🧪 Practical Philosophy — Zero to Hero
 
-**Practicals are the primary learning spine of this repository.** Use [PRACTICALS-INDEX.md](PRACTICALS-INDEX.md) and complete every module's `PRACTICAL-ROADMAP.md` sequentially.
+Practicals remain the primary learning spine. Use [`PRACTICALS-INDEX.md`](PRACTICALS-INDEX.md) and the relevant module roadmap.
 
 ```text
 ZERO
@@ -312,15 +270,7 @@ V10 / HERO
 Integrated module project
 ```
 
-A practical is **not complete because the script ran**. The learner must be able to explain:
-- what changed from the previous version
-- what can fail
-- what is model-driven vs deterministic
-- what evidence is trusted
-- what control blocks unsafe behavior
-- why the next version exists
-
-Module 0 uses no-code experiments because the learner should understand the mental model before coding. Module 11 uses architecture simulations/checkers because identity, network, state, HA/DR and governance are provider-independent engineering concerns.
+A practical is not complete because the script ran. You should be able to explain what changed, what can fail, what is model-driven vs deterministic, what evidence is trusted and what control blocks unsafe behavior.
 
 ---
 
@@ -349,31 +299,23 @@ Module 0 uses no-code experiments because the learner should understand the ment
 
 ---
 
-# 🚀 Recommended Study Order
+# 🚀 Recommended Study Rule
 
-Follow the modules sequentially. Even if you already know Azure/DevOps, avoid skipping the trust foundations in Modules 1–5; Modules 7–12 assume you understand evidence, grounding and host-controlled execution.
-
-For each module:
+For every module:
 
 ```text
-Read lesson
+Follow the canonical README sequence
  ↓
-Open that module's PRACTICAL-ROADMAP.md
+Run the matching practical
  ↓
-Run/perform current practical stage
+Break one thing intentionally
  ↓
-Change one input
+Explain the trust boundary
  ↓
-Break it intentionally
- ↓
-Explain expected vs actual behavior
- ↓
-Continue lesson-by-lesson
- ↓
-Complete V10 / module project
- ↓
-Revision + interview questions
+Move on
 ```
+
+If a later lesson starts explaining an earlier foundation again, treat it as an application example unless the module README explicitly marks it as a new capability.
 
 ---
 
@@ -382,7 +324,5 @@ Revision + interview questions
 After completing the course, the project can be described as:
 
 > **An evidence-grounded DevOps AI incident investigation platform using controlled read-only tools, RAG, MCP, stateful multi-agent orchestration, deterministic security policy, human approval, evaluation/red teaming and an enterprise Azure production architecture.**
-
----
 
 🚩 **Jai Bajrangbali — Learn • Build • Break • Validate • Secure • Operate**
