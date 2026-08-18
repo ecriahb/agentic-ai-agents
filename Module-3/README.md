@@ -52,54 +52,73 @@ Application Output
 | 08 | [Structured AI Responses + Validation](Lesson-11-Structured-AI-Responses.md) | Lesson 11 |
 | 09 | [Mini Project — First AI Application](Lesson-12-Mini-Project-First-AI-Application.md) | Lesson 12 |
 
-### What was intentionally merged
+## 🛠️ Setup
 
-```text
-API Fundamentals + REST + HTTP
-        → one connected foundation
-
-Authentication + API Keys + Environment Variables + Secrets
-        → one security/configuration unit
-
-Provider comparison
-        → architecture/adapter concept, not vendor tutorial
+```bash
+python -m venv .venv
 ```
 
-The original standalone lesson files are retained as reference during this migration. The canonical path above is what a learner should follow.
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+Install only the dependencies required by the lesson/lab. Typical fundamentals use `requests`; provider labs use their official SDK when needed; local LLM labs can use Ollama.
+
+For hosted APIs, configure environment variables rather than hardcoding secrets.
+
+```text
+.env → local development only
+Secret manager → production pattern
+```
 
 ## 🧪 Practical Examples
 
 ```text
-API GET request
-JSON basics
-environment/secret demo
-Ollama LLM call
-API error handling
-structured RCA
-first AI application
+V1 API GET/POST + status handling
+V2 JSON request/response parsing
+V3 environment/secrets demo
+V4 Ollama LLM call
+V5 hosted LLM call
+V6 401/403/429/5xx error drill
+V7 timeout + retry/backoff simulation
+V8 provider adapter
+V9 structured response + Pydantic validation
+V10 final First AI Application
 ```
 
+### Provider-neutral architecture
+
+```text
+Application
+    ↓
+Internal LLM interface
+    ↓
+Provider Adapter
+ ┌────┼─────────┐
+ ↓    ↓         ↓
+Ollama OpenAI Azure OpenAI
+```
+
+Business logic stays above the adapter. Provider-specific syntax stays inside the adapter/lab.
+
 ## 🔗 Module Boundaries
-
-### Module 1
-
-Module 1 teaches **what an AI application does**: LLM call → structured output → tools → agent → evidence → trusted RCA.
-
-### Module 2
-
-Module 2 teaches **how to instruct the model reliably**.
-
-### Module 3
-
-Module 3 teaches **how the software communication underneath those applications actually works**.
-
-Therefore:
 
 ```text
 M1 = application mechanics
 M2 = prompt/context engineering
 M3 = API/application plumbing
+M4 = semantic retrieval
 ```
+
+M1 only teaches enough API usage to build the first agent. M3 owns the deeper HTTP/REST/JSON/auth/error explanations. Later modules reuse them without restarting the basics.
 
 ## 🔐 Security Rules
 
@@ -125,5 +144,11 @@ Explain without notes:
 - timeout vs retry
 - why structured output still needs validation
 - how an adapter allows provider switching
+
+## 🔗 Continue
+
+➡️ [Module 4 — Embeddings & Vector Search](../Module-4/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
 
 > **Outcome:** you can build and debug an API-driven AI application instead of merely copying an SDK example.
