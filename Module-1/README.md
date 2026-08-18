@@ -63,15 +63,36 @@ Policy = deterministic boundary
 | 07 | [Bounded DevOps Agent + Evidence](Lesson-09-From-Tool-Calling-to-Basic-DevOps-Agent.md) | Lesson 09 + V1–V4 lab |
 | 08 | [Complete Trusted-RCA Lab](A-Complete-Lab-Code.md) | Complete lab |
 
-### Reference, not mandatory repeats
+Reference troubleshooting/interview documents are supplemental, not additional mandatory chapters.
 
-The detailed troubleshooting, interview and official-reference documents remain available:
+## 🛠️ Setup
 
-- `B-Troubleshooting-Playbook.md`
-- `C-Interview-and-Revision-Sheet.md`
-- `D-Official-References.md`
+Create the shared Python environment:
 
-Module 3 owns the deeper HTTP/REST/JSON/auth/error-plumbing explanations. Module 1 only teaches enough of those concepts to build the first agent.
+```bash
+python -m venv .venv
+```
+
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+For local LLM labs, install/start Ollama and use the model specified by the lesson. For hosted labs, place the provider credential in an environment variable.
+
+```text
+.env          ← local only, never commit
+.gitignore    ← must exclude .env
+```
+
+Do not put credentials in prompts or evidence context.
 
 ## 🧪 Practical Spine
 
@@ -97,7 +118,7 @@ V9 Agent V4
 V10 Real Evidence + Trusted RCA
 ```
 
-## 🔥 Recurring DevOps Evidence
+Recurring scenario:
 
 ```text
 Terraform Apply started
@@ -109,33 +130,31 @@ AKS connectivity validation failed
 Deployment failed
 ```
 
-The model must never be allowed to turn its own confidence into authority.
+The model must never turn its confidence into authority.
 
 ## 🔐 Non-Negotiable Rules
 
 ```text
-1. We use an existing LLM; we are not training one.
-2. Model output is untrusted analysis.
-3. Tool calls are untrusted proposals.
-4. Host validates tool name, arguments and target.
-5. Tool output needs provenance before becoming evidence.
-6. Structured output validates shape, not truth.
-7. No evidence → no forced RCA.
-8. Agent loops need budgets and stop conditions.
-9. Read-only first; risky writes require policy + authorization + approval.
+1. Model output is untrusted analysis.
+2. Tool calls are untrusted proposals.
+3. Host validates tool name, arguments and target.
+4. Tool output needs provenance before becoming evidence.
+5. Structured output validates shape, not truth.
+6. No evidence → no forced RCA.
+7. Agent loops need budgets and stop conditions.
+8. Read-only first; risky writes require policy + authorization + approval.
 ```
 
-## 🔗 Boundary with Module 2
+## 🔗 Module Boundaries
 
 ```text
-Module 1
-Build the controlled application
-        ↓
-Module 2
-Engineer the instructions/context that drive its reasoning
+M0 → What an LLM is and why it is probabilistic
+M1 → How to build a controlled AI application
+M2 → How to engineer its prompts/context deeply
+M3 → How the API/Python plumbing works underneath
 ```
 
-Module 1 introduces prompts only as needed for the application. **Module 2 owns deep prompt engineering.**
+M1 deliberately does **not** reteach the full REST/HTTP/JSON/auth curriculum. That depth belongs to M3.
 
 ## ✅ Completion Test
 
@@ -149,4 +168,8 @@ Explain without notes:
 - why no evidence should block forced RCA
 - where deterministic policy belongs
 
-> **Outcome:** a learner can move from an LLM call to a controlled, evidence-grounded DevOps agent.
+## 🔗 Continue
+
+➡️ [Module 2 — Prompt & Context Engineering](../Module-2/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
