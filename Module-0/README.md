@@ -42,50 +42,71 @@ To remove repetition, the mandatory path is now **8 learning units**. Some older
 
 ### De-emphasized standalone lessons
 
-These are still available as reference, but **should not be treated as separate mandatory chapters**:
+These remain available as reference, but **are not separate mandatory chapters**:
 
-- `Lesson-01-AI-Revolution.md` — context/background, covered inside the foundation
-- `Lesson-09-Temperature.md` — parameter detail belongs with model behavior/API lessons later
-- `Lesson-10-Role-Prompting.md` — consolidated into the prompt-structure unit
-- `Lesson-11-Zero-One-Few-Shot.md` — consolidated into the prompt-structure unit
+- `Lesson-01-AI-Revolution.md`
+- `Lesson-09-Temperature.md`
+- `Lesson-10-Role-Prompting.md`
+- `Lesson-11-Zero-One-Few-Shot.md`
 
-This prevents Module 0 from teaching the same prompt concepts again before Module 2.
+## 🛠️ Setup
+
+No API key is required.
+
+```text
+Git + editor + browser
+```
+
+Optional: create the course Python environment now so M1 can reuse it.
+
+```bash
+python -m venv .venv
+```
+
+Windows:
+
+```powershell
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
 
 ## 🧪 Beginner Hands-On Experiments
 
 Open: [`examples/README.md`](examples/README.md)
 
-The experiments remain no-code and should be completed alongside the canonical units:
+Complete these in order:
 
 ```text
-Next-token intuition
-Context comparison
-Hallucination test
-System vs user prompt
-Zero-shot vs few-shot
-Prompt injection intuition
-Fact vs inference
-First DevOps AI safety rules
+1. Next-token intuition
+2. Context comparison
+3. Hallucination test
+4. System vs user prompt
+5. Zero-shot vs few-shot
+6. Prompt-injection intuition
+7. Fact vs inference
+8. First DevOps AI safety rules
 ```
 
-## 🔗 Boundary with Module 1 and Module 2
+## 🔗 Module Boundary
 
 ```text
-Module 0
-Understand what LLMs are and their limitations
-        ↓
-Module 1
-Use an LLM inside a controlled application
-        ↓
-Module 2
-Engineer prompts/context systematically and evaluate behavior
+M0: Understand the model
+       ↓
+M1: Build a controlled AI application
+       ↓
+M2: Engineer prompts/context deeply
 ```
 
-**Important:** Module 0 introduces prompting. **Module 2 owns deep prompt engineering.** Later modules should apply these concepts rather than reteach them.
+M0 introduces prompting only. **M2 owns deep prompt engineering.** M3 owns API/Python plumbing.
 
-## ✅ Module 0 Completion Test
+## ✅ Completion Test
 
-Before Module 1, explain without notes:
+Before M1, explain without notes:
 
 - What is an LLM?
 - What is next-token prediction?
@@ -95,5 +116,11 @@ Before Module 1, explain without notes:
 - What makes a prompt useful?
 - Why is model output not automatically truth?
 - Why are verification and host controls required?
+
+## 🔗 Continue
+
+➡️ [Module 1 — LLM APIs, Tools & First DevOps Agent](../Module-1/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
 
 🚩 **Jai Bajrangbali — Learn • Understand • Build**
