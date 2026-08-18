@@ -1,134 +1,147 @@
-# 🚩 Jai Bajrangbali!
-
-# Module 5 — Retrieval-Augmented Generation (RAG) for DevOps
+# 🚩 Module 5 — Retrieval-Augmented Generation (RAG) for DevOps
 
 > **From semantic search → grounded AI answers using your own DevOps knowledge.**
 
-Module 4 me humne documents ko chunk, embed, index aur retrieve karna seekha. Module 5 me wahi retrieved knowledge LLM ko context ke roop me diya jayega so that model generic memory se nahi, **retrieved evidence** ke basis par answer kare.
+M4 taught how to find relevant knowledge. M5 teaches how to safely place retrieved knowledge into an LLM workflow without confusing reference material with live incident evidence.
 
----
+## 🎯 Learning Promise
 
-## 🎯 Module 5 Learning Promise
+By the end you will understand:
 
-Module ke end tak aap samjhoge:
-
-- RAG kya hai aur kyu chahiye
-- retrieval aur generation ke beech exact boundary
-- naive RAG architecture
-- indexing-time vs query-time pipeline
-- context construction
-- grounded prompt design
-- citations/source traceability
-- retrieval quality vs generation quality
+- RAG and why retrieval must precede generation
+- indexing-time vs query-time pipelines
+- context construction and source labels
+- grounded prompting and abstention
 - top-k, score thresholds and no-context behavior
-- hallucination control in RAG
-- query rewriting and multi-query retrieval
-- reranking and hybrid retrieval concepts
-- RAG evaluation
-- production concerns: freshness, security, observability and cost
-- final DevOps Knowledge Assistant mini project
+- citations and traceability
+- query rewriting, multi-query, reranking and hybrid retrieval
+- RAG hallucinations and guardrails
+- retrieval vs generation evaluation
+- freshness, ACLs, security, observability and cost
+- complete DevOps RAG assistant
 
----
-
-## 🧠 Core Mental Model
+## 🔗 Dependency
 
 ```text
-User Question
-     ↓
-Retrieve Relevant Knowledge
-     ↓
-Build Trusted Context
-     ↓
-Prompt LLM with Question + Context
-     ↓
-Grounded Answer
-     ↓
-Source / Evidence Traceability
+M3 Python/API
+   ↓
+M4 Embeddings + Vector Search
+   ↓
+M5 RAG
+   ↓
+M6 Orchestration
 ```
 
-### One-line formula
-
-```text
-RAG = Retrieval + Augmented Context + Generation
-```
-
-> Important: RAG model ko retrain nahi karta. RAG runtime par external knowledge retrieve karke prompt context me inject karta hai.
-
----
-
-# 📚 Detailed Lesson Sequence
+## 📚 Canonical Lesson Sequence
 
 | Lesson | Topic | Main Outcome |
 |---|---|---|
-| 01 | [RAG Fundamentals](Lesson-01-RAG-Fundamentals.md) | Understand why retrieval must come before generation |
-| 02 | [RAG Architecture & Data Flow](Lesson-02-RAG-Architecture-and-Data-Flow.md) | Separate indexing-time and query-time pipelines |
-| 03 | [Building Context for the LLM](Lesson-03-Building-Context-for-the-LLM.md) | Convert retrieved chunks into usable evidence context |
-| 04 | [Grounded Prompt Design](Lesson-04-Grounded-Prompt-Design.md) | Force evidence-first answers and abstention |
-| 05 | [Top-K, Thresholds & No-Context Handling](Lesson-05-TopK-Thresholds-and-No-Context.md) | Control weak retrieval and safe fallback |
-| 06 | [Citations & Source Traceability](Lesson-06-Citations-and-Source-Traceability.md) | Make answers auditable |
-| 07 | [Query Rewriting & Multi-Query Retrieval](Lesson-07-Query-Rewriting-and-Multi-Query.md) | Improve retrieval for vague questions |
-| 08 | [Reranking & Hybrid Search Concepts](Lesson-08-Reranking-and-Hybrid-Search.md) | Improve relevance beyond raw vector similarity |
-| 09 | [RAG Hallucinations & Guardrails](Lesson-09-RAG-Hallucinations-and-Guardrails.md) | Distinguish retrieved truth from model inference |
-| 10 | [RAG Evaluation](Lesson-10-RAG-Evaluation.md) | Measure retrieval and answer quality separately |
-| 11 | [Production RAG for DevOps](Lesson-11-Production-RAG-for-DevOps.md) | Handle freshness, RBAC, secrets, monitoring and cost |
-| 12 | [Mini Project — DevOps RAG Knowledge Assistant](Lesson-12-Mini-Project-DevOps-RAG-Assistant.md) | Build end-to-end grounded DevOps Q&A |
+| 01 | RAG Fundamentals | retrieval + augmented context + generation |
+| 02 | RAG Architecture & Data Flow | separate indexing/query pipelines |
+| 03 | Building Context for the LLM | convert chunks into evidence context |
+| 04 | Grounded Prompt Design | evidence-first answers and abstention |
+| 05 | Top-K, Thresholds & No-Context | control weak retrieval |
+| 06 | Citations & Source Traceability | make answers auditable |
+| 07 | Query Rewriting & Multi-Query | improve vague queries |
+| 08 | Reranking & Hybrid Search | improve relevance |
+| 09 | RAG Hallucinations & Guardrails | separate retrieval from model inference |
+| 10 | RAG Evaluation | measure retrieval and answer quality separately |
+| 11 | Production RAG for DevOps | freshness, RBAC, monitoring and cost |
+| 12 | DevOps RAG Knowledge Assistant | end-to-end project |
 
----
+## 🛠️ Setup
 
-# 🧪 Practical Progression
-
-All runnable labs are inside [`examples/`](examples/README.md).
+Use the M4 retrieval environment plus an LLM route from M3. Local LLM inference is preferred for first labs.
 
 ```text
-V1  → Retrieve chunks only
-V2  → Build context block
-V3  → Send context + question to local LLM
-V4  → Add source labels
-V5  → Add no-context guardrail
-V6  → Add score threshold
-V7  → Add query rewrite
-V8  → Add multi-query merge
-V9  → Add answer validation / citation checks
-V10 → Final DevOps RAG Assistant
+M4 retriever
+   +
+M3 LLM client
+   ↓
+RAG application
 ```
 
----
+Never put API keys, credentials or unrelated secrets into retrieved documents or model context.
 
-# 🔁 Why Module 5 Comes After Module 4
+## 🧠 Core Architecture
 
 ```text
-Module 4
-Question → Retrieve Relevant Knowledge
-        ↓
-Still missing:
-Who will explain that knowledge to the user?
-        ↓
-Module 5
-Retrieved Knowledge + LLM → Grounded Answer
+                 INDEXING TIME
+Documents → clean → chunk → embed → vector index
+
+                  QUERY TIME
+Question → embed → retrieve → filter → rerank
+                                  ↓
+                         source-labelled context
+                                  ↓
+                         grounded prompt
+                                  ↓
+                                 LLM
+                                  ↓
+                        answer + citations
 ```
 
----
-
-# ✅ Final Outcome
-
-By the end of Module 5 you should be able to build:
+### DevOps example
 
 ```text
-DevOps Docs / Runbooks / Incident Notes
-              ↓
-          Chunk + Embed
-              ↓
-          Vector Index
-              ↓
-          User Question
-              ↓
-           Retrieve
-              ↓
-       Context Guardrails
-              ↓
-             LLM
-              ↓
-      Grounded Answer + Sources
+Question:
+"Why did the AKS deployment fail after Terraform changes?"
+
+Retrieved reference:
+R1 = AKS networking runbook
+R2 = previous NSG troubleshooting guide
+
+Current evidence:
+E1 = Terraform removed NSG rule
+E2 = AKS network degraded
 ```
 
-This becomes the foundation for later orchestration, agentic retrieval and enterprise knowledge assistants.
+The answer may use R1/R2 to explain the mechanism, but **E1/E2 establish what happened now**.
+
+## 🧪 Practical Progression
+
+```text
+V1 → retrieve chunks only
+V2 → build context block
+V3 → send context + question to local LLM
+V4 → add source labels
+V5 → add no-context guardrail
+V6 → add score threshold
+V7 → add query rewrite
+V8 → add multi-query merge
+V9 → add citation validation
+V10 → final DevOps RAG Assistant
+```
+
+## 🔐 Hard Rules
+
+```text
+RAG reference ≠ current evidence
+High similarity ≠ truth
+No retrieval ≠ permission to guess
+Unknown source ID ≠ valid citation
+```
+
+## 🚫 Do Not Repeat Later
+
+M5 owns RAG concepts, grounding and retrieval-quality reasoning. M6 will wrap these components with orchestration; it should not become another RAG fundamentals course.
+
+## ✅ Exit Gate
+
+You should be able to:
+
+1. Draw indexing and query-time pipelines.
+2. Explain how retrieved chunks become prompt context.
+3. Implement no-context behavior.
+4. Add source IDs and citations.
+5. Separate retrieval quality from generation quality.
+6. Explain why RAG reduces but does not eliminate hallucination.
+7. Design freshness and access-control boundaries.
+
+## 🔗 Continue
+
+➡️ [Module 6 — LangChain & Orchestration](../Module-6/README.md)
+
+⬅️ [Module 4 — Embeddings & Vector Search](../Module-4/README.md)
+
+📚 [Full Course Curriculum Map](../COURSE-CURRICULUM.md)
