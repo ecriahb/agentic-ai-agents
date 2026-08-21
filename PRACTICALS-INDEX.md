@@ -16,23 +16,26 @@ A script is not considered “completed” only because it ran successfully.
 
 ---
 
-## Practical Progression
+## Five-Phase Practical Spine
 
-| Module | Zero-to-Hero Practical Roadmap | End Skill |
+The table below is the learner-facing path. The module roadmaps remain detailed instructions underneath it.
+
+| Phase | Project outcome | Modules |
 |---|---|---|
-| 0 | [Module 0 Practical Roadmap](Module-0/PRACTICAL-ROADMAP.md) | Understand AI/LLM behavior, context, hallucination and safety without coding pressure |
-| 1 | [Module 1 Practical Roadmap](Module-1/PRACTICAL-ROADMAP.md) | First OpenAI/Ollama calls → evidence-grounded first DevOps agent |
-| 2 | [Module 2 Practical Roadmap](Module-2/PRACTICAL-ROADMAP.md) | Weak prompts → testable DevOps prompt system |
-| 3 | [Module 3 Practical Roadmap](Module-3/PRACTICAL-ROADMAP.md) | HTTP/JSON/secrets → robust dual-provider AI application |
-| 4 | [Module 4 Practical Roadmap](Module-4/PRACTICAL-ROADMAP.md) | Vector intuition → searchable DevOps knowledge base |
-| 5 | [Module 5 Practical Roadmap](Module-5/PRACTICAL-ROADMAP.md) | Retrieval → grounded RAG + citations + abstention |
-| 6 | [Module 6 Practical Roadmap](Module-6/PRACTICAL-ROADMAP.md) | Raw components → LangChain orchestration |
-| 7 | [Module 7 Practical Roadmap](Module-7/PRACTICAL-ROADMAP.md) | First MCP server → live evidence-grounded MCP assistant |
-| 8 | [Module 8 Practical Roadmap](Module-8/PRACTICAL-ROADMAP.md) | StateGraph → bounded stateful DevOps agent |
-| 9 | [Module 9 Practical Roadmap](Module-9/PRACTICAL-ROADMAP.md) | Specialists → controlled multi-agent DevOps team |
-| 10 | [Module 10 Practical Roadmap](Module-10/PRACTICAL-ROADMAP.md) | Threat model → red-team/eval/release gate |
-| 11 | [Module 11 Practical Roadmap](Module-11/PRACTICAL-ROADMAP.md) | App code → enterprise production-readiness architecture |
-| 12 | [Module 12 Practical Roadmap](Module-12/PRACTICAL-ROADMAP.md) | Individual layers → final Production DevOps AI Assistant |
+| 1. Understand AI | AI mental models, prompting, evidence, and uncertainty | [Modules 0–2](Module-0/PRACTICAL-ROADMAP.md) |
+| 2. Build the first AI application | APIs, structured outputs, retrieval, tools, and grounded generation | [Modules 3–5](Module-3/PRACTICAL-ROADMAP.md) |
+| 3. Build agent systems | Orchestration, MCP, state, planning, and specialists | [Modules 6–9](Module-6/PRACTICAL-ROADMAP.md) |
+| 4. Secure and operate AI | Security, evaluation, identity, observability, and reliability | [Modules 10–11](Module-10/PRACTICAL-ROADMAP.md) |
+| 5. Ship the AI platform | Integrated production agent system using a DevOps case study | [Module 12](Module-12/PRACTICAL-ROADMAP.md) |
+
+To inspect each internal step, use the module roadmaps below:
+
+| Module group | Detailed roadmaps |
+|---|---|
+| Foundation | [Module 0](Module-0/PRACTICAL-ROADMAP.md), [Module 1](Module-1/PRACTICAL-ROADMAP.md), [Module 2](Module-2/PRACTICAL-ROADMAP.md) |
+| Application | [Module 3](Module-3/PRACTICAL-ROADMAP.md), [Module 4](Module-4/PRACTICAL-ROADMAP.md), [Module 5](Module-5/PRACTICAL-ROADMAP.md) |
+| Agents | [Module 6](Module-6/PRACTICAL-ROADMAP.md), [Module 7](Module-7/PRACTICAL-ROADMAP.md), [Module 8](Module-8/PRACTICAL-ROADMAP.md), [Module 9](Module-9/PRACTICAL-ROADMAP.md) |
+| Operations | [Module 10](Module-10/PRACTICAL-ROADMAP.md), [Module 11](Module-11/PRACTICAL-ROADMAP.md), [Module 12](Module-12/PRACTICAL-ROADMAP.md) |
 
 ---
 

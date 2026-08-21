@@ -108,6 +108,26 @@ no unnecessary cloud CLI context
 
 Do not send all host environment variables to child process by default.
 
+## MCP Conformance and Supply-Chain Exercise
+
+Security review begins before a tool is called. Build a capability snapshot for an MCP server:
+
+```json
+{
+   "server": "devops-evidence",
+   "version": "1.2.0",
+   "transport": "streamable-http",
+   "tools": ["get_pipeline_status", "get_aks_events"],
+   "resources": ["approved_runbook"],
+   "auth_scheme": "enterprise-identity",
+   "owner": "platform-team"
+}
+```
+
+On every connection, compare the advertised capabilities with the approved snapshot. Fail closed when a new tool, resource, transport, or version appears without review. Add protocol tests for initialization, capability negotiation, malformed arguments, unknown tools, authorization denial, timeout, cancellation, and clean shutdown. These tests complement the MCP specification examples: conformance proves the protocol exchange, while policy proves that the capability is safe for this tenant and environment.
+
+For remote deployment, verify TLS, caller identity, server identity, authorization scope, audit correlation, and egress policy. For local stdio, review the executable, dependency lock, filesystem scope, environment variables, and process sandbox as a software supply-chain boundary.
+
 ---
 
 # PART 5 — Remote Authentication

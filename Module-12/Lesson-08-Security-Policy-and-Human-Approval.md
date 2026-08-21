@@ -4,6 +4,8 @@
 
 > **The model may propose an action. Only trusted policy, authorization and approval logic can decide whether an executor may perform it.**
 
+> Module 10 is the canonical source for threat models, injection, tool abuse and policy controls. This capstone lesson binds those controls to the final assistant's action payload, approval record and post-approval revalidation.
+
 ---
 
 # 🎯 Lesson Goal

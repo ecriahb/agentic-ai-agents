@@ -4,6 +4,8 @@
 
 > **Production AI app ka quality sirf successful response se decide nahi hota; failure ko kitna safely handle karta hai usse bhi hota hai.**
 
+> Module 1 introduced basic call failures. This is the canonical general reliability lesson for HTTP status handling, timeouts, retry classification, backoff, malformed responses and secret-safe logging.
+
 ---
 
 ## 🎯 Lesson Goal

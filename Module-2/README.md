@@ -12,10 +12,10 @@ Module 1 me humne LLM APIs, local models, tool calling, real evidence aur truste
 
 Module ke end tak aap samjhoge:
 
-- prompt engineering fundamentals
-- Role + Context + Task + Constraints + Output framework
-- system prompt vs user prompt vs evidence context
-- zero-shot / one-shot / few-shot prompting
+- DevOps application of the prompt anatomy introduced in [Module 0 Lesson 07](../Module-0/Lesson-07-Prompt-Engineering.md)
+- role, context, task, constraints and output contracts for real incidents
+- provider-boundary and system/user separation from [Module 0 Lesson 08](../Module-0/Lesson-08-System-vs-User-Prompt.md)
+- zero-shot / one-shot / few-shot prompting for DevOps formats
 - structured RCA, Terraform review and AKS troubleshooting prompts
 - hallucination reduction and explicit abstention
 - context engineering for logs/Terraform/AKS
@@ -64,9 +64,7 @@ Policy controls.
 
 | Lesson | Topic | Main Outcome |
 |---|---|---|
-| 01 | [Prompt Engineering Basics](Lesson-01-Prompt-Engineering-Basics.md) | Understand prompt anatomy, specificity and provider-independent prompt behavior |
 | 02 | [Role + Context + Task + Constraints + Output](Lesson-02-Role-Context-Task-Constraints-Output.md) | Build a repeatable instruction contract |
-| 03 | [System Prompt vs User Prompt](Lesson-03-System-Prompt-vs-User-Prompt.md) | Separate stable policy, runtime task and evidence context |
 | 04 | [Zero-shot / One-shot / Few-shot](Lesson-04-Zero-One-Few-Shot.md) | Use examples without confusing them with current evidence |
 | 05 | [Structured DevOps Prompts](Lesson-05-Structured-DevOps-Prompts.md) | Design RCA, Terraform review and AKS troubleshooting prompts |
 | 06 | [Hallucination Reduction & Abstention](Lesson-06-Hallucination-Reduction.md) | Use evidence boundaries, unknown states and validation |
@@ -202,7 +200,7 @@ You should be able to:
 
 # ➡️ What Comes Next?
 
-Module 2 designs reliable instructions and context contracts.
+Module 0 establishes prompt anatomy and provider boundaries. Module 2 applies those foundations to DevOps instructions, context selection and evaluation.
 
 Module 3 moves to the application plumbing needed to operationalize them:
 

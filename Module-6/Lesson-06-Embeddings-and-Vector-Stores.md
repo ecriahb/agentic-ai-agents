@@ -4,6 +4,8 @@
 
 > **Module 4 ke vector-search concepts same rahenge; framework sirf standard interfaces aur integrations provide karega.**
 
+> No new vector theory is introduced here. The learning objective is adapter choice, interface compatibility and framework code that preserves Module 4's indexing/retrieval contract.
+
 ---
 
 # 🎯 Lesson Goal

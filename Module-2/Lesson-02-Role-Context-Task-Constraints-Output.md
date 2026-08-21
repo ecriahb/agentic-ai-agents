@@ -4,6 +4,8 @@
 
 > **Reliable prompt ko repeatable structure do, taaki har incident me model ko same quality ka instruction contract mile.**
 
+> **Module 0 Lesson 07 is the canonical anatomy lesson. Yahan focus is framework ko real DevOps evidence, boundaries and evaluation me apply karne par hai.**
+
 ---
 
 # 🎯 Lesson Goal

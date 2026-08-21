@@ -81,7 +81,7 @@ Response
 
 ---
 
-# PART 2 — Gemini API
+# PART 2 — Gemini and Anthropic Provider Patterns
 
 Google's Gemini API provides model generation capabilities through Google AI APIs/SDKs.
 
@@ -98,6 +98,18 @@ Generated Content
 ```
 
 Provider-specific terms, payload fields and authentication patterns differ from OpenAI.
+
+Anthropic's messages/tool-use pattern is another useful comparison point for agent applications. Its model-specific features, such as extended reasoning or prompt caching when available, can change latency and cost, but they must stay behind the same internal contract:
+
+```text
+incident input + evidence
+    -> provider adapter
+    -> structured proposal
+    -> citation/schema/policy validation
+    -> application outcome
+```
+
+Use an Anthropic adapter only as an optional parity exercise. Do not let provider-specific reasoning, caching, or tool syntax become the authorization layer. Measure whether a feature improves grounded incident analysis enough to justify its cost and operational dependency.
 
 Important lesson:
 
@@ -234,6 +246,46 @@ SDK maturity
 ```
 
 Do not choose only because one code example looks shorter.
+
+### Azure OpenAI Operations Exercise
+
+Azure OpenAI adds an operational layer around inference:
+
+```text
+Azure resource
+    -> deployment name
+    -> pinned API version
+    -> region and quota
+    -> identity or key authentication
+    -> content filtering and network policy
+    -> telemetry and cost ownership
+```
+
+Do not confuse a model family with an Azure deployment name. A deployment can be unavailable, quota-limited, moved to another region, or governed by a different content policy while application code still looks valid.
+
+Create this provider record using synthetic values; credentials are not required for the exercise:
+
+```yaml
+provider: azure-openai
+resource: ai-devops-lab
+deployment: approved-chat-deployment
+api_version: pinned-in-configuration
+region: selected-after-capacity-check
+data_classification: internal-synthetic-only
+fallback: deny-unless-policy-compatible
+```
+
+Classify the response before retrying:
+
+| Signal | Correct application behavior |
+|---|---|
+| 401/403 | fail authentication; do not retry blindly |
+| 429/quota | bounded backoff, queue, or approved fallback |
+| deployment not found | configuration alert; do not substitute an arbitrary model |
+| content filter | return policy status and preserve audit metadata |
+| regional outage | use an evaluated region/provider only when data policy permits |
+
+Record deployment, API version, region, correlation ID, usage, latency, and policy result. Never put credentials in prompts or source control.
 
 ---
 

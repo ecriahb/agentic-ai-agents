@@ -4,6 +4,8 @@
 
 > **From capable agents → trustworthy agents that can be threat-modelled, attacked, measured, gated and safely released.**
 
+> **Ownership boundary:** Module 10 owns canonical security invariants, threat cases, deterministic policy controls, trajectory evaluation, red-team tests and release gates. Modules 11 and 12 apply these controls to platform and capstone integration.
+
 Modules 1–9 built the capabilities: evidence tools, prompt/context engineering, APIs, embeddings, RAG, orchestration, MCP, stateful agents and multi-agent systems. Module 10 answers the production-trust question:
 
 ```text

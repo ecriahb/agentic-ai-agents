@@ -219,6 +219,26 @@ separate action status
 
 Checkpointing does not automatically make side effects exactly-once.
 
+## Persistence Backends, Migration, and Replay
+
+An in-memory saver is useful for the first experiment; a production graph needs a durable checkpoint contract:
+
+```text
+thread_id + checkpoint_id + graph_schema_version + state_hash + created_at
+```
+
+Test three classes of recovery:
+
+| Test | Expected behavior |
+|---|---|
+| Process restart | resume from the last valid checkpoint |
+| Schema upgrade | migrate or reject old state explicitly; never silently reinterpret fields |
+| Replay | reproduce the decision path without repeating external writes |
+
+A replay harness should replace model calls with recorded responses or deterministic fixtures when validating routing. This separates graph correctness from provider variability. Before a resumed write, re-check identity, approval freshness, evidence freshness, target state, and idempotency key. A checkpoint is workflow history, not proof that the external system still has the same state.
+
+For enterprise deployment, compare a managed relational checkpoint store, a document store, and object-storage export by transactionality, query needs, backup, encryption, regional recovery, and operational ownership. Measure RPO/RTO with a real restore exercise rather than inferring recovery from the existence of a saver class.
+
 ---
 
 # PART 11 — State Freshness After Resume

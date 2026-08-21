@@ -236,6 +236,35 @@ RCA quality
 unexpected tool routes
 ```
 
+## Azure Release Exercise
+
+Create one immutable release manifest for the assistant:
+
+```yaml
+image_digest: sha256:...
+prompt_version: rca-v7
+model_deployment: approved-chat-deployment
+policy_version: p4
+tool_contract: t3
+graph_schema: v5
+index_version: kb-2026-08
+eval_dataset: eval-v6
+```
+
+Promote the same manifest through dev, stage, and production. Environment configuration may change endpoints and identities, but the artifact digest and contract versions must remain traceable. A canary should be read-only first and measured on latency, groundedness, policy denials, tool routes, cost, and operator overrides.
+
+For Azure DevOps or GitHub Actions, make these gates executable:
+
+1. lint, unit, schema, secret, dependency, and IaC checks;
+2. RAG, trajectory, and red-team evaluations;
+3. signed artifact and provenance publication;
+4. deployment to an isolated environment with managed identity;
+5. canary observation window;
+6. approval and progressive promotion;
+7. automatic rollback when trust or reliability signals regress.
+
+Terraform/Bicep remains the source of truth for network, identity, Key Vault, search, queues, and monitoring. The AI system may explain a plan, but it does not replace plan review or protected-environment approval.
+
 ---
 
 # PART 11 — Rollback

@@ -4,6 +4,8 @@
 
 > **Ab tak ke saare pieces — Python, HTTP, JSON, auth, endpoint — ek real LLM call me connect honge.**
 
+> Module 1 owns the beginner's first successful model call. This lesson keeps the application-plumbing view: how SDK/HTTP/provider boundaries fit into a Python service and where response handling belongs.
+
 ---
 
 ## 🎯 Lesson Goal

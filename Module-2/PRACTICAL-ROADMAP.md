@@ -17,7 +17,8 @@ Save the answer. Mark every unsupported claim.
 
 ---
 
-## V2 — Prompt Anatomy
+## V2 — Prompt Anatomy in a DevOps Task
+Review the canonical anatomy and role/example boundaries in [Module 0 Lesson 07](../Module-0/Lesson-07-Prompt-Engineering.md), then apply them here.
 Run: `examples/prompt_anatomy_test.py`
 
 Build prompt with:
@@ -33,7 +34,8 @@ Output Contract
 
 ---
 
-## V3 — System vs User Prompt
+## V3 — System vs User Prompt Boundary
+The foundational system/user distinction is covered in [Module 0 Lesson 08](../Module-0/Lesson-08-System-vs-User-Prompt.md). This stage applies it to a provider-backed prompt test.
 Run: `examples/system_vs_user_test.py`
 
 Test stable system rule:

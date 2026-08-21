@@ -4,6 +4,8 @@
 
 > **You cannot operate an agent by watching only CPU, memory and HTTP 500s. You must observe decisions, tool calls, evidence quality, model behavior, cost and business outcomes.**
 
+> Module 10 defines security telemetry and release-gate signals. This lesson owns the enterprise operating model: correlation, SLOs, dashboards, alerts, privacy-aware telemetry and incident response.
+
 ---
 
 # 🎯 Lesson Goal

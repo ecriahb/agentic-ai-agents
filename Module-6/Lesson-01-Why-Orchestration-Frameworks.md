@@ -106,6 +106,29 @@ no reusable workflow
 minimum dependencies desired
 ```
 
+## Framework Choice Exercise
+
+Use the same incident flow in three implementations:
+
+```text
+direct SDK      -> prompt -> model -> parser
+LangChain       -> runnable chain -> parser/callbacks
+LangGraph       -> state -> nodes/edges -> checkpoint/interrupt
+```
+
+Choose the smallest abstraction that gives the required behavior. A direct SDK is easier to inspect and upgrade for a short request. LangChain is useful when reusable components, retrievers, parsers, and callbacks dominate. LangGraph is justified when state transitions, durable pause/resume, branching, or human approval are first-class requirements.
+
+As an optional comparison exercise, translate one small specialist from the Module 9 design into a role/task/crew-style framework such as CrewAI. Compare:
+
+| Question | Record |
+|---|---|
+| Where is state stored? | explicit state or framework memory |
+| Where are tools authorized? | host policy or agent configuration |
+| How are traces correlated? | incident ID propagation |
+| How would you migrate away? | adapter boundary and contracts |
+
+The framework may make delegation ergonomic, but it does not make evidence true or permissions safe.
+
 Example:
 
 ```python

@@ -4,6 +4,8 @@
 
 > **From fixed orchestration pipelines → explicit state, conditional routing, loops, checkpoints, approvals and recoverable agent workflows.**
 
+> **Ownership boundary:** Module 7 owns protocol and capability mechanics. Module 8 owns state schemas, reducers, nodes, edges, bounded loops, checkpoints and approval pauses; tools and evidence are routed through that state model.
+
 Module 1–7 ne hume saare building blocks diye: tools, evidence, prompts, APIs, retrieval, RAG, orchestration and MCP. Module 8 me hum in components ko **stateful graph workflow** me combine karenge.
 
 ---

@@ -39,11 +39,9 @@ Safe Action
 | 04 | [Transformer & Attention](Lesson-04-Transformer-Attention.md) |
 | 05 | [Context Window](Lesson-05-Context-Window.md) |
 | 06 | [Hallucination](Lesson-06-Hallucination.md) |
-| 07 | [Prompt Engineering](Lesson-07-Prompt-Engineering.md) |
+| 07 | [Prompt Engineering](Lesson-07-Prompt-Engineering.md) | Canonical prompt anatomy, role lenses and example quality |
 | 08 | [System Prompt vs User Prompt](Lesson-08-System-vs-User-Prompt.md) |
 | 09 | [Temperature](Lesson-09-Temperature.md) |
-| 10 | [Role Prompting](Lesson-10-Role-Prompting.md) |
-| 11 | [Zero-Shot, One-Shot & Few-Shot](Lesson-11-Zero-One-Few-Shot.md) |
 | 12 | [Structured Reasoning](Lesson-12-Structured-Reasoning.md) |
 | 13 | [AI Limitations & Safety](Lesson-13-AI-Limitations-Safety.md) |
 | 14 | [Grand Revision + Mini Project](Lesson-14-Grand-Revision-Mini-Project.md) |

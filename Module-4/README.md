@@ -4,6 +4,8 @@
 
 > **From giving context manually → finding the right context automatically.**
 
+> **Ownership boundary:** Module 4 owns embeddings, vector representation, indexing and retrieval mechanics. RAG grounding and evaluation begin in Module 5; framework adapters belong to Module 6.
+
 Module 3 me humne APIs, Python, authentication, error handling aur structured AI applications samjhe. Module 4 me hum seekhenge ki large DevOps knowledge base me se **relevant information automatically kaise retrieve** ki jaati hai.
 
 ---

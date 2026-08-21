@@ -4,6 +4,8 @@
 
 > **Agents ko prose exchange karne dena easy hai; reliable multi-agent system ke liye typed result contract, source IDs aur explicit gaps chahiye.**
 
+> This is the canonical multi-agent contract lesson. Module 8 defines workflow state; this lesson defines what a specialist may publish into shared state and how observations remain distinct from hypotheses.
+
 ---
 
 # 🎯 Lesson Goal

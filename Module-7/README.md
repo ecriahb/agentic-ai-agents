@@ -4,6 +4,8 @@
 
 > **From custom tool integrations → standardized AI-to-system connectivity using MCP.**
 
+> **Ownership boundary:** Module 7 owns MCP protocol primitives, capability discovery, schemas, transports, clients and trust boundaries. Earlier tool/evidence concepts are prerequisites, not repeated lessons here.
+
 Module 1 me humne tool contracts, evidence, validation aur read-only execution seekha. Module 2 me prompts/context boundaries, Module 3 me APIs, Module 4–5 me retrieval/RAG, aur Module 6 me orchestration. Module 7 in sab ko ek standardized protocol layer ke through connect karta hai.
 
 ---

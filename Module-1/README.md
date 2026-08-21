@@ -2,6 +2,8 @@
 
 > **Canonical live-class sequence restored exactly:** Roadmap → UI/API → environment → OpenAI → Ollama → first call → tokens/context → structured output → tools → basic agent → complete lab → troubleshooting → interview/revision → official references.
 
+> **Ownership boundary:** Module 1 owns the first model calls, provider setup, response-object mental model and the first evidence/tool contract. Deeper HTTP and service reliability belongs to Module 3.
+
 Module 0 me LLM fundamentals samjhe. Module 1 me existing LLM ko Python application ke andar use karke cloud/local model calls, validation, tools, evidence aur first controlled DevOps agent build karte hain.
 
 ---

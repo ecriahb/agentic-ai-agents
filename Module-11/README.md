@@ -4,6 +4,8 @@
 
 > **From working agent demos → secure, observable, scalable, recoverable enterprise AI platforms on Azure.**
 
+> **Ownership boundary:** Module 10 owns security/evaluation controls. Module 11 owns enterprise platform design: identity, network, runtime, scale, resilience, observability, promotion and operations.
+
 Modules 1–10 taught how to build tools, grounded RAG, orchestration, MCP, stateful agents, multi-agent systems, and security/evaluation. Module 11 answers the next production question:
 
 ```text

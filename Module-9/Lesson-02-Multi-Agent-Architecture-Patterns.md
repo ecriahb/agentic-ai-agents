@@ -90,6 +90,19 @@ Router = dispatch decision
 Supervisor = ongoing coordinator across multiple turns/steps
 ```
 
+### Optional Framework Comparison
+
+The architecture pattern is independent of the library. A role/task/crew framework can make supervisor-style delegation concise; LangGraph makes state, routing, interrupts, and recovery explicit; a direct Python implementation gives maximum control but more plumbing.
+
+Translate the same pipeline/Terraform/AKS team into one optional framework example and compare the contracts, not just line count:
+
+```text
+specialist scope -> tool permissions -> evidence contract
+                  -> handoff/state -> conflict gate -> audit
+```
+
+Reject the translation if the framework hides any of these boundaries. The portable skill is designing the contract; framework syntax is an implementation choice.
+
 ---
 
 # PART 4 — Handoff Pattern

@@ -4,6 +4,8 @@
 
 > **From prompt designer → AI application engineer who can reliably connect software with LLMs.**
 
+> **Ownership boundary:** Module 1 already teaches the first provider call and response object. Module 3 owns reusable HTTP/REST/JSON/Python plumbing, service failures, retries and production API behavior.
+
 Module 1 me humne API calls, local Ollama, structured output aur tools ka practical taste liya. Module 2 me humne prompts ko reliable banaya. Module 3 me hum un concepts ko systematically deepen karenge so that aap API-based AI application ko samajh, debug aur production-ready design kar sako.
 
 ---

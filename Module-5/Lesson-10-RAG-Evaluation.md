@@ -4,6 +4,8 @@
 
 > **RAG ko ek-do impressive answers dekhkar production-ready declare nahi karte. Retrieval aur generation dono ko repeatable test set se evaluate karte hain.**
 
+> This is the canonical evaluation lesson for the RAG boundary: retrieval quality, grounded generation, citations and abstention. Full agent trajectory and security evaluation belongs to Module 10.
+
 ---
 
 # 🎯 Lesson Goal

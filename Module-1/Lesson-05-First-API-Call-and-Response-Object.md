@@ -2,6 +2,8 @@
 
 > **Goal:** Beginner ko first AI request ka complete request→model→response flow samjhana, `client.responses.create()` ko word-by-word decode karna, response object inspect karna, aur hosted/local calls ko same mental model se understand karna.
 
+> **Canonical foundation:** This lesson owns the first successful call and its basic failure boundary. Module 3 later owns generic HTTP, service reliability and retry behavior.
+
 ---
 
 # 1. English Definition

@@ -109,6 +109,7 @@ Then same factual RCA-style prompt 3 times run karo.
 ---
 
 ## V8 — Zero-shot vs One-shot vs Few-shot
+Use the role lens and example-quality guidance from [Lesson 07](Lesson-07-Prompt-Engineering.md); this practical tests the distinction rather than introducing another prompt framework.
 Ek fixed DevOps output format choose karo.
 
 1. Zero-shot: only instruction

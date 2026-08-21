@@ -4,6 +4,8 @@
 
 > **The final assistant is not production-ready because one demo works. It is ready only when repeatable tests prove quality, safety and trajectory behavior across expected and adversarial cases.**
 
+> Module 10 owns the evaluation and red-team concepts. Here the work is integration: connect the capstone's evidence, RAG, MCP, graph, policy and approval paths to a release suite without duplicating the control theory.
+
 ---
 
 # 🎯 Lesson Goal

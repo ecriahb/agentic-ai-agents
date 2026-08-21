@@ -2,7 +2,7 @@
 
 > **From Zero to Production-Grade DevOps AI Agents**
 
-This repository is a hands-on, module-by-module course for learning how to design and build **Agentic AI systems for real DevOps use cases**.
+This repository is a hands-on, five-phase course for learning how to design and build **production-grade Agentic AI systems**. DevOps is the application domain and running case study; the core subject is AI engineering: models, context, tools, agents, retrieval, evaluation, security, and operations. The 13 modules are internal steps inside those phases, not 13 separate courses.
 
 The course deliberately does not jump from “LLM” directly to “autonomous agent.” Each module adds one engineering layer and keeps earlier trust/safety principles intact.
 
@@ -47,7 +47,7 @@ Evidence → Context → Model → Validation → Policy
 
 # 🎯 Final Course Goal
 
-Build a **Production DevOps AI Assistant** that can:
+Build a **production AI assistant for DevOps operations** that can:
 
 ```text
 Incident / Pipeline Failure
@@ -77,69 +77,41 @@ Core principle:
 
 ---
 
-# 📚 Complete Course Roadmap — Module 0 to Module 12
+# 📚 Five-Phase Learning Path
 
-> **Status below means repository content is available. It does not imply every module has already been personally studied/completed.**
+Follow the phases in order. Each phase upgrades the same AI system; the DevOps incident is the running case study.
 
-| Module | Focus | Repository Content |
+| Phase | Learner outcome | Internal modules |
 |---|---|---|
-| [Module 0](Module-0/README.md) | AI & LLM Foundation | ✅ Available |
-| [Module 1](Module-1/README.md) | APIs, Local Models, Tools & First DevOps Agent | ✅ Available |
-| [Module 2](Module-2/README.md) | Prompt & Context Engineering for DevOps AI | ✅ Available |
-| [Module 3](Module-3/README.md) | APIs & Python for AI Applications | ✅ Available |
-| [Module 4](Module-4/README.md) | Embeddings & Vector Databases | ✅ Available |
-| [Module 5](Module-5/README.md) | Retrieval-Augmented Generation (RAG) for DevOps | ✅ Available |
-| [Module 6](Module-6/README.md) | LangChain & AI Application Orchestration | ✅ Available |
-| [Module 7](Module-7/README.md) | Model Context Protocol (MCP) for DevOps AI | ✅ Available |
-| [Module 8](Module-8/README.md) | Stateful Agents & LangGraph Workflows | ✅ Available |
-| [Module 9](Module-9/README.md) | Multi-Agent Systems for DevOps AI | ✅ Available |
-| [Module 10](Module-10/README.md) | Agent Security, Evaluation & Red Teaming | ✅ Available |
-| [Module 11](Module-11/README.md) | Enterprise DevOps AI Architecture & Production Deployment | ✅ Available |
-| [Module 12](Module-12/README.md) | Final Enterprise Project — Production DevOps AI Assistant | ✅ Available |
+| 1. Understand AI | Models, context, hallucination, prompting, and safe AI mental models | [Modules 0–2](Module-0/README.md) |
+| 2. Build the First AI Application | Provider APIs, structured outputs, retrieval, tools, and grounded generation | [Modules 3–5](Module-3/README.md) |
+| 3. Build Agent Systems | Orchestration, MCP, state, planning, and multi-agent coordination | [Modules 6–9](Module-6/README.md) |
+| 4. Secure and Operate AI | Evaluation, red teaming, identity, observability, governance, and reliability | [Modules 10–11](Module-10/README.md) |
+| 5. Ship the AI Platform | An integrated production agent system demonstrated through a DevOps incident | [Module 12](Module-12/README.md) |
+
+Use the module links inside each phase when you need a specific lesson. Do not treat moving from one module to the next as starting a new subject; each one adds a layer to the same assistant.
 
 ---
 
-# 🧠 Full Learning Progression
+# 🧠 One Assistant, Five Upgrades
 
 ```text
-Module 0
-AI / LLM Fundamentals
+Phase 1
+Understand AI and evidence
         ↓
-Module 1
-Tools + Evidence + First DevOps Agent
+Phase 2
+Build the first grounded assistant
         ↓
-Module 2
-Prompt + Context Engineering
+Phase 3
+Add tools, state, and agents
         ↓
-Module 3
-APIs + Minimal Python
+Phase 4
+Secure and operate the platform
         ↓
-Module 4
-Embeddings + Vector Search
+Phase 5
+Ship the production assistant
         ↓
-Module 5
-RAG + Grounding + Citations
-        ↓
-Module 6
-LangChain / Orchestration
-        ↓
-Module 7
-MCP / Standardized Capabilities
-        ↓
-Module 8
-Stateful Agents / LangGraph
-        ↓
-Module 9
-Multi-Agent Systems
-        ↓
-Module 10
-Security + Evaluation + Red Teaming
-        ↓
-Module 11
-Enterprise Azure Architecture / Operations
-        ↓
-Module 12
-Production DevOps AI Assistant Capstone
+One evolving Enterprise DevOps AI Platform
 ```
 
 ---

@@ -4,6 +4,8 @@
 
 > **From semantic search → grounded AI answers using your own DevOps knowledge.**
 
+> **Ownership boundary:** Module 4 owns how vectors and retrieval work. Module 5 owns grounding, source traceability, abstention and RAG evaluation; it does not re-teach vector database internals.
+
 Module 4 me humne documents ko chunk, embed, index aur retrieve karna seekha. Module 5 me wahi retrieved knowledge LLM ko context ke roop me diya jayega so that model generic memory se nahi, **retrieved evidence** ke basis par answer kare.
 
 ---

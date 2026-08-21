@@ -195,6 +195,31 @@ Allowlists
 Human Approval
 ```
 
+## Role Is a Lens, Not Authority
+
+Role prompting changes the perspective, vocabulary and review focus the model is asked to use. It does not add permissions, missing knowledge or factual grounding.
+
+```text
+SRE lens       → latency, saturation, SLO impact
+DevOps lens    → pipeline, rollout and configuration change
+Security lens  → identity, secrets and network exposure
+FinOps lens    → utilization, sizing and waste
+```
+
+Choose the lens that matches the task instead of stacking unrelated expert roles. A role gives perspective; supplied evidence gives facts.
+
+## Examples Demonstrate Patterns
+
+Prompt examples can show an approved RCA shape when the output pattern matters:
+
+```text
+Zero-shot  → instruction only
+One-shot   → one representative example
+Few-shot   → a small set of representative examples
+```
+
+Examples are temporary in-context guidance, not fine-tuning and not evidence about the current incident. Use concise, correct and varied examples; poor examples teach poor patterns and every example consumes context budget.
+
 ## Common Mistakes
 
 - Very vague prompts. ❌

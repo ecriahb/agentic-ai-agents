@@ -51,6 +51,12 @@ Structured RCA
 
 This mini-project deliberately local Ollama use karta hai so API mechanics learn karne ke liye paid cloud dependency mandatory na ho.
 
+## Provider and API Recipe Extension
+
+Keep the application contract unchanged while adding one optional provider adapter for OpenAI or Azure OpenAI. Record the endpoint/deployment, API version, usage metadata, latency, error class, and data policy. The OpenAI Cookbook is useful here as a recipe reference for structured outputs, retries, batch work, and evaluation, but copy only the transport pattern; evidence validation and authorization remain application-owned.
+
+Do not turn this first application into a fine-tuning project. Decide first whether the requirement is current incident grounding (retrieval), stable output shape (schema), bulk offline processing (batch), or learned domain behavior (fine-tuning). The decision and trade-off belong in the project README.
+
 ---
 
 # 📁 Project Structure

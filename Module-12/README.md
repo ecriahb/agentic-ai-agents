@@ -4,6 +4,8 @@
 
 > **Build the complete system: evidence-grounded, stateful, multi-agent, MCP-enabled, security-gated and production-architected DevOps AI Assistant.**
 
+> **Ownership boundary:** Module 12 integrates the earlier contracts into one capstone. It does not re-teach Module 10 security theory or Module 11 platform theory; its lessons keep only integration-specific tests, deployment decisions and runbooks.
+
 This capstone combines every previous module into one engineering project.
 
 ---

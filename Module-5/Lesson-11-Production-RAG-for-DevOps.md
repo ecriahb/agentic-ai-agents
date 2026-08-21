@@ -173,6 +173,31 @@ changed hash → process
 
 Freshness is operational correctness.
 
+## Azure AI Search Production Mapping
+
+For an Azure implementation, map the local FAISS/Chroma pipeline to an Azure AI Search index rather than treating the managed service as a magic vector database:
+
+```text
+Approved runbook/source
+       -> ingestion and enrichment
+       -> searchable text + vector fields + ACL metadata
+       -> keyword/vector or hybrid query
+       -> security filter before model context
+       -> citation and freshness validation
+```
+
+The index contract must define the embedding model and dimensions, searchable/vector fields, metadata filters, source version, owner, classification, and deletion behavior. Hybrid retrieval is useful when an incident contains exact identifiers such as `aks-subnet-allow`, while vector retrieval helps with paraphrased symptoms.
+
+Exercise the service boundary with a local fixture even without Azure credentials:
+
+1. Index a Terraform diff, an AKS networking runbook, and an unrelated Docker runbook.
+2. Query with both an exact rule name and a paraphrased networking symptom.
+3. Apply a team/classification filter before constructing model context.
+4. Delete the Terraform source and prove that old chunks are not returned.
+5. Record query latency, hit@k, freshness, filter decision, and citation IDs.
+
+In Azure, private endpoints, managed identity, index access policy, diagnostic settings, and regional data requirements belong to the deployment design. The model must never be asked to hide a document that the retrieval layer already returned without authorization.
+
 ---
 
 # PART 5 — Authentication vs Authorization

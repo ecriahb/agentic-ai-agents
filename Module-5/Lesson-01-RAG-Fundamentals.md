@@ -4,6 +4,8 @@
 
 > **RAG ka simple goal: LLM ko answer dene se pehle trusted external knowledge dhoondhkar dena.**
 
+> Module 4 already established embedding and nearest-neighbor mechanics. This lesson focuses on the grounding contract: reference context must support claims, and missing support must lead to abstention.
+
 ---
 
 # 🎯 Lesson Goal

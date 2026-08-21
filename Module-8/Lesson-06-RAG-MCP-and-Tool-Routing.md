@@ -4,6 +4,8 @@
 
 > **Module 8 ka graph earlier modules ko replace nahi karta; graph un capabilities ko correct state and routing ke saath coordinate karta hai.**
 
+> The RAG, MCP and evidence definitions stay canonical in Modules 5 and 7. This lesson owns the graph decision: which capability is selected, how its result enters state, and how missing or weak results affect the next edge.
+
 ---
 
 # 🎯 Lesson Goal

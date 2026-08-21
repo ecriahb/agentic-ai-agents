@@ -4,6 +4,8 @@
 
 > **From one stateful agent → a coordinated team of specialized agents with explicit routing, shared evidence, scoped context and controlled authority.**
 
+> **Ownership boundary:** Module 8 owns one workflow's state machine. Module 9 owns specialist boundaries, routing, handoffs, shared/private context, result contracts and conflict resolution across agents.
+
 Module 1–8 me humne tools, evidence, prompting, APIs, embeddings, RAG, orchestration, MCP aur stateful LangGraph workflows build kiye. Module 9 unhi foundations ko multiple specialized agents ke saath combine karta hai.
 
 ---

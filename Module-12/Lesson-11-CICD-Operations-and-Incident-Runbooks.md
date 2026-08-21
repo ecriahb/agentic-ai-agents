@@ -4,6 +4,8 @@
 
 > **The final assistant needs its own deployment pipeline and its own operational runbooks; an AI system can itself become the production incident.**
 
+> Module 11 owns enterprise promotion and SRE patterns. This lesson keeps only capstone-specific pipeline checks, reproducible operations and incident runbooks for the integrated assistant.
+
 ---
 
 # 🎯 Lesson Goal
@@ -248,6 +250,25 @@ Was evidence preserved?
 Did alerting detect it?
 Which regression test should be added?
 ```
+
+## Feedback and Governance Closeout
+
+Every capstone investigation should produce two records in addition to the RCA:
+
+```text
+operator feedback: useful / partially useful / unsafe / incorrect
+override reason: missing evidence / wrong retrieval / model error / policy friction / tool failure
+```
+
+Aggregate feedback into a versioned evaluation fixture, but do not silently train on production incident text. Apply classification, retention, deletion, access review, and redaction before feedback enters the dataset. The governance export should identify the model/deployment, prompt, graph, tool contracts, index version, evidence IDs, approval identity, action result, and reviewer decision.
+
+The final operations drill is incomplete unless the learner can answer:
+
+- What changed in the release bundle?
+- Which SLO or security signal detected the regression?
+- Which identity could act, and which identity was denied?
+- What evidence was retained or deleted?
+- How did operator feedback change the next evaluation?
 
 ---
 

@@ -4,6 +4,8 @@
 
 > **Retriever vector-store details ko hide karke ek simple application contract deta hai: query in, relevant documents out. RAG chain us retrieval ko grounded generation ke saath compose karta hai.**
 
+> Module 5 owns why RAG must be grounded and evaluated. This lesson owns the LangChain retriever and chain composition, including framework-specific debugging and tests.
+
 ---
 
 # 🎯 Lesson Goal

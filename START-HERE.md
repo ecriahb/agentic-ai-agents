@@ -4,13 +4,27 @@
 
 Agar aap AI/LLM/Agentic AI me bilkul beginner ho, to repo ko random files ki tarah mat padho. Is guide ko pehle follow karo.
 
+## Five Phases, One Project
+
+Repo ko 13 alag courses ki tarah mat padho. Ye AI engineering ka 5-phase path hai. DevOps incident sirf running case study hai; har phase tumhari AI system capability upgrade karta hai:
+
+```text
+Phase 1  Understand AI             Modules 0–2
+Phase 2  Build the first assistant Modules 3–5
+Phase 3  Build agents              Modules 6–9
+Phase 4  Secure and operate        Modules 10–11
+Phase 5  Ship the platform         Module 12
+```
+
+Phase complete tab maana jayega jab us AI capability ko explain, break, debug aur demonstrate kar sako.
+
 ## Most Important Hands-On Guide
 
-Theory read karne ke saath **har module ka practical ladder mandatory** hai:
+Theory read karne ke saath **har phase ka practical outcome mandatory** hai. Phase ke andar modules sirf next engineering layer add karte hain:
 
 👉 [`PRACTICALS-INDEX.md`](PRACTICALS-INDEX.md)
 
-Har Module 0–12 ke andar dedicated `PRACTICAL-ROADMAP.md` hai:
+Har internal module ke andar dedicated `PRACTICAL-ROADMAP.md` hai:
 
 ```text
 ZERO → BASIC → BUILD → CONTROL → FAILURE DRILL → ADVANCED → PROVIDER PARITY → V10/HERO

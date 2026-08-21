@@ -4,6 +4,8 @@
 
 > **From manually connected AI components → reusable, testable and observable AI workflows.**
 
+> **Ownership boundary:** Modules 4 and 5 teach retrieval and RAG contracts. Module 6 teaches their LangChain adapters, runnable composition, tool integration, state separation and framework-specific failure handling.
+
 Module 5 me humne RAG ko manually build kiya: load → chunk → embed → retrieve → build context → prompt → LLM → validate. Module 6 me hum dekhenge ki jab application complex hoti hai to har component ko manually wire karna difficult ho jata hai. Yahin orchestration frameworks useful hote hain.
 
 ---

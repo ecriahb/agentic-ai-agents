@@ -4,6 +4,8 @@
 
 > **MCP ko alag island mat samjho: ye Module 1–6 ke existing architecture ko standardized external capability layer deta hai.**
 
+> This is an integration bridge, not a second lesson on RAG, orchestration or evidence theory. Use the earlier contracts and focus here on adapting them across an MCP boundary.
+
 ---
 
 # 🎯 Lesson Goal
