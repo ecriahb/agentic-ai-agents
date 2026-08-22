@@ -1,6 +1,6 @@
 # 🚩 Lesson 02 — What Are Embeddings?
 
-> **Embedding text ke meaning ko machine-comparable numeric representation me convert karta hai.**
+> **Embedding text ke semantic information ko machine-comparable numeric representation me map karta hai.**
 
 ---
 
@@ -10,83 +10,68 @@ Is lesson ke end tak aap clearly samjhoge:
 
 - embedding kya hai
 - vector kya hai
-- semantic similarity kya hai
+- embedding space ka intuition
 - dimensions ka basic idea
-- keyword search aur semantic search ka difference
-- embedding model answer generate kyu nahi karta
-- same model se indexing/querying kyu important hai
-- first embedding practical ka mental model
+- embedding model aur generative LLM ka conceptual difference
+- query aur document ko compatible representation me kyu encode karna chahiye
+- embedding ko factual proof ya summary kyu nahi samajhna chahiye
+
+> **Lesson 03 implementation detail ka owner hai:** tokenization/input preparation, single vs batch encoding, output shapes, normalization mechanics and practical encoding flow.
 
 ---
 
-# PART 1 — Problem Recap
+# 1. Embedding Kya Hai?
 
-Query:
+**English Definition**
 
-```text
-AKS networking problem
-```
-
-Document:
-
-```text
-Kubernetes workloads lost connectivity after subnet security rules changed.
-```
-
-Human immediately relate kar leta hai.
-
-Computer ko comparison ke liye numeric form useful hoti hai.
-
-```text
-Text
- ↓
-Embedding Model
- ↓
-Numbers
-```
-
----
-
-# PART 2 — English Definition
-
-> An embedding is a numerical vector representation of data where semantically related items tend to be located closer together in the embedding space.
+> An embedding is a numerical representation of an item in a vector space where the representation is useful for a particular task such as semantic similarity or retrieval.
 
 Simple Hinglish:
 
-**Embedding = meaning ko numbers ki list me represent karna so computer similarity compare kar sake.**
+**Embedding = text ko numbers ke vector me represent karna, taaki compatible items ko machine-comparable space me compare kiya ja sake.**
+
+Conceptually:
+
+```text
+Text
+  ↓
+Embedding Model
+  ↓
+Vector Representation
+```
+
+Embedding answer generate nahi karta. Ye representation banata hai.
 
 ---
 
-# PART 3 — Vector Kya Hai?
+# 2. Vector Kya Hai?
 
-Simple vector:
+Example:
 
 ```text
 [0.12, -0.44, 0.81]
 ```
 
-Real embedding:
+Real embedding much higher-dimensional ho sakta hai:
 
 ```text
 [0.018, -0.231, 0.552, ..., 0.091]
 ```
 
-Ye numbers human-readable labels nahi hote.
-
-Aisa nahi hai:
+Important:
 
 ```text
 0.18 = AKS
 -0.23 = network
 ```
 
-Individual dimension ko generally direct human meaning assign nahi karte. Meaning distributed representation me hota hai.
+jaise direct dimension-by-dimension human meanings generally assign nahi karne chahiye. Useful information distributed representation me hoti hai.
 
 ---
 
-# PART 4 — Human Mental Model
+# 3. Embedding Space — Mental Model
 
-Imagine ek huge multi-dimensional map.
+Imagine ek very large vector space:
 
 ```text
 "AKS subnet connectivity issue"
@@ -98,13 +83,13 @@ Imagine ek huge multi-dimensional map.
                                    ● "Chocolate cake recipe"
 ```
 
-Related concepts relatively close; unrelated concepts far.
+Related items often have representations that are more similar under an appropriate metric.
 
-Ye drawing sirf intuition ke liye hai. Actual vector space hundreds/thousands dimensions ho sakta hai.
+Ye 2D drawing sirf intuition ke liye hai. Real embedding spaces hundreds or thousands of dimensions ho sakte hain.
 
 ---
 
-# PART 5 — Example: Same Meaning, Different Words
+# 4. Same Meaning, Different Words
 
 Sentence A:
 
@@ -124,54 +109,20 @@ Sentence C:
 Docker image build completed successfully
 ```
 
-Expected semantic relationship:
+Conceptually:
 
 ```text
-A ↔ B = high
-A ↔ C = low
+A ↔ B = potentially high semantic similarity
+A ↔ C = potentially lower semantic similarity
 ```
 
-Exact keyword match perfect nahi, but semantic match strong hai.
+Important:
+
+> Similarity is a property of the representation + metric + model behavior; it is not a guarantee of factual correctness.
 
 ---
 
-# PART 6 — Keyword Search vs Semantic Search
-
-## Keyword Search
-
-Looks for literal words/patterns.
-
-Query:
-
-```text
-NSG issue
-```
-
-Document:
-
-```text
-Network Security Group blocked subnet traffic
-```
-
-Exact `NSG` word absent ho sakta hai.
-
-## Semantic Search
-
-Meaning compare karta hai.
-
-```text
-NSG issue
-   ↕ semantic similarity
-Network Security Group blocked traffic
-```
-
-### Important
-
-Semantic search keyword search ka complete replacement nahi hai. Production systems often hybrid retrieval use karte hain.
-
----
-
-# PART 7 — Embedding Model vs LLM
+# 5. Embedding Model vs Generative LLM
 
 Embedding model:
 
@@ -182,96 +133,114 @@ Text → Vector
 Generative LLM:
 
 ```text
-Prompt → Generated Text
+Prompt + Context → Generated Output
 ```
 
-So:
+So conceptually:
 
 ```text
-Embedding model = representation/retrieval helper
-LLM             = generation/reasoning model
+Embedding model = representation / retrieval component
+LLM             = generation / reasoning component
 ```
 
-One model family may support multiple capabilities, but conceptually roles separate rakho.
+A single model ecosystem can expose multiple capabilities, but the application role is still useful to keep distinct.
 
 ---
 
-# PART 8 — Dimensions
+# 6. Dimensions
 
 Agar embedding dimension 384 hai:
 
 ```text
-len(vector) = 384
+vector length = 384
 ```
 
-Agar model 768 dimensions output karta hai:
+Agar another model 768 dimensions deta hai:
 
 ```text
-len(vector) = 768
+vector length = 768
 ```
 
-Vector index ko consistent dimensions chahiye.
+A retrieval index/search configuration expects compatible dimensions.
 
-Wrong:
+For example:
 
 ```text
-Document vectors = 384 dimensions
-Query vector      = 768 dimensions
+Stored document vectors = 384 dimensions
+Query vector             = 768 dimensions
 ```
 
-Comparison/index search fail karega ya incompatible hoga.
+Ye representations directly compatible nahi hain.
 
 ---
 
-# PART 9 — First Practical
+# 7. Embeddings in a RAG Retrieval System
 
-Python concept:
-
-```python
-from sentence_transformers import SentenceTransformer
-
-model = SentenceTransformer("all-MiniLM-L6-v2")
-
-text = "AKS pod cannot connect to database"
-vector = model.encode(text)
-
-print(vector)
-print(len(vector))
-```
-
-### Line-by-line
-
-```python
-SentenceTransformer(...)
-```
-Embedding model load karta hai.
-
-```python
-model.encode(text)
-```
-Text ko embedding vector me transform karta hai.
-
-```python
-len(vector)
-```
-Vector dimensions dikhata hai.
-
-### Expected output pattern
-
-Exact numbers machine/model/version ke according vary kar sakte hain, but shape conceptually:
+Module 4 ka high-level flow:
 
 ```text
-[ 0.02 -0.04 0.11 ... ]
-384
+Knowledge Documents
+       ↓
+Document / Chunk Embeddings
+       ↓
+Stored Vectors
+
+User Query
+       ↓
+Query Embedding
+       ↓
+Comparable Vector Space
+       ↓
+Similarity / Distance Search
+       ↓
+Relevant Candidates
 ```
 
-Important learning numbers yaad karna nahi; representation samajhna hai.
+Lesson 04 me hum search/ranking detail me padhenge.
+
+Lesson 05 me metric semantics detail me padhenge.
+
+Lesson 06 me vector storage/index concepts detail me padhenge.
 
 ---
 
-# PART 10 — DevOps Practical Thought Experiment
+# 8. Embedding ≠ Summary ≠ Answer
 
-Documents:
+### Embedding is not a summary
+
+Vector ko dekhkar normally human-readable paragraph reconstruct nahi kiya ja sakta.
+
+### Embedding is not an answer
+
+Embedding model ka role retrieval/representation ho sakta hai; generated RCA ya explanation alag generation stage ka concern hai.
+
+### Embedding is not factual proof
+
+A high similarity score can indicate semantic relatedness, but it does not prove that a document is correct, current, authorized or relevant to the incident's actual root cause.
+
+---
+
+# 9. Query and Document Compatibility
+
+A retrieval system generally assumes that query and document embeddings are produced in a compatible representation space.
+
+At minimum verify:
+
+```text
+embedding model / model family
+vector dimension
+preprocessing / encoding contract
+normalization policy
+metric/index configuration
+```
+
+Do not silently mix incompatible embeddings in one index.
+
+---
+
+# 10. DevOps Thought Experiment
+
+Knowledge base:
 
 ```text
 D1: AKS subnet NSG blocks required traffic
@@ -285,71 +254,61 @@ Query:
 Kubernetes networking failure after security rule change
 ```
 
-Flow:
+The application will eventually encode both query and documents into vectors, then apply a search metric to rank candidates.
+
+The point of this lesson is only the representation layer:
 
 ```text
-D1 → embedding
-D2 → embedding
-D3 → embedding
-Query → embedding
-       ↓
-compare vectors
-       ↓
-D1 should rank high
+Text → Embedding → Vector
 ```
 
 ---
 
-# PART 11 — Common Misconceptions
+# 11. Production Considerations
 
-**Misconception:** Embedding is a summary.  
-No. It is a numeric representation optimized for model-dependent similarity/use cases.
+Record enough metadata to reproduce the embedding contract later:
 
-**Misconception:** Similarity score proves factual correctness.  
-No. It only measures vector closeness according to the representation/metric.
+```text
+embedding_model
+model_version
+embedding_dimension
+created_at
+source/document version
+normalization policy (when applicable)
+```
 
-**Misconception:** Any two embedding models can be mixed.  
-Generally no. Index and query embeddings should use compatible representation and dimensions.
-
-**Misconception:** Higher dimension automatically means better.  
-No. Quality depends on model, task, data and evaluation.
-
----
-
-# PART 12 — Production Considerations
-
-- choose model for language/domain needs
-- keep embedding model/version recorded
-- re-index when embedding strategy changes
-- evaluate retrieval on real queries
-- monitor latency/storage
-- protect sensitive source documents
+When the representation strategy changes, expect an index/retrieval lifecycle decision rather than blindly reusing an old index.
 
 ---
 
-# PART 13 — Interview Corner
+# 12. Interview Corner
 
 **Q: What is an embedding?**  
-A dense numerical representation that captures useful semantic relationships for comparison and retrieval.
+A numerical representation of an item in a vector space used for tasks such as semantic comparison and retrieval.
 
 **Q: Why are embeddings used in RAG?**  
-To represent both documents and queries in a comparable space so relevant chunks can be retrieved.
+They place query and knowledge items into a comparable representation space so retrieval can rank candidate chunks.
 
-**Q: Does an embedding contain readable words?**  
-No. It is a numeric vector.
+**Q: Is an embedding a summary?**  
+No. It is a numeric representation, not a human-readable summary.
+
+**Q: Does high similarity prove factual correctness?**  
+No. It is a relevance signal under a specific representation and metric.
 
 ---
 
-# PART 14 — Revision
+# 13. Revision
 
 ```text
 Text
  ↓
 Embedding Model
  ↓
-Vector
+Vector Representation
  ↓
-Comparable Meaning Representation
+Compatible Space
+ ↓
+Later: Similarity / Distance Search
 ```
 
 Remember:
@@ -362,18 +321,20 @@ Embedding = Representation
 
 ---
 
-# PART 15 — Homework
+# 14. Homework
 
-1. `pod cannot reach database` aur `Kubernetes workload DB connectivity issue` semantically close kyu hain?
-2. Dimension mismatch ka problem explain karo.
-3. Embedding model aur generative LLM ka difference apne words me likho.
+1. Explain in your own words why embeddings are called representations.
+2. Explain why a query embedding and a document embedding must be compatible.
+3. Give one example where semantically similar documents can still be factually wrong for the current incident.
 
 ---
 
 # Next Lesson Kyu?
 
-Ab pata hai embedding kya hai. Next question:
+Ab clear hai **embedding kya represent karta hai**.
 
-**Text actually embedding pipeline me kaise travel karta hai? Multiple sentences ko kaise encode karte hain?**
+Next hum implementation layer dekhenge:
+
+**Raw text se actual embedding vector kaise generate hota hai? Single vs batch encoding, dimensions, normalization aur query/document encoding ka practical flow kya hai?**
 
 # 👉 Lesson 03 — How Text Becomes Vectors
