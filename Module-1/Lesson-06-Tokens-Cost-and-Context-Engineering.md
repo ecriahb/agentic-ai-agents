@@ -4,6 +4,10 @@
 
 ---
 
+> **Course boundary:** This lesson introduces context budgeting because it is required to make a first API application reliable. **Module 2** is the canonical deep-dive for prompt/context engineering patterns; **Module 4–5** later apply context selection to embeddings and RAG. Do not treat this lesson as a second Prompt Engineering course.
+
+---
+
 # 1. English Definitions
 
 **Token:** A token is a unit of text that a language model processes internally.
@@ -195,6 +199,8 @@ Context:
 ```
 
 Both matter.
+
+For the complete prompt-engineering methodology, continue to **Module 2** rather than expanding this lesson into another prompting curriculum.
 
 ---
 
