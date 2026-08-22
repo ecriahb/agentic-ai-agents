@@ -4,6 +4,10 @@
 
 ---
 
+> **Course boundary:** This lesson teaches the **application-level tool-calling pattern**: model proposal → host validation → known function/tool execution → evidence. **Module 7** owns the Model Context Protocol (MCP) specification, host/client/server roles, capabilities, transports and protocol-level integration. **Module 8–9** build stateful and multi-agent orchestration on top of tool capabilities. **Module 10** owns the comprehensive security/evaluation treatment. This lesson should not duplicate those modules.
+
+---
+
 # 1. English Definition
 
 **Tool calling is a pattern where a model requests a predefined external capability with structured arguments, while the host application validates and executes the actual tool.**
@@ -648,6 +652,8 @@ Recommendation
 → Human Approval
 → Controlled Existing Pipeline
 ```
+
+For protocol-level interoperability, see **Module 7 — MCP**. For stateful routing and multi-agent orchestration, see **Modules 8–9**. The comprehensive security/evaluation treatment belongs to **Module 10**.
 
 ---
 
