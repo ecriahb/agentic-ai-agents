@@ -30,6 +30,8 @@ Safe Action
 
 ## Lesson Map
 
+> **Module 0 currently contains 15 lesson entries: Lesson 00 through Lesson 14.**
+
 | No. | Lesson |
 |---|---|
 | 00 | [Orientation — The Beginning of an AI Engineer](Lesson-00-Orientation.md) |
