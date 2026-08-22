@@ -216,6 +216,18 @@ Human Approval
 **Answer:**
 > No. Clear prompts can improve model behavior, but factual reliability requires trusted context, tools or retrieval, validation, and human verification where appropriate.
 
+## 🧭 Course Boundary — Where Prompt Engineering Lives
+
+This lesson is an **introduction**, not the complete prompt-engineering reference.
+
+- **Module 0:** vocabulary, mental models, and why structured instructions help.
+- **Module 2:** the definitive prompt-engineering module: reusable frameworks, few-shot prompting, structured outputs, hallucination reduction, context engineering, prompt chaining, evaluation, and templates.
+- **Module 5:** prompting is applied specifically to grounded RAG context.
+- **Module 6:** prompts are implemented and composed through LangChain.
+- **Module 8:** prompts become part of stateful agent graphs.
+
+If a later lesson needs advanced prompt design, prefer the canonical Module 2 lesson rather than duplicating this introduction.
+
 ## 🧠 Remember This
 
 > **Prompting guides the model; evidence grounds the model.**
