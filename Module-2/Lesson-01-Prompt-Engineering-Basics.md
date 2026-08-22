@@ -4,6 +4,8 @@
 
 > **Prompt engineering ka matlab clever sentence likhna nahi; model ko clear task, useful context, boundaries aur expected output dena hai.**
 
+> **Canonical ownership:** Module-2 is the definitive course module for general Prompt Engineering. Module-0 introduces the idea; later modules apply it to RAG, orchestration, agents and security instead of repeating the full theory.
+
 ---
 
 # 🎯 Lesson Goal
@@ -14,8 +16,7 @@ Is lesson ke end tak aap samjhoge:
 - prompt engineering kya solve karta hai
 - vague prompt aur engineered prompt me difference
 - instruction, context, constraints aur output contract ka role
-- DevOps incidents me evidence-first prompt kyu important hai
-- same prompt Ollama aur OpenAI dono par kaise test karna hai
+- DevOps incidents me evidence-first prompting kyu important hai
 - prompt ko security boundary kyu nahi samajhna chahiye
 
 ---
@@ -138,51 +139,29 @@ Now behavior is more constrained.
 
 ---
 
-# 5. Prompt != Context
+# 5. Prompt != Context != Evidence
 
-This distinction important hai:
+Keep these concepts separate:
+
+| Concept | Meaning | DevOps example |
+|---|---|---|
+| Prompt | Instructions to the model | "Identify the failure stage" |
+| Context | Information supplied to perform the task | pipeline metadata, deployment state |
+| Evidence | Observations that support a claim | failed Terraform Apply, removed NSG rule |
 
 ```text
-Prompt = instructions
-Context = information/evidence supplied to perform instructions
+Prompt  → what should the model do?
+Context → what information is available?
+Evidence → what observations support the claim?
 ```
 
-Example:
+A prompt cannot turn missing evidence into truth.
 
-```text
-Instruction:
-Identify the failure stage.
-
-Context:
-Pipeline failed during Terraform Apply.
-```
-
-Do not mix both mentally.
-
-Later Module 5 me context RAG se retrieve hoga.
+Later Module-5 will use retrieved context in a RAG pipeline; Module-2 owns the general prompting principles.
 
 ---
 
-# 6. Prompt != Evidence
-
-A prompt can say:
-
-```text
-The NSG rule caused the issue.
-```
-
-But if evidence does not prove it, sentence likh dene se fact true nahi ho jata.
-
-Core rule:
-
-```text
-Prompt guides reasoning.
-Evidence supports claims.
-```
-
----
-
-# 7. Real DevOps Scenario
+# 6. Real DevOps Scenario
 
 Incident evidence:
 
@@ -221,7 +200,7 @@ Unknown:
 
 ---
 
-# 8. Specificity Without Over-Constraining
+# 7. Specificity Without Over-Constraining
 
 Too vague:
 
@@ -246,9 +225,9 @@ Good prompt engineering guides without forcing false conclusions.
 
 ---
 
-# 9. Output Contract
+# 8. Output Contract
 
-Hum humans prose tolerate kar sakte hain, applications nahi.
+Humans prose tolerate kar sakte hain, applications nahi.
 
 Bad:
 
@@ -267,7 +246,7 @@ Return:
 - Recommended Next Checks
 ```
 
-Later structured output/Pydantic machine-level shape validate karega.
+Later structured-output lessons can validate the machine-level schema.
 
 Remember:
 
@@ -277,44 +256,23 @@ Good format != factual truth
 
 ---
 
-# 10. Provider Independence
+# 9. Prompt Engineering vs Context Engineering
 
-Same prompt ko different providers par run kar sakte ho:
+For this course, keep the boundary explicit:
 
 ```text
-Ollama / qwen3:4b
-or
-OpenAI API
+Prompt Engineering
+→ designing instructions, constraints and output contracts
+
+Context Engineering
+→ selecting, transforming, prioritizing and budgeting information
 ```
 
-Practical:
-
-```powershell
-$env:LLM_PROVIDER="ollama"
-python Module-2/examples/dual_provider_prompt_playground.py
-```
-
-Then:
-
-```powershell
-$env:LLM_PROVIDER="openai"
-$env:OPENAI_API_KEY="your-key"
-python Module-2/examples/dual_provider_prompt_playground.py
-```
-
-Compare:
-
-- structure adherence
-- unsupported assumptions
-- evidence citations
-- verbosity
-- latency
-
-Do not judge only wording.
+Module-2 teaches the general principles. Later modules apply them to RAG, orchestration and agents.
 
 ---
 
-# 11. Prompt is Not a Security Boundary
+# 10. Prompt is Not a Security Boundary
 
 System prompt me likhna:
 
@@ -337,17 +295,51 @@ Tool allowlist
 Prompt = behavior guidance.
 Host application = enforcement.
 
+Module-10 owns the comprehensive security treatment.
+
+---
+
+# 11. Provider Independence
+
+Same prompt ko different providers/models par run kar sakte ho. Example:
+
+```text
+Ollama / local model
+or
+OpenAI API
+```
+
+Practical:
+
+```powershell
+$env:LLM_PROVIDER="ollama"
+python Module-2/examples/dual_provider_prompt_playground.py
+```
+
+Then compare the same prompt using your configured provider.
+
+Compare:
+
+- structure adherence
+- unsupported assumptions
+- evidence handling
+- verbosity
+- latency
+
+Do not judge only wording.
+
 ---
 
 # 12. Common Beginner Mistakes
 
-1. **Prompt ko question samajhna only** — production prompt is an instruction contract.
-2. **Too much irrelevant context** — noise reduces quality.
+1. **Prompt ko sirf question samajhna** — production prompt is an instruction contract.
+2. **Too much irrelevant context** — noise can reduce useful signal.
 3. **Desired conclusion prompt me inject kar dena** — confirmation bias.
-4. **No abstention rule** — model forced answer de sakta hai.
-5. **No output contract** — automation unreliable ho jata hai.
+4. **No abstention rule** — model may be forced to answer.
+5. **No output contract** — automation becomes less predictable.
 6. **Prompt ko authorization samajhna** — unsafe.
 7. **One successful run ko proof samajhna** — prompts need evaluation across cases.
+8. **Same theory ko har module me copy karna** — reference the canonical Module-2 lesson instead.
 
 ---
 
@@ -368,26 +360,31 @@ Is there an eval dataset?
 
 ---
 
-# 14. Interview Q&A
+# 🎤 Interview Q&A
 
 ### Q1. What is prompt engineering?
+
 Designing instructions, context, constraints and output requirements to improve model reliability for a task.
 
 ### Q2. Does a better prompt eliminate hallucination?
-No. It reduces risk, but factual grounding and application validation are still required.
+
+No. It can reduce risk, but factual grounding and application validation are still required.
 
 ### Q3. Prompt vs context?
-Prompt tells the model what to do; context supplies information/evidence to do it.
+
+Prompt tells the model what to do; context supplies information needed to do it.
 
 ### Q4. Why define an output contract?
-To make responses predictable and machine-consumable.
+
+To make responses more predictable and machine-consumable.
 
 ### Q5. Is a system prompt a security control?
+
 It is a behavioral control, not an authorization boundary.
 
 ---
 
-# 15. Quick Revision
+# 🧠 Quick Revision
 
 ```text
 Prompt Engineering
@@ -425,13 +422,25 @@ Rewrite it with:
 - Constraints
 - Output
 
-Then run it on both Ollama and OpenAI and note three behavior differences.
+Then run the same prompt against two model/provider configurations and record three behavior differences.
 
 ---
 
-# ➡️ Why Next?
+# 🔗 Cross-Module Ownership
 
-Ab prompt ke pieces samajh aa gaye. Next lesson me hum ek repeatable framework banayenge:
+This lesson is the **canonical foundation** for general Prompt Engineering.
+
+- **Module-0:** introduces LLM/prompt concepts only; do not duplicate this full lesson.
+- **Module-1:** uses prompts during the first API/agent exercises.
+- **Module-5:** applies prompting to RAG grounding and retrieved context.
+- **Module-6:** implements prompts through LangChain abstractions.
+- **Module-8:** uses prompts inside stateful agent graphs.
+- **Module-9:** applies prompting to specialized multi-agent roles.
+- **Module-10:** evaluates and secures prompt-driven agent behavior.
+
+## ➡️ Why Next?
+
+Ab prompt ke core pieces samajh aa gaye. Next lesson me hum ek repeatable framework banayenge:
 
 ```text
 Role + Context + Task + Constraints + Output
